@@ -1,10 +1,16 @@
 this is my neovim config
 
+modified version of kickstart.nvim
+
 one file to rule them all
 
-easy to understand config subject to change
+easy to understand config 
 
-clone into .config/nvim
-install a patched nerd font
-install rg
+subject to change
+
+1.clone into .config/nvim
+
+2.install a patched nerd font
+
+3.install rg
 
