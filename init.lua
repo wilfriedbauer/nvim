@@ -32,7 +32,7 @@ These are for you, the reader to help understand what is happening. Feel free to
 them once you know what you're doing, but they should serve as a guide for when you
 are first encountering a few different constructs in your nvim config.
 
-I hope you enjoy your Neovim journey,
+I hope you edjoy your Neovim journey,
 - TJ
 
 P.S. You can delete this when you're done too. It's your config now :)
@@ -61,7 +61,6 @@ vim.opt.wrap = true
 
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.undofile = true
 
 vim.opt.incsearch = true
@@ -122,26 +121,103 @@ require('lazy').setup({
       'folke/neodev.nvim',
     },
   },
-
+  -- [[ Configure nvim-cmp ]]
+  -- See `:help cmp`
   {
-    -- Autocompletion
-    'hrsh7th/nvim-cmp',
+    "hrsh7th/nvim-cmp",
+    event = "InsertEnter",
     dependencies = {
-      -- Snippet Engine & its associated nvim-cmp source
-      'L3MON4D3/LuaSnip',
-      'saadparwaiz1/cmp_luasnip',
-
-      -- Adds LSP completion capabilities
-      'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-path',
-
-      -- Adds a number of user-friendly snippets
-      'rafamadriz/friendly-snippets',
+      "hrsh7th/cmp-nvim-lsp-signature-help",
+      "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-path",
+      "saadparwaiz1/cmp_luasnip",
+      "hrsh7th/cmp-nvim-lua",
+      "windwp/nvim-autopairs",
+      "onsails/lspkind-nvim",
+      { "roobert/tailwindcss-colorizer-cmp.nvim", config = true }
     },
+    config = function()
+      local cmp = require("cmp")
+      local lsp_kind = require("lspkind")
+      local cmp_next = function(fallback)
+        if cmp.visible() then
+          cmp.select_next_item()
+        elseif require("luasnip").expand_or_jumpable() then
+          vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-expand-or-jump", true, true, true), "")
+        else
+          fallback()
+        end
+      end
+      local cmp_prev = function(fallback)
+        if cmp.visible() then
+          cmp.select_prev_item()
+        elseif require("luasnip").jumpable(-1) then
+          vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-jump-prev", true, true, true), "")
+        else
+          fallback()
+        end
+      end
+
+      lsp_kind.init()
+      ---@diagnostic disable-next-line
+      cmp.setup({
+        enabled = true,
+        preselect = cmp.PreselectMode.None,
+        window = {
+          completion = cmp.config.window.bordered({
+            winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
+          }),
+          documentation = cmp.config.window.bordered({
+            winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
+          }),
+        },
+        ---@diagnostic disable-next-line
+        view = {
+          entries = "bordered",
+        },
+        snippet = {
+          expand = function(args)
+            require("luasnip").lsp_expand(args.body)
+          end,
+        },
+        mapping = {
+          ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+          ["<C-f>"] = cmp.mapping.scroll_docs(4),
+          ["<S-Space>"] = cmp.mapping.complete(),
+          ["<C-e>"] = cmp.mapping.close(),
+          ["<CR>"] = cmp.mapping.confirm({
+            behavior = cmp.ConfirmBehavior.Replace,
+            select = true,
+          }),
+          ["<tab>"] = cmp_next,
+          ["<down>"] = cmp_next,
+          ["<C-j>"] = cmp_next,
+          ["<C-k>"] = cmp_prev,
+          ["<C-p>"] = cmp_prev,
+          ["<up>"] = cmp_prev,
+        },
+        sources = {
+          { name = "nvim_lsp_signature_help", group_index = 1 },
+          { name = "luasnip",                 max_item_count = 5,  group_index = 1 },
+          { name = "nvim_lsp",                max_item_count = 20, group_index = 1 },
+          { name = "nvim_lua",                group_index = 1 },
+          { name = "vim-dadbod-completion",   group_index = 1 },
+          { name = "path",                    group_index = 2 },
+          { name = "buffer",                  keyword_length = 2,  max_item_count = 5, group_index = 2 },
+        },
+      })
+      local presentAutopairs, cmp_autopairs = pcall(require, "nvim-autopairs.completion.cmp")
+      if not presentAutopairs then
+        return
+      end
+      cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
+    end,
   },
 
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim',  opts = {} },
+
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -458,13 +534,100 @@ require('lazy').setup({
     config = function()
       require("nvim-surround").setup({
         -- Configuration here, or leave empty to use defaults
+        keymaps = {
+          insert = "<c-g>s",
+          insert_line = "<c-g>S",
+          normal = "s",
+          normal_cur = "ss",
+          normal_line = "S",
+          normal_cur_line = "SS",
+          visual = "S",
+          visual_line = "gS",
+          delete = "ds",
+          change = "cs",
+          change_line = "cS",
+        },
       })
     end
   },
-  'windwp/nvim-autopairs',
   'windwp/nvim-ts-autotag',
+  'monkoose/matchparen.nvim',
   'nvim-pack/nvim-spectre',
   'RRethy/vim-illuminate',
+  'brenoprata10/nvim-highlight-colors',
+  'petertriho/nvim-scrollbar',
+  'mbbill/undotree',
+  {
+    "smjonas/inc-rename.nvim",
+    config = function()
+      require("inc_rename").setup()
+    end,
+  },
+  { "tpope/vim-dadbod",
+    dependencies = {
+      "kristijanhusak/vim-dadbod-ui",
+      "kristijanhusak/vim-dadbod-completion",
+    },
+    opts = {
+      db_competion = function()
+        ---@diagnostic disable-next-line
+        require("cmp").setup.buffer { sources = { { name = "vim-dadbod-completion" } } }
+      end,
+    },
+    config = function(_, opts)
+      vim.g.db_ui_save_location = vim.fn.stdpath "config" .. require("plenary.path").path.sep .. "db_ui"
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+          "sql",
+        },
+        command = [[setlocal omnifunc=vim_dadbod_completion#omni]],
+      })
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+          "sql",
+          "mysql",
+          "plsql",
+        },
+        callback = function()
+          vim.schedule(opts.db_completion)
+        end,
+      })
+    end,
+    keys = {
+      { "<leader>Dt", "<cmd>DBUIToggle<cr>",        desc = "Toggle UI" },
+      { "<leader>Df", "<cmd>DBUIFindBuffer<cr>",    desc = "Find Buffer" },
+      { "<leader>Dr", "<cmd>DBUIRenameBuffer<cr>",  desc = "Rename Buffer" },
+      { "<leader>Dq", "<cmd>DBUILastQueryInfo<cr>", desc = "Last Query Info" },
+    },
+  },
+  {
+    'stevearc/aerial.nvim',
+    opts = {},
+    -- Optional dependencies
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-tree/nvim-web-devicons"
+    },
+  },
+  'm4xshen/autoclose.nvim',
+  {
+    'declancm/cinnamon.nvim',
+    config = function() require('cinnamon').setup() end
+  },
+  {
+    "L3MON4D3/LuaSnip",
+    -- follow latest release.
+    version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+    -- install jsregexp (optional!).
+    build = "make install_jsregexp"
+  },
+  'monaqa/dial.nvim',
+  'ThePrimeagen/harpoon',
+  'm-demare/hlargs.nvim',
+  'nvim-tree/nvim-tree.lua',
+
 
 }, {})
 
@@ -473,27 +636,207 @@ require('lazy').setup({
 -- colorscheme
 vim.cmd[[colorscheme tokyonight]]
 
+require('nvim-highlight-colors').setup {}
+
+require("luasnip.loaders.from_vscode").lazy_load()
+
+require('hlargs').setup()
+
 require'nvim-treesitter.configs'.setup {
   autotag = {
     enable = true,
   }
 }
 
+require("nvim-tree").setup({
+  sort = {
+    sorter = "case_sensitive",
+  },
+  view = {
+    width = 30,
+  },
+  renderer = {
+    group_empty = true,
+  },
+  filters = {
+    dotfiles = true,
+  },
+})
+
+require("aerial").setup({
+  -- optionally use on_attach to set keymaps when aerial has attached to a buffer
+  on_attach = function(bufnr)
+    -- Jump forwards/backwards with '{' and '}'
+    vim.keymap.set("n", "{", "<cmd>AerialPrev<CR>", { buffer = bufnr })
+    vim.keymap.set("n", "}", "<cmd>AerialNext<CR>", { buffer = bufnr })
+  end,
+})
+
+require("autoclose").setup()
+
+require('matchparen').setup()
+
+local colors = require("tokyonight.colors").setup()
+
+require("scrollbar").setup({
+    handle = {
+        color = colors.bg_highlight,
+    },
+    marks = {
+        Search = { color = colors.orange },
+        Error = { color = colors.error },
+        Warn = { color = colors.warning },
+        Info = { color = colors.info },
+        Hint = { color = colors.hint },
+        Misc = { color = colors.purple },
+    }
+})
+
+local augend = require("dial.augend")
+require("dial.config").augends:register_group{
+  -- default augends used when no group name is specified
+  default = {
+    augend.integer.alias.decimal,   -- nonnegative decimal number (0, 1, 2, 3, ...)
+    augend.integer.alias.hex,       -- nonnegative hex number  (0x01, 0x1a1f, etc.)
+    augend.date.alias["%Y/%m/%d"],  -- date (2022/02/19, etc.)
+  },
+
+  -- augends used when group with name `mygroup` is specified
+  mygroup = {
+    augend.integer.alias.decimal,
+    augend.constant.alias.bool,    -- boolean value (true <-> false)
+    augend.date.alias["%m/%d/%Y"], -- date (02/19/2022, etc.)
+  }
+}
+
+require("harpoon").setup({
+	global_settings = { save_on_toggle = false, save_on_change = true, enter_on_sendcmd = false },
+	menu = { width = 50, height = 8, borderchars = { "", "", "", "", "", "", "", "" } },
+})
+
+vim.api.nvim_set_keymap(
+	"n",
+	"''",
+	'<Cmd>lua require("harpoon.ui").toggle_quick_menu()<CR>',
+	{ noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap(
+	"n",
+	"'a",
+	'<Cmd>lua require("harpoon.mark").add_file()<CR>',
+	{ noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap(
+	"n",
+	"'1",
+	'<Cmd>lua require("harpoon.ui").nav_file(1)<CR>',
+	{ noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap(
+	"n",
+	"'2",
+	'<Cmd>lua require("harpoon.ui").nav_file(2)<CR>',
+	{ noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap(
+	"n",
+	"'3",
+	'<Cmd>lua require("harpoon.ui").nav_file(3)<CR>',
+	{ noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap(
+	"n",
+	"'4",
+	'<Cmd>lua require("harpoon.ui").nav_file(4)<CR>',
+	{ noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap(
+	"n",
+	"'5",
+	'<Cmd>lua require("harpoon.ui").nav_file(5)<CR>',
+	{ noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap(
+	"n",
+	"'6",
+	'<Cmd>lua require("harpoon.ui").nav_file(6)<CR>',
+	{ noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap(
+	"n",
+	"'7",
+	'<Cmd>lua require("harpoon.ui").nav_file(7)<CR>',
+	{ noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap(
+	"n",
+	"'8",
+	'<Cmd>lua require("harpoon.ui").nav_file(8)<CR>',
+	{ noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap(
+	"n",
+	"'9",
+	'<Cmd>lua require("harpoon.ui").nav_file(9)<CR>',
+	{ noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap(
+	"n",
+	"'0",
+	'<Cmd>lua require("harpoon.ui").nav_file(0)<CR>',
+	{ noremap = true, silent = true }
+)
+vim.cmd([[
+highlight HarpoonBorder guibg=#282828 guifg=white
+highlight HarpoonWindow guibg=#282828 guifg=white
+augroup vimrc_harpoon
+  autocmd!
+  autocmd Filetype harpoon nnoremap <buffer><silent> <Esc> <Cmd>lua require("harpoon.cmd-ui").toggle_quick_menu()<CR>
+augroup END
+]])
 
 -- [[ Setting Custom Plugins Keymaps ]]
+vim.keymap.set("n", "<leader>rn", function()
+  return ":IncRename " .. vim.fn.expand("<cword>")
+end, { expr = true })
+
+vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!<CR>")
+
+vim.keymap.set("n", "<C-h>", "<C-w>h")
+vim.keymap.set("n", "<C-l>", "<C-w>l")
 
 vim.keymap.set('n', '<leader>S', '<cmd>lua require("spectre").toggle()<CR>', {
     desc = "Toggle Spectre"
 })
+
+vim.keymap.set("n", "<C-a>", function()
+    require("dial.map").manipulate("increment", "normal")
+end)
+vim.keymap.set("n", "<C-x>", function()
+    require("dial.map").manipulate("decrement", "normal")
+end)
+vim.keymap.set("v", "<C-a>", function()
+    require("dial.map").manipulate("increment", "visual")
+end)
+vim.keymap.set("v", "<C-x>", function()
+    require("dial.map").manipulate("decrement", "visual")
+end)
+
 vim.keymap.set('n', '<leader>gdo', ':DiffviewOpen<cr>', { desc = '[G]it [D]iff View [O]pen' })
 vim.keymap.set('n', '<leader>gdc', ':DiffviewClose<cr>', { desc = '[G]it [D]iff View [C]lose' })
+vim.keymap.set('n', '<leader>gg', ':G<cr>', { desc = '[G]it [G]it' })
+vim.keymap.set('n', '<leader>gs', ':G status<cr>', { desc = '[G]it [S]tatus' })
+
+vim.keymap.set('n', '<leader>n', ':NvimTreeToggle<cr>', { desc = '[N]vim [T]ree Toggle' })
+
+vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = '[U]ndotree Toggle' })
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
 
 -- Set highlight on search
-vim.o.hlsearch = false
+vim.o.hlsearch = true
 
 -- Make line numbers default
 vim.wo.number = true
@@ -534,6 +877,7 @@ vim.o.termguicolors = true
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
+vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Close Buffer' })
 
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -542,18 +886,18 @@ vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+vim.keymap.set('n', '<leader>k', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
+vim.keymap.set('n', '<leader>K', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 -- Trouble keymaps
-vim.keymap.set("n", "<leader>tt", function() require("trouble").toggle() end, { desc = 'Trouble Toggle' })
+vim.keymap.set("n", "<leader>tt", function() require("trouble").toggle() end, { desc = '[T]rouble [T]oggle' })
 vim.keymap.set("n", "<leader>tw", function() require("trouble").toggle("workspace_diagnostics") end,
-  { desc = 'Trouble Workspace Diagnostics' })
+  { desc = '[T]rouble [W]orkspace Diagnostics' })
 vim.keymap.set("n", "<leader>td", function() require("trouble").toggle("document_diagnostics") end,
-  { desc = 'Trouble Document Diagnostics' })
-vim.keymap.set("n", "<leader>tq", function() require("trouble").toggle("quickfix") end, { desc = 'Trouble Quickfix' })
-vim.keymap.set("n", "<leader>tl", function() require("trouble").toggle("loclist") end, { desc = 'Trouble Location List' })
-vim.keymap.set("n", "gR", function() require("trouble").toggle("lsp_references") end, { desc = 'Trouble LSP References' })
+  { desc = '[T]rouble [D]ocument Diagnostics' })
+vim.keymap.set("n", "<leader>tq", function() require("trouble").toggle("quickfix") end, { desc = '[T]rouble [Q]uickfix' })
+vim.keymap.set("n", "<leader>tl", function() require("trouble").toggle("loclist") end, { desc = '[T]rouble [L]ocation List' })
+vim.keymap.set("n", "gR", function() require("trouble").toggle("lsp_references") end, { desc = '[T]rouble LSP [R]eferences' })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -660,7 +1004,8 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c',
+    ensure_installed = {
+      'c',
       'cpp',
       'c_sharp',
       'go',
@@ -674,6 +1019,7 @@ vim.defer_fn(function()
       'scss',
       'yaml',
       'xml',
+      'sql',
       'diff',
       'dockerfile',
       'terraform',
@@ -741,10 +1087,10 @@ vim.defer_fn(function()
       swap = {
         enable = true,
         swap_next = {
-          ['<leader>a'] = '@parameter.inner',
+          ['<leader>x'] = '@parameter.inner',
         },
         swap_previous = {
-          ['<leader>A'] = '@parameter.inner',
+          ['<leader>z'] = '@parameter.inner',
         },
       },
     },
@@ -768,7 +1114,7 @@ local on_attach = function(_, bufnr)
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
 
-  nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+  -- nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
@@ -808,6 +1154,7 @@ require('which-key').register {
   ['<leader>sg'] = { name = '[S]earch [G]it', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]rouble', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+  ['<leader>D'] = { name = '[D]atabase', _ = 'which_key_ignore' },
 }
 -- register which-key VISUAL mode
 -- required for visual <leader>hs (hunk stage) to work
@@ -870,58 +1217,6 @@ mason_lspconfig.setup_handlers {
       filetypes = (servers[server_name] or {}).filetypes,
     }
   end,
-}
-
--- [[ Configure nvim-cmp ]]
--- See `:help cmp`
-local cmp = require 'cmp'
-local luasnip = require 'luasnip'
-require('luasnip.loaders.from_vscode').lazy_load()
-luasnip.config.setup {}
-
-cmp.setup {
-  snippet = {
-    expand = function(args)
-      luasnip.lsp_expand(args.body)
-    end,
-  },
-  completion = {
-    completeopt = 'menu,menuone,noinsert',
-  },
-  mapping = cmp.mapping.preset.insert {
-    ['<C-j>'] = cmp.mapping.select_next_item(),
-    ['<C-k>'] = cmp.mapping.select_prev_item(),
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-u>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete {},
-    ['<CR>'] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
-    },
-    ['<Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_locally_jumpable() then
-        luasnip.expand_or_jump()
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.locally_jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-  },
-  sources = {
-    { name = 'nvim_lsp' },
-    { name = 'luasnip' },
-    { name = 'path' },
-  },
 }
 
 -- The line beneath this is called `modeline`. See `:help modeline`
