@@ -826,10 +826,17 @@ vim.keymap.set('n', '<leader>gdo', ':DiffviewOpen<cr>', { desc = '[G]it [D]iff V
 vim.keymap.set('n', '<leader>gdc', ':DiffviewClose<cr>', { desc = '[G]it [D]iff View [C]lose' })
 vim.keymap.set('n', '<leader>gg', ':G<cr>', { desc = '[G]it [G]it' })
 vim.keymap.set('n', '<leader>gs', ':G status<cr>', { desc = '[G]it [S]tatus' })
+vim.keymap.set('n', '<leader>gl', ':Gclog<cr>', { desc = '[G]it [L]og' })
 
 vim.keymap.set('n', '<leader>n', ':NvimTreeToggle<cr>', { desc = '[N]vim [T]ree Toggle' })
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = '[U]ndotree Toggle' })
+
+-- make y behave like d or c. shift-y copy whole line
+vim.keymap.set("n", "Y", "y$")
+
+--paste without overwriting paste register
+vim.keymap.set("v", "p", '"_dP')
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
