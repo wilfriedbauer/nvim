@@ -558,6 +558,7 @@ require('lazy').setup({
   'brenoprata10/nvim-highlight-colors',
   'petertriho/nvim-scrollbar',
   'mbbill/undotree',
+  {'akinsho/bufferline.nvim', version = "*", dependencies = 'nvim-tree/nvim-web-devicons'},
   {
     "smjonas/inc-rename.nvim",
     config = function()
@@ -603,15 +604,7 @@ require('lazy').setup({
       { "<leader>Dq", "<cmd>DBUILastQueryInfo<cr>", desc = "Last Query Info" },
     },
   },
-  {
-    'stevearc/aerial.nvim',
-    opts = {},
-    -- Optional dependencies
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-      "nvim-tree/nvim-web-devicons"
-    },
-  },
+  'simrat39/symbols-outline.nvim',
   'm4xshen/autoclose.nvim',
   {
     'declancm/cinnamon.nvim',
@@ -653,6 +646,10 @@ require("luasnip.loaders.from_vscode").lazy_load()
 
 require('hlargs').setup()
 
+require("bufferline").setup{}
+
+require("symbols-outline").setup()
+
 require'nvim-treesitter.configs'.setup {
   autotag = {
     enable = true,
@@ -672,15 +669,6 @@ require("nvim-tree").setup({
   filters = {
     dotfiles = false,
   },
-})
-
-require("aerial").setup({
-  -- optionally use on_attach to set keymaps when aerial has attached to a buffer
-  on_attach = function(bufnr)
-    -- Jump forwards/backwards with '{' and '}'
-    vim.keymap.set("n", "{", "<cmd>AerialPrev<CR>", { buffer = bufnr })
-    vim.keymap.set("n", "}", "<cmd>AerialNext<CR>", { buffer = bufnr })
-  end,
 })
 
 require("autoclose").setup()
@@ -811,14 +799,18 @@ vim.keymap.set("n", "<leader>rn", function()
   return ":IncRename " .. vim.fn.expand("<cword>")
 end, { expr = true })
 
-vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!<CR>")
+vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
 
 vim.keymap.set("n", "<C-h>", "<C-w>h")
+vim.keymap.set("n", "<C-j>", "<C-w>j")
+vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
 
 vim.keymap.set('n', '<leader>j', require('treesj').toggle, {desc = "Toggle Join/Split of Code Block"})
+vim.keymap.set('n', '<C-p', ':BufferlineCyclePrev<CR>', {desc = 'Previous Tab'})
+vim.keymap.set('n', '<C-n', ':BufferlineCycleNext<CR>', {desc = 'Next Tab'})
 
-vim.keymap.set('n', '<leader>S', '<cmd>lua require("spectre").toggle()<CR>', {
+vim.keymap.set('n', '<leader>s', '<cmd>lua require("spectre").toggle()<CR>', {
     desc = "Toggle Spectre"
 })
 
@@ -1171,7 +1163,6 @@ require('which-key').register {
   ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
   ['<leader>f'] = { name = '[F]ind', _ = 'which_key_ignore' },
-  ['<leader>sg'] = { name = '[S]earch [G]it', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]rouble', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
   ['<leader>D'] = { name = '[D]atabase', _ = 'which_key_ignore' },
