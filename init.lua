@@ -85,6 +85,7 @@ if not vim.loop.fs_stat(lazypath) then
   }
 end
 vim.opt.rtp:prepend(lazypath)
+print(lazypath)
 
 -- [[ Configure plugins ]]
 -- NOTE: Here is where you install your plugins.
@@ -464,19 +465,19 @@ require('lazy').setup({
       -- online, please don't ask me how to install them :)
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
-        'delve',
+        --'delve',
       },
     }
 
     -- Basic debugging keymaps, feel free to change to your liking!
-    vim.keymap.set('n', '<F5>', dap.continue, { desc = 'Debug: Start/Continue' })
-    vim.keymap.set('n', '<F1>', dap.step_into, { desc = 'Debug: Step Into' })
-    vim.keymap.set('n', '<F2>', dap.step_over, { desc = 'Debug: Step Over' })
-    vim.keymap.set('n', '<F3>', dap.step_out, { desc = 'Debug: Step Out' })
-    vim.keymap.set('n', '<leader>Bb', dap.toggle_breakpoint, { desc = 'De[b]ug: Toggle [B]reakpoint' })
-    vim.keymap.set('n', '<leader>Bc', function()
+    vim.keymap.set('n', '<leader>Bc', dap.continue, { desc = '[B]ug: Start/[C]ontinue' })
+    vim.keymap.set('n', '<leader>Bi', dap.step_into, { desc = '[B]ug: Step [I]nto' })
+    vim.keymap.set('n', '<leader>Bo', dap.step_over, { desc = '[B]ug: Step [O]ver' })
+    vim.keymap.set('n', '<leader>Bu', dap.step_out, { desc = '[B]ug: Step O[u]t' })
+    vim.keymap.set('n', '<leader>Bb', dap.toggle_breakpoint, { desc = '[B]ug: Toggle [B]reakpoint' })
+    vim.keymap.set('n', '<leader>BC', function()
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
-    end, { desc = 'De[b]ug: Set [c]onditional Breakpoint' })
+    end, { desc = '[B]ug: Set [c]onditional Breakpoint' })
 
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
@@ -501,7 +502,7 @@ require('lazy').setup({
     }
 
     -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-    vim.keymap.set('n', '<F7>', dapui.toggle, { desc = 'Debug: See last session result.' })
+    vim.keymap.set('n', '<leader>BB', dapui.toggle, { desc = 'De[b]ug: See last session result.' })
 
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
@@ -596,7 +597,7 @@ require('lazy').setup({
       })
     end,
     keys = {
-      { "<leader>Dt", "<cmd>DBUIToggle<cr>",        desc = "Toggle UI" },
+      { "<leader>DD", "<cmd>DBUIToggle<cr>",        desc = "Toggle UI" },
       { "<leader>Df", "<cmd>DBUIFindBuffer<cr>",    desc = "Find Buffer" },
       { "<leader>Dr", "<cmd>DBUIRenameBuffer<cr>",  desc = "Rename Buffer" },
       { "<leader>Dq", "<cmd>DBUILastQueryInfo<cr>", desc = "Last Query Info" },
@@ -627,6 +628,16 @@ require('lazy').setup({
   'ThePrimeagen/harpoon',
   'm-demare/hlargs.nvim',
   'nvim-tree/nvim-tree.lua',
+  {
+  'Wansmer/treesj',
+  dependencies = { 'nvim-treesitter/nvim-treesitter' },
+  config = function()
+    require('treesj').setup({
+      --@type boolean Use default keymaps (<space>m - toggle, <space>j - join, <space>s - split)
+      use_default_keymaps = false,
+      max_join_length = 1000,})
+  end,
+  }
 
 
 }, {})
@@ -659,7 +670,7 @@ require("nvim-tree").setup({
     group_empty = true,
   },
   filters = {
-    dotfiles = true,
+    dotfiles = false,
   },
 })
 
@@ -679,17 +690,17 @@ require('matchparen').setup()
 local colors = require("tokyonight.colors").setup()
 
 require("scrollbar").setup({
-    handle = {
-        color = colors.bg_highlight,
-    },
-    marks = {
-        Search = { color = colors.orange },
-        Error = { color = colors.error },
-        Warn = { color = colors.warning },
-        Info = { color = colors.info },
-        Hint = { color = colors.hint },
-        Misc = { color = colors.purple },
-    }
+  handle = {
+    color = colors.bg_highlight,
+  },
+  marks = {
+    Search = { color = colors.orange },
+    Error = { color = colors.error },
+    Warn = { color = colors.warning },
+    Info = { color = colors.info },
+    Hint = { color = colors.hint },
+    Misc = { color = colors.purple },
+  },
 })
 
 local augend = require("dial.augend")
@@ -804,6 +815,8 @@ vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!<CR>")
 
 vim.keymap.set("n", "<C-h>", "<C-w>h")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
+
+vim.keymap.set('n', '<leader>j', require('treesj').toggle, {desc = "Toggle Join/Split of Code Block"})
 
 vim.keymap.set('n', '<leader>S', '<cmd>lua require("spectre").toggle()<CR>', {
     desc = "Toggle Spectre"
@@ -994,16 +1007,16 @@ local function telescope_live_grep_open_files()
     prompt_title = 'Live Grep in Open Files',
   }
 end
-vim.keymap.set('n', '<leader>s/', telescope_live_grep_open_files, { desc = '[S]earch [/] in Open Files' })
-vim.keymap.set('n', '<leader>ss', require('telescope.builtin').builtin, { desc = '[S]earch [S]elect Telescope' })
-vim.keymap.set('n', '<leader>sgf', require('telescope.builtin').git_files, { desc = '[S]earch [G]it [F]iles' })
-vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
-vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
-vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-vim.keymap.set('n', '<leader>sG', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-vim.keymap.set('n', '<leader>sgr', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by Grep on [G]it [R]oot' })
-vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
-vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
+vim.keymap.set('n', '<leader>f/', telescope_live_grep_open_files, { desc = '[F]ind [/] in Open Files' })
+vim.keymap.set('n', '<leader>fs', require('telescope.builtin').builtin, { desc = '[F]ind [S]elect Telescope' })
+vim.keymap.set('n', '<leader>fgf', require('telescope.builtin').git_files, { desc = '[F]ind [G]it [F]iles' })
+vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = '[F]ind [F]iles' })
+vim.keymap.set('n', '<leader>fh', require('telescope.builtin').help_tags, { desc = '[F]ind [H]elp' })
+vim.keymap.set('n', '<leader>fw', require('telescope.builtin').grep_string, { desc = '[F]ind current [W]ord' })
+vim.keymap.set('n', '<leader>fG', require('telescope.builtin').live_grep, { desc = '[F]ind by [G]rep' })
+vim.keymap.set('n', '<leader>fgr', ':LiveGrepGitRoot<cr>', { desc = '[F]ind by Grep on [G]it [R]oot' })
+vim.keymap.set('n', '<leader>fd', require('telescope.builtin').diagnostics, { desc = '[F]ind [D]iagnostics' })
+vim.keymap.set('n', '<leader>fr', require('telescope.builtin').resume, { desc = '[F]ind [R]esume' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -1152,11 +1165,12 @@ end
 -- document existing key chains
 require('which-key').register {
   ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
+  ['<leader>B'] = { name = '[B]ug', _ = 'which_key_ignore' },
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
   ['<leader>gd'] = { name = '[G]it [D]iff', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-  ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
+  ['<leader>f'] = { name = '[F]ind', _ = 'which_key_ignore' },
   ['<leader>sg'] = { name = '[S]earch [G]it', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]rouble', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
@@ -1212,6 +1226,7 @@ local mason_lspconfig = require 'mason-lspconfig'
 
 mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
+  automatic_installation = true,
 }
 
 mason_lspconfig.setup_handlers {
