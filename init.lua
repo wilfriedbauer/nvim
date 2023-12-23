@@ -807,8 +807,8 @@ vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
 
 vim.keymap.set('n', '<leader>j', require('treesj').toggle, {desc = "Toggle Join/Split of Code Block"})
-vim.keymap.set('n', '<C-p', ':BufferlineCyclePrev<CR>', {desc = 'Previous Tab'})
-vim.keymap.set('n', '<C-n', ':BufferlineCycleNext<CR>', {desc = 'Next Tab'})
+vim.keymap.set('n', '<C-p>', ':BufferLineCyclePrev<CR>', {desc = 'Previous Tab'})
+vim.keymap.set('n', '<C-n>', ':BufferLineCycleNext<CR>', {desc = 'Next Tab'})
 
 vim.keymap.set('n', '<leader>s', '<cmd>lua require("spectre").toggle()<CR>', {
     desc = "Toggle Spectre"
