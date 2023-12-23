@@ -623,6 +623,16 @@ require('lazy').setup({
   'nvim-tree/nvim-tree.lua',
   'nvim-treesitter/nvim-treesitter-context',
   {
+    "ThePrimeagen/refactoring.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function()
+      require("refactoring").setup()
+    end,
+  },
+  {
   'Wansmer/treesj',
   dependencies = { 'nvim-treesitter/nvim-treesitter' },
   config = function()
@@ -644,6 +654,8 @@ vim.cmd[[colorscheme tokyonight]]
 require('nvim-highlight-colors').setup {}
 
 require("luasnip.loaders.from_vscode").lazy_load()
+
+require('refactoring').setup()
 
 require('hlargs').setup()
 
