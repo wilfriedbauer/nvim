@@ -621,6 +621,7 @@ require('lazy').setup({
   'ThePrimeagen/harpoon',
   'm-demare/hlargs.nvim',
   'nvim-tree/nvim-tree.lua',
+  'nvim-treesitter/nvim-treesitter-context',
   {
   'Wansmer/treesj',
   dependencies = { 'nvim-treesitter/nvim-treesitter' },
