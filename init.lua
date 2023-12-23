@@ -63,6 +63,7 @@ vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.undofile = true
 
+vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
 vim.opt.scrolloff = 8
@@ -865,15 +866,20 @@ vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = '[U]ndotree To
 -- make y behave like d or c. shift-y copy whole line
 vim.keymap.set("n", "Y", "y$")
 
---paste without overwriting paste register
+-- move visual selection up or down a line with <s-j> and <s-k>
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
+
+-- keep page down and page up centered
+vim.keymap.set("n", "<C-d>", "<C-d>zz")
+vim.keymap.set("n", "<C-u>", "<C-u>zz")
+
+-- paste without overwriting paste register
 vim.keymap.set("v", "p", '"_dP')
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
-
--- Set highlight on search
-vim.o.hlsearch = true
 
 -- Make line numbers default
 vim.wo.number = true
