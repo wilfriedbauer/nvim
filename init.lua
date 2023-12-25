@@ -453,6 +453,7 @@ require('lazy').setup({
     local dap = require 'dap'
     local dapui = require 'dapui'
 
+    require("mason").setup()
     require('mason-nvim-dap').setup {
       -- Makes a best effort to setup the various debuggers with
       -- reasonable debug configurations
@@ -465,18 +466,19 @@ require('lazy').setup({
       -- You'll need to check that you have the required things installed
       -- online, please don't ask me how to install them :)
       ensure_installed = {
+        'python'
         -- Update this to ensure that you have the debuggers for the langs you want
         --'delve',
       },
     }
 
     -- Basic debugging keymaps, feel free to change to your liking!
-    vim.keymap.set('n', '<leader>Bc', dap.continue, { desc = '[B]ug: Start/[C]ontinue' })
-    vim.keymap.set('n', '<leader>Bi', dap.step_into, { desc = '[B]ug: Step [I]nto' })
-    vim.keymap.set('n', '<leader>Bo', dap.step_over, { desc = '[B]ug: Step [O]ver' })
-    vim.keymap.set('n', '<leader>Bu', dap.step_out, { desc = '[B]ug: Step O[u]t' })
-    vim.keymap.set('n', '<leader>Bb', dap.toggle_breakpoint, { desc = '[B]ug: Toggle [B]reakpoint' })
-    vim.keymap.set('n', '<leader>BC', function()
+    vim.keymap.set('n', '<leader>bc', dap.continue, { desc = '[B]ug: Start/[C]ontinue' })
+    vim.keymap.set('n', '<leader>bi', dap.step_into, { desc = '[B]ug: Step [I]nto' })
+    vim.keymap.set('n', '<leader>bo', dap.step_over, { desc = '[B]ug: Step [O]ver' })
+    vim.keymap.set('n', '<leader>bu', dap.step_out, { desc = '[B]ug: Step O[u]t' })
+    vim.keymap.set('n', '<leader>bb', dap.toggle_breakpoint, { desc = '[B]ug: Toggle [B]reakpoint' })
+    vim.keymap.set('n', '<leader>bb', function()
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
     end, { desc = '[B]ug: Set [c]onditional Breakpoint' })
 
@@ -599,10 +601,10 @@ require('lazy').setup({
       })
     end,
     keys = {
-      { "<leader>DD", "<cmd>DBUIToggle<cr>",        desc = "Toggle UI" },
-      { "<leader>Df", "<cmd>DBUIFindBuffer<cr>",    desc = "Find Buffer" },
-      { "<leader>Dr", "<cmd>DBUIRenameBuffer<cr>",  desc = "Rename Buffer" },
-      { "<leader>Dq", "<cmd>DBUILastQueryInfo<cr>", desc = "Last Query Info" },
+      { "<leader>dd", "<cmd>DBUIToggle<cr>",        desc = "Toggle UI" },
+      { "<leader>df", "<cmd>DBUIFindBuffer<cr>",    desc = "Find Buffer" },
+      { "<leader>dr", "<cmd>DBUIRenameBuffer<cr>",  desc = "Rename Buffer" },
+      { "<leader>dq", "<cmd>DBUILastQueryInfo<cr>", desc = "Last Query Info" },
     },
   },
   'simrat39/symbols-outline.nvim',
@@ -1163,8 +1165,8 @@ local on_attach = function(_, bufnr)
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
   nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-  nmap('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-  nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+  nmap('<leader>d', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+  nmap('<leader>Ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
   nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
   -- See `:help K` for why this keymap
@@ -1187,16 +1189,17 @@ end
 
 -- document existing key chains
 require('which-key').register {
-  ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-  ['<leader>B'] = { name = '[B]ug', _ = 'which_key_ignore' },
+  ['<leader>D'] = { name = '[D]ocument', _ = 'which_key_ignore' },
+  ['<leader>b'] = { name = '[B]ug', _ = 'which_key_ignore' },
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
+  ['<leader>fg'] = { name = '[F]ind [G]it', _ = 'which_key_ignore' },
   ['<leader>gd'] = { name = '[G]it [D]iff', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
   ['<leader>f'] = { name = '[F]ind', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]rouble', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
-  ['<leader>D'] = { name = '[D]atabase', _ = 'which_key_ignore' },
+  ['<leader>d'] = { name = '[D]atabase', _ = 'which_key_ignore' },
 }
 -- register which-key VISUAL mode
 -- required for visual <leader>hs (hunk stage) to work
