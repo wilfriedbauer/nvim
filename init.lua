@@ -70,6 +70,11 @@ vim.opt.scrolloff = 8
 
 vim.opt.colorcolumn = "80"
 
+vim.o.foldcolumn = '1' -- '0' is not bad
+vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+vim.o.foldlevelstart = 99
+vim.o.foldenable = true
+
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    https://github.com/folke/lazy.nvim
@@ -201,6 +206,7 @@ require('lazy').setup({
         },
         sources = {
           { name = "nvim_lsp_signature_help", group_index = 1 },
+          { name = "cmp_tabnine", group_index = 1 },
           { name = "luasnip",                 max_item_count = 5,  group_index = 1 },
           { name = "nvim_lsp",                max_item_count = 20, group_index = 1 },
           { name = "nvim_lua",                group_index = 1 },
@@ -436,6 +442,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.debug',
   --
   -- NOTE: Yes, you can install new plugins here!
+  {
   'mfussenegger/nvim-dap',
   -- NOTE: And you can specify dependencies as well
   dependencies = {
@@ -445,9 +452,9 @@ require('lazy').setup({
     -- Installs the debug adapters for you
     'williamboman/mason.nvim',
     'jay-babu/mason-nvim-dap.nvim',
+    'theHamsta/nvim-dap-virtual-text',
 
     -- Add your own debuggers here
-    'leoluz/nvim-dap-go',
   },
   config = function()
     local dap = require 'dap'
@@ -472,13 +479,14 @@ require('lazy').setup({
       },
     }
 
+
     -- Basic debugging keymaps, feel free to change to your liking!
     vim.keymap.set('n', '<leader>bc', dap.continue, { desc = '[B]ug: Start/[C]ontinue' })
     vim.keymap.set('n', '<leader>bi', dap.step_into, { desc = '[B]ug: Step [I]nto' })
     vim.keymap.set('n', '<leader>bo', dap.step_over, { desc = '[B]ug: Step [O]ver' })
     vim.keymap.set('n', '<leader>bu', dap.step_out, { desc = '[B]ug: Step O[u]t' })
-    vim.keymap.set('n', '<leader>bb', dap.toggle_breakpoint, { desc = '[B]ug: Toggle [B]reakpoint' })
-    vim.keymap.set('n', '<leader>bb', function()
+    vim.keymap.set('n', '<leader>bp', dap.toggle_breakpoint, { desc = '[B]ug: Toggle [B]reakpoint' })
+    vim.keymap.set('n', '<leader>bP', function()
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
     end, { desc = '[B]ug: Set [c]onditional Breakpoint' })
 
@@ -505,15 +513,15 @@ require('lazy').setup({
     }
 
     -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-    vim.keymap.set('n', '<leader>BB', dapui.toggle, { desc = 'De[b]ug: See last session result.' })
+    vim.keymap.set('n', '<leader>bb', dapui.toggle, { desc = 'De[b]ug: Toggle UI' })
 
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
     -- Install golang specific config
-    require('dap-go').setup()
   end,
+  },
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
   --    up-to-date with whatever is in the kickstart repo.
@@ -656,8 +664,33 @@ require('lazy').setup({
       use_default_keymaps = false,
       max_join_length = 1000,})
   end,
-  }
-
+  },
+  {
+  'Exafunction/codeium.vim',
+  event = 'BufEnter',
+  config = function ()
+    -- Change '<C-g>' here to any keycode you like.
+    vim.keymap.set('i', '<C-g>', function () return vim.fn['codeium#Accept']() end, { expr = true, silent = true })
+    vim.keymap.set('i', '<C-h>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true, silent = true })
+    vim.keymap.set('i', '<C-l>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true, silent = true })
+    vim.keymap.set('i', '<C-x>', function() return vim.fn['codeium#Clear']() end, { expr = true, silent = true })
+  end
+  },
+  { 'codota/tabnine-nvim', build = "./dl_binaries.sh" },
+  {
+     'tzachar/cmp-tabnine',
+     build = './install.sh',
+     dependencies = 'hrsh7th/nvim-cmp',
+  },
+  {'kevinhwang91/nvim-ufo', dependencies = 'kevinhwang91/promise-async'},
+  {
+    "nvim-neotest/neotest",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "antoinemadec/FixCursorHold.nvim",
+      "nvim-treesitter/nvim-treesitter"
+    }
+  },
 
 }, {})
 
@@ -666,15 +699,17 @@ require('lazy').setup({
 -- colorscheme
 vim.cmd[[colorscheme tokyonight]]
 
-require('nvim-highlight-colors').setup {}
+require('nvim-highlight-colors').setup()
 
 require("luasnip.loaders.from_vscode").lazy_load()
+
+require("nvim-dap-virtual-text").setup()
 
 require('refactoring').setup()
 
 require('hlargs').setup()
 
-require("bufferline").setup{}
+require("bufferline").setup()
 
 require("symbols-outline").setup()
 
@@ -683,6 +718,16 @@ require'nvim-treesitter.configs'.setup {
     enable = true,
   }
 }
+
+require('tabnine').setup({
+  disable_auto_comment=true,
+  accept_keymap="<Tab>",
+  dismiss_keymap = "<C-]>",
+  debounce_ms = 800,
+  suggestion_color = {gui = "#808080", cterm = 244},
+  exclude_filetypes = {"TelescopePrompt", "NvimTree"},
+  log_file_path = nil, -- absolute path to Tabnine log file
+})
 
 require("nvim-tree").setup({
   sort = {
@@ -697,6 +742,12 @@ require("nvim-tree").setup({
   filters = {
     dotfiles = false,
   },
+})
+
+require('ufo').setup({
+    provider_selector = function(bufnr, filetype, buftype)
+        return {'treesitter', 'indent'}
+    end
 })
 
 require("autoclose").setup()
@@ -747,6 +798,7 @@ vim.api.nvim_set_keymap(
 	'<Cmd>lua require("harpoon.ui").toggle_quick_menu()<CR>',
 	{ noremap = true, silent = true }
 )
+
 vim.api.nvim_set_keymap(
 	"n",
 	"'a",
@@ -829,6 +881,9 @@ end, { expr = true })
 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
 
+vim.keymap.set('n', 'zO', require('ufo').openAllFolds)
+vim.keymap.set('n', 'zC', require('ufo').closeAllFolds)
+
 vim.keymap.set("n", "<C-h>", "<C-w>h")
 vim.keymap.set("n", "<C-j>", "<C-w>j")
 vim.keymap.set("n", "<C-k>", "<C-w>k")
@@ -838,9 +893,11 @@ vim.keymap.set('n', '<leader>j', require('treesj').toggle, {desc = "Toggle Join/
 vim.keymap.set('n', '<C-p>', ':BufferLineCyclePrev<CR>', {desc = 'Previous Tab'})
 vim.keymap.set('n', '<C-n>', ':BufferLineCycleNext<CR>', {desc = 'Next Tab'})
 
-vim.keymap.set('n', '<leader>s', '<cmd>lua require("spectre").toggle()<CR>', {
-    desc = "Toggle Spectre"
-})
+vim.keymap.set('n', '<leader>TT', '<cmd>lua require("neotest").run.run()<CR>', {desc = '[T]est: Run nearest [T]est'})
+vim.keymap.set('n', '<leader>TF', '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>', {desc = '[T]est: Run [F]ile'})
+vim.keymap.set('n', '<leader>TS', '<cmd>lua require("neotest").run.stop()<CR>', {desc = '[T]est: [S]top'})
+
+vim.keymap.set('n', '<leader>s', '<cmd>lua require("spectre").toggle()<CR>', { desc = "Toggle Spectre" })
 
 vim.keymap.set("n", "<C-a>", function()
     require("dial.map").manipulate("increment", "normal")
@@ -861,7 +918,7 @@ vim.keymap.set('n', '<leader>gg', ':G<cr>', { desc = '[G]it [G]it' })
 vim.keymap.set('n', '<leader>gs', ':G status<cr>', { desc = '[G]it [S]tatus' })
 vim.keymap.set('n', '<leader>gl', ':Gclog<cr>', { desc = '[G]it [L]og' })
 
-vim.keymap.set('n', '<leader>n', ':NvimTreeToggle<cr>', { desc = '[N]vim [T]ree Toggle' })
+vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<cr>', { desc = '[N]vim [T]ree Toggle' })
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = '[U]ndotree Toggle' })
 
