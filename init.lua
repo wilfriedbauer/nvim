@@ -684,6 +684,12 @@ require('lazy').setup({
   },
   {'kevinhwang91/nvim-ufo', dependencies = 'kevinhwang91/promise-async'},
   {
+    "ray-x/lsp_signature.nvim",
+    event = "VeryLazy",
+    opts = {},
+    config = function(_, opts) require'lsp_signature'.setup(opts) end
+  },
+  {
     "nvim-neotest/neotest",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -712,6 +718,31 @@ require('hlargs').setup()
 require("bufferline").setup()
 
 require("symbols-outline").setup()
+
+require "lsp_signature".setup({
+  bind = true, -- This is mandatory, otherwise border config won't get registered.
+  handler_opts = {
+    border = "rounded"
+  },
+  floating_window_off_x = 5, -- adjust float windows x position.
+  floating_window_off_y = function() -- adjust float windows y position. e.g. set to -2 can make floating window move up 2 lines
+    local linenr = vim.api.nvim_win_get_cursor(0)[1] -- buf line number
+    local pumheight = vim.o.pumheight
+    local winline = vim.fn.winline() -- line number in the window
+    local winheight = vim.fn.winheight(0)
+
+    -- window top
+    if winline - 1 < pumheight then
+      return pumheight
+    end
+
+    -- window bottom
+    if winheight - winline < pumheight then
+      return -pumheight
+    end
+    return 0
+  end,
+})
 
 require'nvim-treesitter.configs'.setup {
   autotag = {
@@ -884,6 +915,11 @@ vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
 vim.keymap.set('n', 'zO', require('ufo').openAllFolds)
 vim.keymap.set('n', 'zC', require('ufo').closeAllFolds)
 
+vim.keymap.set('n', '<Up>', ':resize -2<CR>', {desc = 'Resize Down'})
+vim.keymap.set('n', '<Down>', ':resize +2<CR>', {desc = 'Resize Up'})
+vim.keymap.set('n', '<Left>', ':vertical resize +2<CR>', {desc = 'Resize Left'})
+vim.keymap.set('n', '<Right>', ':vertical resize -2<CR>', {desc = 'Resize Right'})
+
 vim.keymap.set("n", "<C-h>", "<C-w>h")
 vim.keymap.set("n", "<C-j>", "<C-w>j")
 vim.keymap.set("n", "<C-k>", "<C-w>k")
@@ -919,6 +955,7 @@ vim.keymap.set('n', '<leader>gs', ':G status<cr>', { desc = '[G]it [S]tatus' })
 vim.keymap.set('n', '<leader>gl', ':Gclog<cr>', { desc = '[G]it [L]og' })
 
 vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<cr>', { desc = '[N]vim [T]ree Toggle' })
+vim.keymap.set('n', '<leader>n', ':NvimTreeToggle<cr>', { desc = '[N]vim [T]ree Toggle' })
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = '[U]ndotree Toggle' })
 
@@ -932,6 +969,14 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 -- keep page down and page up centered
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
+
+-- INFO:
+-- Instead of pressing ^ you can press _(underscore) to jump to the first non-whitespace character on the same line the cursor is on.
+--
+-- + and - jump to the first non-whitespace character on the next / previous line.
+--
+-- (These commands only work in normal mode, not in insert mode.)
+
 
 -- paste without overwriting paste register
 vim.keymap.set("v", "p", '"_dP')
@@ -1228,7 +1273,7 @@ local on_attach = function(_, bufnr)
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  nmap('<C-s>', function() require('lsp_signature').toggle_float_win() end, 'Signature Documentation')
 
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
@@ -1255,6 +1300,7 @@ require('which-key').register {
   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
   ['<leader>f'] = { name = '[F]ind', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]rouble', _ = 'which_key_ignore' },
+  ['<leader>T'] = { name = '[T]est', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
   ['<leader>d'] = { name = '[D]atabase', _ = 'which_key_ignore' },
 }
