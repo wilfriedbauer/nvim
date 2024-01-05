@@ -628,11 +628,27 @@ require('lazy').setup({
     -- install jsregexp (optional!).
     build = "make install_jsregexp"
   },
-  'monaqa/dial.nvim',
   'ThePrimeagen/harpoon',
   'm-demare/hlargs.nvim',
   'nvim-tree/nvim-tree.lua',
   'nvim-treesitter/nvim-treesitter-context',
+  {
+  'ErichDonGubler/lsp_lines.nvim',
+  config = function()
+    vim.diagnostic.config({
+      virtual_text = false,
+    })
+    require("lsp_lines").setup()
+  end,
+  },
+  {
+  'zegervdv/nrpattern.nvim',
+  config = function()
+    -- Basic setup
+    -- See below for more options
+    require("nrpattern").setup()
+  end,
+  },
   {
     "utilyre/barbecue.nvim",
     name = "barbecue",
@@ -801,23 +817,6 @@ require("scrollbar").setup({
   },
 })
 
-local augend = require("dial.augend")
-require("dial.config").augends:register_group{
-  -- default augends used when no group name is specified
-  default = {
-    augend.integer.alias.decimal,   -- nonnegative decimal number (0, 1, 2, 3, ...)
-    augend.integer.alias.hex,       -- nonnegative hex number  (0x01, 0x1a1f, etc.)
-    augend.date.alias["%Y/%m/%d"],  -- date (2022/02/19, etc.)
-  },
-
-  -- augends used when group with name `mygroup` is specified
-  mygroup = {
-    augend.integer.alias.decimal,
-    augend.constant.alias.bool,    -- boolean value (true <-> false)
-    augend.date.alias["%m/%d/%Y"], -- date (02/19/2022, etc.)
-  }
-}
-
 require("harpoon").setup({
 	global_settings = { save_on_toggle = false, save_on_change = true, enter_on_sendcmd = false },
 	menu = { width = 50, height = 8, borderchars = { "", "", "", "", "", "", "", "" } },
@@ -934,19 +933,6 @@ vim.keymap.set('n', '<leader>TF', '<cmd>lua require("neotest").run.run(vim.fn.ex
 vim.keymap.set('n', '<leader>TS', '<cmd>lua require("neotest").run.stop()<CR>', {desc = '[T]est: [S]top'})
 
 vim.keymap.set('n', '<leader>s', '<cmd>lua require("spectre").toggle()<CR>', { desc = "Toggle Spectre" })
-
-vim.keymap.set("n", "<C-a>", function()
-    require("dial.map").manipulate("increment", "normal")
-end)
-vim.keymap.set("n", "<C-x>", function()
-    require("dial.map").manipulate("decrement", "normal")
-end)
-vim.keymap.set("v", "<C-a>", function()
-    require("dial.map").manipulate("increment", "visual")
-end)
-vim.keymap.set("v", "<C-x>", function()
-    require("dial.map").manipulate("decrement", "visual")
-end)
 
 vim.keymap.set('n', '<leader>gdo', ':DiffviewOpen<cr>', { desc = '[G]it [D]iff View [O]pen' })
 vim.keymap.set('n', '<leader>gdc', ':DiffviewClose<cr>', { desc = '[G]it [D]iff View [C]lose' })
