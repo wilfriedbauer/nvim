@@ -650,6 +650,14 @@ require('lazy').setup({
   end,
   },
   {
+    "rbong/vim-flog",
+    lazy = true,
+    cmd = { "Flog", "Flogsplit", "Floggit" },
+    dependencies = {
+      "tpope/vim-fugitive",
+    },
+  },
+  {
     "utilyre/barbecue.nvim",
     name = "barbecue",
     version = "*",
@@ -939,6 +947,7 @@ vim.keymap.set('n', '<leader>gdc', ':DiffviewClose<cr>', { desc = '[G]it [D]iff 
 vim.keymap.set('n', '<leader>gg', ':G<cr>', { desc = '[G]it [G]it' })
 vim.keymap.set('n', '<leader>gs', ':G status<cr>', { desc = '[G]it [S]tatus' })
 vim.keymap.set('n', '<leader>gl', ':Gclog<cr>', { desc = '[G]it [L]og' })
+vim.keymap.set("n", "<leader>gf", ":Flog<CR>", { desc = '[G]it [F]log' })
 
 vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<cr>', { desc = '[N]vim [T]ree Toggle' })
 vim.keymap.set('n', '<leader>n', ':NvimTreeToggle<cr>', { desc = '[N]vim [T]ree Toggle' })
