@@ -67,7 +67,7 @@ vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
 vim.opt.scrolloff = 8
-
+vim.opt.sidescrolloff=5
 vim.opt.colorcolumn = "80"
 
 vim.o.foldcolumn = '1' -- '0' is not bad
@@ -550,11 +550,11 @@ require('lazy').setup({
           insert = "<c-g>s",
           insert_line = "<c-g>S",
           normal = "s",
-          normal_cur = "ss",
-          normal_line = "S",
-          normal_cur_line = "SS",
-          visual = "S",
-          visual_line = "gS",
+          normal_cur = "S",
+          normal_line = "gS",
+          normal_cur_line = "gs",
+          visual = "s",
+          visual_line = "S",
           delete = "ds",
           change = "cs",
           change_line = "cS",
@@ -639,6 +639,12 @@ require('lazy').setup({
       virtual_text = false,
     })
     require("lsp_lines").setup()
+  end,
+  },
+  {
+  "aznhe21/actions-preview.nvim",
+  config = function()
+    vim.keymap.set({ "v", "n" }, "<leader>c", require("actions-preview").code_actions, { desc = "Code Action" })
   end,
   },
   {
@@ -734,6 +740,41 @@ require('nvim-highlight-colors').setup()
 require("luasnip.loaders.from_vscode").lazy_load()
 
 require("nvim-dap-virtual-text").setup()
+
+require('cinnamon').setup {
+  -- KEYMAPS:
+  default_keymaps = true,   -- Create default keymaps.
+  -- Smooth scrolling for ...
+  -- Half-window movements:      <C-U> and <C-D>
+  -- Page movements:             <C-B>, <C-F>, <PageUp> and <PageDown>
+  extra_keymaps = true,    -- Create extra keymaps.
+  -- Smooth scrolling for ...
+  -- Start/end of file:          gg and G
+  -- Line number:                [count]G
+  -- Start/end of line:          0, ^ and $
+  -- Paragraph movements:        { and }
+  -- Prev/next search result:    n, N, *, #, g* and g#
+  -- Prev/next cursor location:  <C-O> and <C-I>
+  -- Screen scrolling:           zz, zt, zb, z., z<CR>, z-, z^, z+, <C-Y> and <C-E>
+  -- Horizontal scrolling:       zH, zL, zs, ze, zh and zl
+  extended_keymaps = true, -- Create extended keymaps.
+  -- Smooth scrolling for ...
+  -- Up/down movements:          j, k, <Up> and <Down>
+  -- Left/right movements:       h, l, <Left> and <Right>
+  override_keymaps = true, -- The plugin keymaps will override any existing keymaps.
+
+  -- OPTIONS:
+  always_scroll = true,    -- Scroll the cursor even when the window hasn't scrolled.
+  centered = true,          -- Keep cursor centered in window when using window scrolling.
+  disabled = false,         -- Disables the plugin.
+  default_delay = 5,        -- The default delay (in ms) between each line when scrolling.
+  hide_cursor = false,      -- Hide the cursor while scrolling. Requires enabling termguicolors!
+  horizontal_scroll = true, -- Enable smooth horizontal scrolling when view shifts left or right.
+  max_length = -1,          -- Maximum length (in ms) of a command. The line delay will be
+                            -- re-calculated. Setting to -1 will disable this option.
+  scroll_limit = 50,       -- Max number of lines moved before scrolling is skipped. Setting
+                            -- to -1 will disable this option.
+}
 
 require('refactoring').setup()
 
@@ -960,10 +1001,6 @@ vim.keymap.set("n", "Y", "y$")
 -- move visual selection up or down a line with <s-j> and <s-k>
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
-
--- keep page down and page up centered
-vim.keymap.set("n", "<C-d>", "<C-d>zz")
-vim.keymap.set("n", "<C-u>", "<C-u>zz")
 
 -- INFO:
 -- Instead of pressing ^ you can press _(underscore) to jump to the first non-whitespace character on the same line the cursor is on.
@@ -1257,12 +1294,12 @@ local on_attach = function(_, bufnr)
   end
 
   -- nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<leader>c', vim.lsp.buf.code_action, '[C]ode Action')
+  -- nmap('<leader>c', vim.lsp.buf.code_action, '[C]ode Action')
 
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
   nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-  nmap('<leader>d', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+  nmap('gD', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
   nmap('<leader>Ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
   nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
