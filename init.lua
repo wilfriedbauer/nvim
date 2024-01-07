@@ -36,6 +36,16 @@ I hope you edjoy your Neovim journey,
 - TJ
 
 P.S. You can delete this when you're done too. It's your config now :)
+
+Uninstall and reinstall repo from git https://github.com/wilfriedbauer/nvim:
+# Linux / Macos (unix)
+rm -rf ~/.config/nvim
+rm -rf ~/.local/share/nvim
+
+# Windows
+rd -r ~\AppData\Local\nvim
+rd -r ~\AppData\Local\nvim-data
+
 --]]
 
 -- Set <space> as the leader key
@@ -57,7 +67,7 @@ vim.opt.expandtab = true
 
 vim.opt.smartindent = true
 
-vim.opt.wrap = true
+vim.opt.wrap = false
 
 vim.opt.swapfile = false
 vim.opt.backup = false
@@ -66,11 +76,11 @@ vim.opt.undofile = true
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
-vim.opt.scrolloff = 8
-vim.opt.sidescrolloff=5
+vim.opt.scrolloff = 10
+vim.opt.sidescrolloff= 25
 vim.opt.colorcolumn = "80"
 
-vim.o.foldcolumn = '1' -- '0' is not bad
+vim.o.foldcolumn = '0' -- '0' is not bad
 vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
@@ -122,7 +132,23 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim', opts = {
+        -- display = {
+        --   render_limit = 5,          -- How many LSP messages to show at once
+        --   done_ttl = 1,
+        --   progress_ttl = 3,
+        --   },
+        notification = {
+          poll_rate = 1,             -- How frequently to update and render notifications
+          override_vim_notify = true,
+          },
+          integration = {
+            ["nvim-tree"] = {
+              enable = true,         -- Integrate with nvim-tree/nvim-tree.lua (if installed)
+            },
+          },
+        }
+      },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -197,16 +223,18 @@ require('lazy').setup({
             behavior = cmp.ConfirmBehavior.Replace,
             select = true,
           }),
-          ["<tab>"] = cmp_next,
+          ["<Tab>"] = cmp_next,
           ["<down>"] = cmp_next,
+          ["<C-n>"] = cmp_next,
           ["<C-j>"] = cmp_next,
+          ["<S-Tab>"] = cmp_prev,
           ["<C-k>"] = cmp_prev,
           ["<C-p>"] = cmp_prev,
           ["<up>"] = cmp_prev,
         },
         sources = {
           { name = "nvim_lsp_signature_help", group_index = 1 },
-          { name = "cmp_tabnine", group_index = 1 },
+          { name = "cmp_tabnine",             max_item_count = 5,  group_index = 1 },
           { name = "luasnip",                 max_item_count = 5,  group_index = 1 },
           { name = "nvim_lsp",                max_item_count = 20, group_index = 1 },
           { name = "nvim_lua",                group_index = 1 },
@@ -306,16 +334,50 @@ require('lazy').setup({
     priority = 1000,
     opts = {},
   },
+  'arkav/lualine-lsp-progress',
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
     -- See `:help lualine.txt`
+     dependencies = {
+        "nvim-tree/nvim-web-devicons",
+        "meuter/lualine-so-fancy.nvim",
+    },
     opts = {
       options = {
         icons_enabled = true,
         theme = 'tokyonight',
         component_separators = '|',
         section_separators = '',
+        globalstatus = true,
+          refresh = {
+              statusline = 100,
+          },
+      },
+      sections = {
+        lualine_a = {
+            { "fancy_mode", width = 3 }
+        },
+        lualine_b = {
+            { "fancy_branch" },
+            { "fancy_diff" },
+        },
+        lualine_c = {
+            { "fancy_cwd", substitute_home = true },
+            { 'lsp_progress' }
+        },
+        lualine_x = {
+            { "fancy_macro" },
+            { "fancy_diagnostics" },
+            { "fancy_searchcount" },
+            { "fancy_location" },
+        },
+        lualine_y = {
+            { "fancy_filetype", ts_icon = "" }
+        },
+        lualine_z = {
+            { "fancy_lsp_servers" }
+        },
       },
     },
   },
@@ -644,8 +706,14 @@ require('lazy').setup({
   {
   "aznhe21/actions-preview.nvim",
   config = function()
-    vim.keymap.set({ "v", "n" }, "<leader>c", require("actions-preview").code_actions, { desc = "Code Action" })
-  end,
+    require('actions-preview').setup{
+      telescope = {
+        sorting_strategy = "ascending",
+        layout_strategy = "horizontal",
+      },
+      vim.keymap.set({ "v", "n" }, "<leader>c", require("actions-preview").code_actions, { desc = "Code Action" })
+    }
+    end,
   },
   {
   'zegervdv/nrpattern.nvim',
@@ -727,13 +795,32 @@ require('lazy').setup({
       "nvim-treesitter/nvim-treesitter"
     }
   },
-
+  'lvimuser/lsp-inlayhints.nvim',
+  { "lukas-reineke/virt-column.nvim", opts = {} },
 }, {})
 
 -- [[Setup Custom Plugins ]]
 
 -- colorscheme
-vim.cmd[[colorscheme tokyonight]]
+vim.cmd[[colorscheme tokyonight-night]]
+
+require('lsp-inlayhints').setup()
+
+vim.api.nvim_create_augroup("LspAttach_inlayhints", {})
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = "LspAttach_inlayhints",
+  callback = function(args)
+    if not (args.data and args.data.client_id) then
+      return
+    end
+
+    local bufnr = args.buf
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    require("lsp-inlayhints").on_attach(client, bufnr)
+  end,
+})
+
+require('virt-column').setup()
 
 require('nvim-highlight-colors').setup()
 
@@ -789,24 +876,6 @@ require "lsp_signature".setup({
   handler_opts = {
     border = "rounded"
   },
-  floating_window_off_x = 5, -- adjust float windows x position.
-  floating_window_off_y = function() -- adjust float windows y position. e.g. set to -2 can make floating window move up 2 lines
-    local linenr = vim.api.nvim_win_get_cursor(0)[1] -- buf line number
-    local pumheight = vim.o.pumheight
-    local winline = vim.fn.winline() -- line number in the window
-    local winheight = vim.fn.winheight(0)
-
-    -- window top
-    if winline - 1 < pumheight then
-      return pumheight
-    end
-
-    -- window bottom
-    if winheight - winline < pumheight then
-      return -pumheight
-    end
-    return 0
-  end,
 })
 
 require'nvim-treesitter.configs'.setup {
@@ -954,28 +1023,32 @@ augroup END
 ]])
 
 -- [[ Setting Custom Plugins Keymaps ]]
-vim.keymap.set("n", "<leader>rn", function()
-  return ":IncRename " .. vim.fn.expand("<cword>")
-end, { expr = true })
+vim.keymap.set(
+  "n",
+  "<leader>rr",
+  function() return ":IncRename " .. vim.fn.expand("<cword>") end,
+  { expr = true },
+  { desc = "Rename word under cursor" }
+)
 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
 
 vim.keymap.set('n', 'zO', require('ufo').openAllFolds)
 vim.keymap.set('n', 'zC', require('ufo').closeAllFolds)
 
-vim.keymap.set('n', '<Up>', ':resize -2<CR>', {desc = 'Resize Down'})
-vim.keymap.set('n', '<Down>', ':resize +2<CR>', {desc = 'Resize Up'})
-vim.keymap.set('n', '<Left>', ':vertical resize +2<CR>', {desc = 'Resize Left'})
-vim.keymap.set('n', '<Right>', ':vertical resize -2<CR>', {desc = 'Resize Right'})
+vim.keymap.set('n', '<Up>', ':resize -2<CR>', { desc = 'Resize Down' })
+vim.keymap.set('n', '<Down>', ':resize +2<CR>', { desc = 'Resize Up' })
+vim.keymap.set('n', '<Left>', ':vertical resize +2<CR>', { desc = 'Resize Left' })
+vim.keymap.set('n', '<Right>', ':vertical resize -2<CR>', { desc = 'Resize Right' })
 
 vim.keymap.set("n", "<C-h>", "<C-w>h")
 vim.keymap.set("n", "<C-j>", "<C-w>j")
 vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
 
-vim.keymap.set('n', '<leader>j', require('treesj').toggle, {desc = "Toggle Join/Split of Code Block"})
-vim.keymap.set('n', '<C-p>', ':BufferLineCyclePrev<CR>', {desc = 'Previous Tab'})
-vim.keymap.set('n', '<C-n>', ':BufferLineCycleNext<CR>', {desc = 'Next Tab'})
+vim.keymap.set('n', '<leader>j', require('treesj').toggle, { desc = "Toggle Join/Split of Code Block" })
+vim.keymap.set('n', '<C-p>', ':BufferLineCyclePrev<CR>', { desc = 'Previous Tab' })
+vim.keymap.set('n', '<C-n>', ':BufferLineCycleNext<CR>', { desc = 'Next Tab' })
 
 vim.keymap.set('n', '<leader>TT', '<cmd>lua require("neotest").run.run()<CR>', {desc = '[T]est: Run nearest [T]est'})
 vim.keymap.set('n', '<leader>TF', '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>', {desc = '[T]est: Run [F]ile'})
@@ -983,7 +1056,8 @@ vim.keymap.set('n', '<leader>TS', '<cmd>lua require("neotest").run.stop()<CR>', 
 
 vim.keymap.set('n', '<leader>s', '<cmd>lua require("spectre").toggle()<CR>', { desc = "Toggle Spectre" })
 
-vim.keymap.set('n', '<leader>gdo', ':DiffviewOpen<cr>', { desc = '[G]it [D]iff View [O]pen' })
+vim.keymap.set('n', '<leader>gdd', ':DiffviewOpen<cr>', { desc = '[G]it [D]iff View' })
+vim.keymap.set('n', '<leader>gdo', ':DiffviewOpen ', { desc = '[G]it [D]iff View [O]pen' })
 vim.keymap.set('n', '<leader>gdc', ':DiffviewClose<cr>', { desc = '[G]it [D]iff View [C]lose' })
 vim.keymap.set('n', '<leader>gg', ':G<cr>', { desc = '[G]it [G]it' })
 vim.keymap.set('n', '<leader>gs', ':G status<cr>', { desc = '[G]it [S]tatus' })
@@ -1093,6 +1167,50 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
   defaults = {
+    vimgrep_arguments = {
+      "rg",
+      "-L",
+      "--color=never",
+      "--no-heading",
+      "--with-filename",
+      "--line-number",
+      "--column",
+      "--smart-case",
+    },
+    prompt_prefix = "   ",
+    selection_caret = "  ",
+    entry_prefix = "  ",
+    initial_mode = "insert",
+    selection_strategy = "reset",
+    sorting_strategy = "ascending",
+    layout_strategy = "horizontal",
+    layout_config = {
+      horizontal = {
+        prompt_position = "top",
+        preview_width = 0.55,
+        results_width = 0.8,
+      },
+      vertical = {
+        mirror = false,
+      },
+      width = 0.87,
+      height = 0.80,
+      preview_cutoff = 120,
+    },
+    file_sorter = require("telescope.sorters").get_fuzzy_file,
+    file_ignore_patterns = { "node_modules" },
+    generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
+    path_display = { "truncate" },
+    winblend = 0,
+    border = {},
+    borderchars = { " ", " ", " ", " ", " ", " ", " ", " " },
+    color_devicons = true,
+    set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
+    file_previewer = require("telescope.previewers").vim_buffer_cat.new,
+    grep_previewer = require("telescope.previewers").vim_buffer_vimgrep.new,
+    qflist_previewer = require("telescope.previewers").vim_buffer_qflist.new,
+    -- Developer configurations: Not meant for general override
+    buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
     mappings = {
       -- for input mode
       i = {
@@ -1105,6 +1223,7 @@ require('telescope').setup {
       n = {
         ["<C-j>"] = require("telescope.actions").move_selection_next,
         ["<C-k>"] = require("telescope.actions").move_selection_previous,
+        ["q"] = require("telescope.actions").close
       },
     },
   },
@@ -1150,15 +1269,24 @@ end
 vim.api.nvim_create_user_command('LiveGrepGitRoot', live_grep_git_root, {})
 
 -- See `:help telescope.builtin`
-vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
-vim.keymap.set('n', '<leader>/', function()
-  -- You can pass additional configuration to telescope to change theme, layout, etc.
-  require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 10,
-    previewer = false,
-  })
-end, { desc = '[/] Fuzzily search in current buffer' })
+vim.keymap.set(
+  'n',
+  '<leader>?',
+  require('telescope.builtin').oldfiles,
+  { desc = '[?] Find recently opened files' }
+)
+vim.keymap.set(
+  'n',
+  '<leader><space>',
+  require('telescope.builtin').buffers,
+  { desc = '[ ] Find existing buffers' }
+)
+vim.keymap.set(
+  'n',
+  '<leader>/',
+  require('telescope.builtin').current_buffer_fuzzy_find,
+  { desc = '[/] Fuzzily search in current buffer' }
+)
 
 local function telescope_live_grep_open_files()
   require('telescope.builtin').live_grep {
@@ -1293,22 +1421,24 @@ local on_attach = function(_, bufnr)
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
 
-  -- nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+  nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   -- nmap('<leader>c', vim.lsp.buf.code_action, '[C]ode Action')
 
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
   nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-  nmap('gD', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-  nmap('<leader>Ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-  nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+  nmap('gl', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-s>', function() require('lsp_signature').toggle_float_win() end, 'Signature Documentation')
+  -- nmap('gL', vim.lsp.buf.signature_help, 'Signature Documentation')
+  nmap('L', function() require('lsp_signature').toggle_float_win() end, 'Toggle Signature Documentation')
+  nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
   -- Lesser used LSP functionality
-  nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+  nmap('<leader>Ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+  nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+
   nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
   nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
   nmap('<leader>wl', function()
