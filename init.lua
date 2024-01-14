@@ -157,18 +157,23 @@ require('lazy').setup({
   -- [[ Configure nvim-cmp ]]
   -- See `:help cmp`
   {
-    "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
+    'hrsh7th/nvim-cmp',
+    event = 'InsertEnter',
     dependencies = {
-      "hrsh7th/cmp-nvim-lsp-signature-help",
-      "hrsh7th/cmp-nvim-lsp",
-      "hrsh7th/cmp-buffer",
-      "hrsh7th/cmp-path",
+      'hrsh7th/cmp-nvim-lsp-signature-help',
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-path',
+      'hrsh7th/cmp-calc',
+      'hrsh7th/cmp-emoji',
+      'max397574/cmp-greek',
+      'chrisgrieser/cmp-nerdfont',
+      'hrsh7th/cmp-cmdline',
       "saadparwaiz1/cmp_luasnip",
-      "hrsh7th/cmp-nvim-lua",
-      "windwp/nvim-autopairs",
-      "onsails/lspkind-nvim",
-      { "roobert/tailwindcss-colorizer-cmp.nvim", config = true }
+      'hrsh7th/cmp-nvim-lua',
+      'windwp/nvim-autopairs',
+      'onsails/lspkind-nvim',
+      { 'roobert/tailwindcss-colorizer-cmp.nvim', config = true }
     },
     config = function()
       local cmp = require("cmp")
@@ -198,16 +203,33 @@ require('lazy').setup({
         enabled = true,
         preselect = cmp.PreselectMode.None,
         window = {
-          completion = cmp.config.window.bordered({
-            winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
-          }),
-          documentation = cmp.config.window.bordered({
-            winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
-          }),
+          winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None",
+          col_offset = -3,
+          side_padding = 0,
+          -- completion = cmp.config.window.bordered({
+          --   winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
+          -- }),
+          -- documentation = cmp.config.window.bordered({
+          --   winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
+          -- }),
         },
-        ---@diagnostic disable-next-line
-        view = {
-          entries = "bordered",
+        --@diagnostic disable-next-line
+        -- view = {
+        --   entries = "bordered",
+        -- },
+        formatting = {
+          fields = { "kind", "abbr", "menu" },
+          format = function(entry, vim_item)
+            local kind = require("lspkind").cmp_format({
+              mode = "symbol_text",
+              maxwidth = 50,
+            })(entry, vim_item)
+            local strings = vim.split(kind.kind, "%s", { trimempty = true })
+            kind.kind = " " .. (strings[1] or "") .. " "
+            kind.menu = "    (" .. (strings[2] or "") .. ")"
+
+            return kind
+          end,
         },
         snippet = {
           expand = function(args)
@@ -234,14 +256,42 @@ require('lazy').setup({
         },
         sources = {
           { name = "nvim_lsp_signature_help", group_index = 1 },
-          { name = "cmp_tabnine",             max_item_count = 5,  group_index = 1 },
-          { name = "luasnip",                 max_item_count = 5,  group_index = 1 },
-          { name = "nvim_lsp",                max_item_count = 20, group_index = 1 },
+          { name = "luasnip",                 group_index = 1, max_item_count = 5 },
+          { name = "nvim_lsp",                group_index = 1, max_item_count = 20 },
           { name = "nvim_lua",                group_index = 1 },
           { name = "vim-dadbod-completion",   group_index = 1 },
-          { name = "path",                    group_index = 2 },
-          { name = "buffer",                  keyword_length = 2,  max_item_count = 5, group_index = 2 },
+          { name = "path",                    group_index = 1 },
+          { name = "buffer",                  group_index = 1, max_item_count = 5, keyword_length = 2 },
+          { name = "git" ,                    group_index = 1, max_item_count = 5 },
+          { name = 'calc' ,                   group_index = 1, max_item_count = 5 },
+          { name = 'gitmoji' ,                group_index = 1, max_item_count = 5 },
+          { name = 'emoji' ,                  group_index = 1, max_item_count = 5 },
+          { name = 'nerdfont',                group_index = 1, max_item_count = 5 },
+          { name = 'greek' ,                  group_index = 1, max_item_count = 5 },
+          { name = "cmp_tabnine",             group_index = 2, max_item_count = 5 },
         },
+      })
+      -- `/` cmdline setup.
+      cmp.setup.cmdline('/', {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = {
+          { name = 'buffer' }
+        }
+      })
+      -- `:` cmdline setup.
+      cmp.setup.cmdline(':', {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources({
+          { name = 'path' }
+        },
+        {
+          {
+            name = 'cmdline',
+            option = {
+              ignore_cmds = { 'Man', '!' }
+            }
+          }
+        })
       })
       local presentAutopairs, cmp_autopairs = pcall(require, "nvim-autopairs.completion.cmp")
       if not presentAutopairs then
@@ -327,10 +377,30 @@ require('lazy').setup({
         map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
       end,
     },
+    config =
+      function(_, opts)
+        require('gitsigns').setup(opts)
+        require("scrollbar.handlers.gitsigns").setup()
+      end,
   },
   {
     "folke/tokyonight.nvim",
     lazy = false,
+    name = "tokyonight",
+    priority = 1000,
+    opts = {},
+  },
+  {
+    "catppuccin/nvim",
+    lazy = false,
+    name = "catppuccin",
+    priority = 1000,
+    opts = {},
+  },
+  {
+    "rebelot/kanagawa.nvim",
+    lazy = false,
+    name = "kanagawa",
     priority = 1000,
     opts = {},
   },
@@ -346,7 +416,7 @@ require('lazy').setup({
     opts = {
       options = {
         icons_enabled = true,
-        theme = 'tokyonight',
+        theme = 'catppuccin',
         component_separators = '|',
         section_separators = '',
         globalstatus = true,
@@ -797,12 +867,14 @@ require('lazy').setup({
   },
   'lvimuser/lsp-inlayhints.nvim',
   { "lukas-reineke/virt-column.nvim", opts = {} },
+  { "Dynge/gitmoji.nvim", dependencies = { "hrsh7th/nvim-cmp" }, opts = {} },
+  { "petertriho/cmp-git", dependencies = { "nvim-lua/plenary.nvim" }, opts = {}},
 }, {})
 
 -- [[Setup Custom Plugins ]]
 
 -- colorscheme
-vim.cmd[[colorscheme tokyonight-night]]
+vim.cmd[[colorscheme catppuccin-mocha]]
 
 require('lsp-inlayhints').setup()
 
@@ -919,19 +991,19 @@ require("autoclose").setup()
 
 require('matchparen').setup()
 
-local colors = require("tokyonight.colors").setup()
+local colors = require("catppuccin.palettes").get_palette "mocha"
 
 require("scrollbar").setup({
   handle = {
-    color = colors.bg_highlight,
+    color = colors.surface2,
   },
   marks = {
-    Search = { color = colors.orange },
-    Error = { color = colors.error },
-    Warn = { color = colors.warning },
-    Info = { color = colors.info },
-    Hint = { color = colors.hint },
-    Misc = { color = colors.purple },
+    Search = { color = colors.green },
+    Error = { color = colors.red },
+    Warn = { color = colors.yellow },
+    Info = { color = colors.blue },
+    Hint = { color = colors.peach },
+    Misc = { color = colors.teal },
   },
 })
 
