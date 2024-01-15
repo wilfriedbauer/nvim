@@ -869,6 +869,15 @@ require('lazy').setup({
   { "lukas-reineke/virt-column.nvim", opts = {} },
   { "Dynge/gitmoji.nvim", dependencies = { "hrsh7th/nvim-cmp" }, opts = {} },
   { "petertriho/cmp-git", dependencies = { "nvim-lua/plenary.nvim" }, opts = {}},
+  {
+    "NeogitOrg/neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim",         -- required
+      "sindrets/diffview.nvim",        -- optional - Diff integration
+      "nvim-telescope/telescope.nvim", -- optional
+    },
+    config = true
+  }
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -1131,7 +1140,7 @@ vim.keymap.set('n', '<leader>s', '<cmd>lua require("spectre").toggle()<CR>', { d
 vim.keymap.set('n', '<leader>gdd', ':DiffviewOpen<cr>', { desc = '[G]it [D]iff View' })
 vim.keymap.set('n', '<leader>gdo', ':DiffviewOpen ', { desc = '[G]it [D]iff View [O]pen' })
 vim.keymap.set('n', '<leader>gdc', ':DiffviewClose<cr>', { desc = '[G]it [D]iff View [C]lose' })
-vim.keymap.set('n', '<leader>gg', ':G<cr>', { desc = '[G]it [G]it' })
+vim.keymap.set('n', '<leader>gg', ':Neogit<cr>', { desc = 'Neo [G]it' })
 vim.keymap.set('n', '<leader>gs', ':G status<cr>', { desc = '[G]it [S]tatus' })
 vim.keymap.set('n', '<leader>gl', ':Gclog<cr>', { desc = '[G]it [L]og' })
 vim.keymap.set("n", "<leader>gf", ":Flog<CR>", { desc = '[G]it [F]log' })
