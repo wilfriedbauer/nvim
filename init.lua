@@ -758,8 +758,10 @@ require('lazy').setup({
     -- follow latest release.
     version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
     -- install jsregexp (optional!).
-    build = "make install_jsregexp"
+    build = "make install_jsregexp",
+    dependencies = { "rafamadriz/friendly-snippets" },
   },
+  'benfowler/telescope-luasnip.nvim',
   'ThePrimeagen/harpoon',
   'm-demare/hlargs.nvim',
   'nvim-tree/nvim-tree.lua',
@@ -1309,6 +1311,7 @@ require('telescope').setup {
     },
   },
 }
+pcall(require('telescope').load_extension('luasnip'))
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
@@ -1376,7 +1379,8 @@ local function telescope_live_grep_open_files()
   }
 end
 vim.keymap.set('n', '<leader>f/', telescope_live_grep_open_files, { desc = '[F]ind [/] in Open Files' })
-vim.keymap.set('n', '<leader>fs', require('telescope.builtin').builtin, { desc = '[F]ind [S]elect Telescope' })
+vim.keymap.set('n', '<leader>ft', require('telescope.builtin').builtin, { desc = '[F]ind [T]elescope' })
+vim.keymap.set('n', '<leader>fs', ':Telescope luasnip<CR>', { desc = '[F]ind [S]nippets' })
 vim.keymap.set('n', '<leader>fgf', require('telescope.builtin').git_files, { desc = '[F]ind [G]it [F]iles' })
 vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = '[F]ind [F]iles' })
 vim.keymap.set('n', '<leader>fh', require('telescope.builtin').help_tags, { desc = '[F]ind [H]elp' })
