@@ -879,7 +879,27 @@ require('lazy').setup({
       "nvim-telescope/telescope.nvim", -- optional
     },
     config = true
-  }
+  },
+  {
+    "Zeioth/compiler.nvim",
+    cmd = {"CompilerOpen", "CompilerToggleResults", "CompilerRedo"},
+    dependencies = { "stevearc/overseer.nvim" },
+    opts = {},
+  },
+  {
+    "stevearc/overseer.nvim",
+    commit = "400e762648b70397d0d315e5acaf0ff3597f2d8b",
+    cmd = { "CompilerOpen", "CompilerToggleResults", "CompilerRedo" },
+    opts = {
+      task_list = {
+        direction = "bottom",
+        min_height = 25,
+        max_height = 25,
+        default_detail = 1
+      },
+    },
+  },
+  {'akinsho/toggleterm.nvim', version = "*", config = true},
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -1110,11 +1130,30 @@ vim.keymap.set(
   "n",
   "<leader>rr",
   function() return ":IncRename " .. vim.fn.expand("<cword>") end,
-  { expr = true },
   { desc = "Rename word under cursor" }
 )
 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
+
+-- have to set <C-_> instead of <C-/> for terminal toggle on CTRL-/. 
+-- same hotkey for leaving terminal as ESC cant be used for vi keybinds in terminal.
+vim.keymap.set('n', '<C-_>', '<cmd>ToggleTerm size=15 dir=git_dir direction=horizontal name=TERMINAL<CR>', {desc = 'Toggle Terminal', noremap = true})
+
+function _G.set_terminal_keymaps()
+  local opts = {buffer = 0}
+  vim.keymap.set('t', '<C-_>', [[<C-\><C-n>]], opts)
+  vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
+  vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
+  vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd k<CR>]], opts)
+  vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
+  vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
+end
+-- if you only want these mappings for toggle term use term://*toggleterm#* instead
+vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
+
+vim.keymap.set("n", "<leader>RR", "<cmd>CompilerOpen<cr>")
+vim.keymap.set("n", "<leader>RS", "<cmd>CompilerStop<cr>")
+vim.keymap.set("n", "<leader>RT", "<cmd>CompilerToggleResults<cr>")
 
 vim.keymap.set('n', 'zO', require('ufo').openAllFolds)
 vim.keymap.set('n', 'zC', require('ufo').closeAllFolds)
@@ -1548,6 +1587,7 @@ require('which-key').register {
   ['<leader>f'] = { name = '[F]ind', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]rouble', _ = 'which_key_ignore' },
   ['<leader>T'] = { name = '[T]est', _ = 'which_key_ignore' },
+  ['<leader>R'] = { name = '[R]un', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
   ['<leader>d'] = { name = '[D]atabase', _ = 'which_key_ignore' },
 }
