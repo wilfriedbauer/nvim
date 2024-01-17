@@ -979,6 +979,11 @@ require "lsp_signature".setup({
   handler_opts = {
     border = "rounded"
   },
+  select_signature_key = "<C-s>",
+  hint_prefix = "",
+  hint_inline = function() return true end,
+  toggle_key = "<C-l>", -- toggle signature on and off in insert mode,
+  move_cursor_key ="<C-k>",
 })
 
 require'nvim-treesitter.configs'.setup {
