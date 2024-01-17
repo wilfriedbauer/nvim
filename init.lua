@@ -1158,6 +1158,9 @@ vim.keymap.set("n", "<leader>RT", "<cmd>CompilerToggleResults<cr>")
 vim.keymap.set('n', 'zO', require('ufo').openAllFolds)
 vim.keymap.set('n', 'zC', require('ufo').closeAllFolds)
 
+vim.keymap.set('n', 'zh', 'zH', { desc = 'Scroll right' })
+vim.keymap.set('n', 'zl', 'zL', { desc = 'Scroll left' })
+
 vim.keymap.set('n', '<Up>', ':resize -2<CR>', { desc = 'Resize Down' })
 vim.keymap.set('n', '<Down>', ':resize +2<CR>', { desc = 'Resize Up' })
 vim.keymap.set('n', '<Left>', ':vertical resize +2<CR>', { desc = 'Resize Left' })
@@ -1171,6 +1174,7 @@ vim.keymap.set("n", "<C-l>", "<C-w>l")
 vim.keymap.set('n', '<leader>j', require('treesj').toggle, { desc = "Toggle Join/Split of Code Block" })
 vim.keymap.set('n', '<C-p>', ':BufferLineCyclePrev<CR>', { desc = 'Previous Tab' })
 vim.keymap.set('n', '<C-n>', ':BufferLineCycleNext<CR>', { desc = 'Next Tab' })
+vim.keymap.set('n', '<leader>Q', ':BufferLinePickClose<CR>', { desc = 'Pick Tabs to close' })
 
 vim.keymap.set('n', '<leader>TT', '<cmd>lua require("neotest").run.run()<CR>', {desc = '[T]est: Run nearest [T]est'})
 vim.keymap.set('n', '<leader>TF', '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>', {desc = '[T]est: Run [F]ile'})
@@ -1427,7 +1431,7 @@ vim.keymap.set('n', '<leader>fw', require('telescope.builtin').grep_string, { de
 vim.keymap.set('n', '<leader>fG', require('telescope.builtin').live_grep, { desc = '[F]ind by [G]rep' })
 vim.keymap.set('n', '<leader>fgr', ':LiveGrepGitRoot<cr>', { desc = '[F]ind by Grep on [G]it [R]oot' })
 vim.keymap.set('n', '<leader>fd', require('telescope.builtin').diagnostics, { desc = '[F]ind [D]iagnostics' })
-vim.keymap.set('n', '<leader>fr', require('telescope.builtin').resume, { desc = '[F]ind [R]esume' })
+vim.keymap.set('n', '<leader>fr', require('telescope.builtin').resume, { desc = '[F]ind [R]esume Last Search' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -1560,7 +1564,7 @@ local on_attach = function(_, bufnr)
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
   -- Lesser used LSP functionality
-  nmap('<leader>Ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+  nmap('<leader>wd', require('telescope.builtin').lsp_document_symbols, '[D]ocument Symbols')
   nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
   nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
@@ -1577,7 +1581,6 @@ end
 
 -- document existing key chains
 require('which-key').register {
-  ['<leader>D'] = { name = '[D]ocument', _ = 'which_key_ignore' },
   ['<leader>b'] = { name = '[B]ug', _ = 'which_key_ignore' },
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
   ['<leader>fg'] = { name = '[F]ind [G]it', _ = 'which_key_ignore' },
