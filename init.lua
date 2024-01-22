@@ -426,7 +426,7 @@ require('lazy').setup({
       },
       sections = {
         lualine_a = {
-            { "fancy_mode", width = 3 }
+            { "fancy_mode", width = 1 }
         },
         lualine_b = {
             { "fancy_branch" },
