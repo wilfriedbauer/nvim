@@ -1492,8 +1492,8 @@ vim.defer_fn(function()
       keymaps = {
         init_selection = '<c-space>',
         node_incremental = '<c-space>',
-        scope_incremental = '<c-s>',
-        node_decremental = '<M-space>',
+        scope_incremental = '<space>',
+        node_decremental = '<backspace>',
       },
     },
     textobjects = {
@@ -1668,6 +1668,22 @@ mason_lspconfig.setup_handlers {
     }
   end,
 }
+
+-- Customize right click contextual menu.
+vim.api.nvim_create_autocmd("VimEnter", {
+  desc = "Disable right contextual menu warning message",
+  callback = function()
+    -- Disable right click message
+    vim.api.nvim_command [[aunmenu PopUp.How-to\ disable\ mouse]]
+    -- vim.api.nvim_command [[aunmenu PopUp.-1-]] -- You can remode a separator like this.
+    vim.api.nvim_command [[menu PopUp.Toggle\ \Breakpoint <cmd>:lua require('dap').toggle_breakpoint()<CR>]]
+    vim.api.nvim_command [[menu PopUp.-2- <Nop>]]
+    vim.api.nvim_command [[menu PopUp.Start\ \Compiler <cmd>:CompilerOpen<CR>]]
+    vim.api.nvim_command [[menu PopUp.Start\ \Debugger <cmd>:DapContinue<CR>]]
+    vim.api.nvim_command [[menu PopUp.Run\ \Test <cmd>:Neotest run<CR>]]
+
+  end,
+})
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
