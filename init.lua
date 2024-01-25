@@ -696,7 +696,6 @@ require('lazy').setup({
   },
   'windwp/nvim-ts-autotag',
   'monkoose/matchparen.nvim',
-  'nvim-pack/nvim-spectre',
   'RRethy/vim-illuminate',
   'brenoprata10/nvim-highlight-colors',
   'petertriho/nvim-scrollbar',
@@ -906,6 +905,7 @@ require('lazy').setup({
     ft = { "markdown" },
     build = function() vim.fn["mkdp#util#install"]() end,
   },
+  'cshuaimin/ssr.nvim',
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -1144,6 +1144,8 @@ vim.keymap.set(
   { desc = "Rename word under cursor" }
 )
 
+vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end)
+
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
 
 -- have to set <C-_> instead of <C-/> for terminal toggle on CTRL-/. 
@@ -1190,8 +1192,6 @@ vim.keymap.set('n', '<leader>Q', ':BufferLinePickClose<CR>', { desc = 'Pick Tabs
 vim.keymap.set('n', '<leader>TT', '<cmd>lua require("neotest").run.run()<CR>', {desc = '[T]est: Run nearest [T]est'})
 vim.keymap.set('n', '<leader>TF', '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>', {desc = '[T]est: Run [F]ile'})
 vim.keymap.set('n', '<leader>TS', '<cmd>lua require("neotest").run.stop()<CR>', {desc = '[T]est: [S]top'})
-
-vim.keymap.set('n', '<leader>s', '<cmd>lua require("spectre").toggle()<CR>', { desc = "Toggle Spectre" })
 
 vim.keymap.set('n', '<leader>gdd', ':DiffviewOpen<cr>', { desc = '[G]it [D]iff View' })
 vim.keymap.set('n', '<leader>gdo', ':DiffviewOpen ', { desc = '[G]it [D]iff View [O]pen' })
@@ -1492,7 +1492,7 @@ vim.defer_fn(function()
       keymaps = {
         init_selection = '<c-space>',
         node_incremental = '<c-space>',
-        scope_incremental = '<space>',
+        scope_incremental = '<M-space>',
         node_decremental = '<backspace>',
       },
     },
