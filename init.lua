@@ -1,53 +1,3 @@
---[[
-
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-
-Kickstart.nvim is *not* a distribution.
-
-Kickstart.nvim is a template for your own configuration.
-  The goal is that you can read every line of code, top-to-bottom, understand
-  what your configuration is doing, and modify it to suit your needs.
-
-  Once you've done that, you should start exploring, configuring and tinkering to
-  explore Neovim!
-
-  If you don't know anything about Lua, I recommend taking some time to read through
-  a guide. One possible example:
-  - https://learnxinyminutes.com/docs/lua/
-
-
-  And then you can explore or search through `:help lua-guide`
-  - https://neovim.io/doc/user/lua-guide.html
-
-
-Kickstart Guide:
-
-I have left several `:help X` comments throughout the init.lua
-You should run that command and read that help section for more information.
-
-In addition, I have some `NOTE:` items throughout the file.
-These are for you, the reader to help understand what is happening. Feel free to delete
-them once you know what you're doing, but they should serve as a guide for when you
-are first encountering a few different constructs in your nvim config.
-
-I hope you edjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now :)
-
-Uninstall and reinstall repo from git https://github.com/wilfriedbauer/nvim:
-# Linux / Macos (unix)
-rm -rf ~/.config/nvim
-rm -rf ~/.local/share/nvim
-
-# Windows
-rd -r ~\AppData\Local\nvim
-rd -r ~\AppData\Local\nvim-data
-
---]]
-
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
@@ -55,7 +5,6 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 --settings:
-
 vim.opt.guicursor = ""
 
 vim.opt.nu = true
@@ -129,6 +78,7 @@ require('lazy').setup({
       -- Automatically install LSPs to stdpath for neovim
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
+      'nvimdev/lspsaga.nvim',
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
@@ -853,12 +803,6 @@ require('lazy').setup({
   },
   {'kevinhwang91/nvim-ufo', dependencies = 'kevinhwang91/promise-async'},
   {
-    "ray-x/lsp_signature.nvim",
-    event = "VeryLazy",
-    opts = {},
-    config = function(_, opts) require'lsp_signature'.setup(opts) end
-  },
-  {
     "nvim-neotest/neotest",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -906,6 +850,20 @@ require('lazy').setup({
     build = function() vim.fn["mkdp#util#install"]() end,
   },
   'cshuaimin/ssr.nvim',
+  {
+    'nvimdev/lspsaga.nvim',
+    config = function()
+      require('lspsaga').setup({
+        ui = {
+          code_action = ''
+        }
+      })
+    end,
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter', -- optional
+      'nvim-tree/nvim-web-devicons'     -- optional
+    }
+  }
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -980,18 +938,6 @@ require("bufferline").setup()
 
 require("symbols-outline").setup()
 
-require "lsp_signature".setup({
-  bind = true, -- This is mandatory, otherwise border config won't get registered.
-  handler_opts = {
-    border = "rounded"
-  },
-  select_signature_key = "<C-s>",
-  hint_prefix = "",
-  hint_inline = function() return true end,
-  toggle_key = "<C-l>", -- toggle signature on and off in insert mode,
-  move_cursor_key ="<C-k>",
-})
-
 require'nvim-treesitter.configs'.setup {
   autotag = {
     enable = true,
@@ -1024,7 +970,7 @@ require("nvim-tree").setup({
 })
 
 require('ufo').setup({
-    provider_selector = function(bufnr, filetype, buftype)
+    provider_selector = function()
         return {'treesitter', 'indent'}
     end
 })
@@ -1144,7 +1090,7 @@ vim.keymap.set(
   { desc = "Rename word under cursor" }
 )
 
-vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end)
+vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end, { desc = "Structural Replace" })
 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
 
@@ -1276,7 +1222,6 @@ vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
-vim.keymap.set('n', '<leader>k', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>K', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 -- Trouble keymaps
@@ -1479,7 +1424,9 @@ vim.defer_fn(function()
       'git_rebase',
       'gitattributes',
       'gitcommit',
-      'gitignore'
+      'gitignore',
+      'markdown',
+      'markdown_inline',
     },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
@@ -1546,12 +1493,6 @@ end, 0)
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
 local on_attach = function(_, bufnr)
-  -- NOTE: Remember that lua is a real programming language, and as such it is possible
-  -- to define small helper and utility functions so you don't have to repeat yourself
-  -- many times.
-  --
-  -- In this case, we create a function that lets us more easily define mappings specific
-  -- for LSP related items. It sets the mode, buffer and description for us each time.
   local nmap = function(keys, func, desc)
     if desc then
       desc = 'LSP: ' .. desc
@@ -1560,19 +1501,35 @@ local on_attach = function(_, bufnr)
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
 
+  local imap = function(keys, func, desc)
+    if desc then
+      desc = 'LSP: ' .. desc
+    end
+
+    vim.keymap.set('i', keys, func, { buffer = bufnr, desc = desc })
+  end
+
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   -- nmap('<leader>c', vim.lsp.buf.code_action, '[C]ode Action')
 
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
   nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-  nmap('gl', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-
-  -- See `:help K` for why this keymap
-  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  -- nmap('gL', vim.lsp.buf.signature_help, 'Signature Documentation')
-  nmap('L', function() require('lsp_signature').toggle_float_win() end, 'Toggle Signature Documentation')
+  nmap('gP', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+  -- See `:help K` for why this keymap
+  -- nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+  nmap('K', '<Cmd>Lspsaga hover_doc<cr>', '[S]aga [H]over')
+  nmap('gF', '<Cmd>Lspsaga finder<cr>', '[S]aga [F]inder')
+  nmap('gp', '<Cmd>Lspsaga peek_definition<cr>', '[P]review [D]efinition')
+  nmap('<C-j>', '<Cmd>Lspsaga diagnostic_jump_next<cr>', '[S]aga Diagnostic Next')
+  nmap('<C-k>', '<Cmd>Lspsaga diagnostic_jump_prev<cr>', '[S]aga Diagnostic Prev')
+  nmap('<leader>k', '<Cmd>Lspsaga show_cursor_diagnostics<cr>', 'Open floating diagnostic message' )
+  nmap('<leader>A', '<Cmd>Lspsaga outline<cr>', 'Saga [O]utline' )
+  nmap('<leader>rs', '<Cmd>Lspsaga rename<cr>', '[R]ename [S]aga')
+  nmap('<leader>rp', '<Cmd>Lspsaga project_replace<cr>', '[R]ename [S]aga Project')
+  imap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  nmap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
   nmap('<leader>wd', require('telescope.builtin').lsp_document_symbols, '[D]ocument Symbols')
@@ -1684,6 +1641,26 @@ vim.api.nvim_create_autocmd("VimEnter", {
 
   end,
 })
+
+--[[
+If you don't know anything about Lua, I recommend taking some time to read through
+a guide. One possible example:
+- https://learnxinyminutes.com/docs/lua/
+
+
+And then you can explore or search through `:help lua-guide`
+- https://neovim.io/doc/user/lua-guide.html
+
+Uninstall and reinstall repo from git https://github.com/wilfriedbauer/nvim:
+# Linux / Macos (unix)
+rm -rf ~/.config/nvim
+rm -rf ~/.local/share/nvim
+
+# Windows
+rd -r ~\AppData\Local\nvim
+rd -r ~\AppData\Local\nvim-data
+
+--]]
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
