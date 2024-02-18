@@ -851,6 +851,16 @@ require('lazy').setup({
   },
   'cshuaimin/ssr.nvim',
   {
+  "ahmedkhalf/project.nvim",
+  config = function()
+    require("project_nvim").setup {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+    }
+  end
+  },
+  {
     'nvimdev/lspsaga.nvim',
     config = function()
       require('lspsaga').setup({
@@ -966,6 +976,12 @@ require("nvim-tree").setup({
   },
   filters = {
     dotfiles = false,
+  },
+  sync_root_with_cwd = true,
+  respect_buf_cwd = true,
+  update_focused_file = {
+    enable = true,
+    update_root = true
   },
 })
 
@@ -1093,6 +1109,7 @@ vim.keymap.set(
 vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end, { desc = "Structural Replace" })
 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
+vim.keymap.set("n", "<leader>p", ":Telescope projects<CR>")
 
 -- have to set <C-_> instead of <C-/> for terminal toggle on CTRL-/. 
 -- same hotkey for leaving terminal as ESC cant be used for vi keybinds in terminal.
