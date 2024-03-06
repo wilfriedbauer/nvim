@@ -699,10 +699,6 @@ require('lazy').setup({
   'simrat39/symbols-outline.nvim',
   'm4xshen/autoclose.nvim',
   {
-    'declancm/cinnamon.nvim',
-    config = function() require('cinnamon').setup() end
-  },
-  {
     "L3MON4D3/LuaSnip",
     -- follow latest release.
     version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
@@ -904,41 +900,6 @@ require('nvim-highlight-colors').setup()
 require("luasnip.loaders.from_vscode").lazy_load()
 
 require("nvim-dap-virtual-text").setup()
-
-require('cinnamon').setup {
-  -- KEYMAPS:
-  default_keymaps = true,   -- Create default keymaps.
-  -- Smooth scrolling for ...
-  -- Half-window movements:      <C-U> and <C-D>
-  -- Page movements:             <C-B>, <C-F>, <PageUp> and <PageDown>
-  extra_keymaps = true,    -- Create extra keymaps.
-  -- Smooth scrolling for ...
-  -- Start/end of file:          gg and G
-  -- Line number:                [count]G
-  -- Start/end of line:          0, ^ and $
-  -- Paragraph movements:        { and }
-  -- Prev/next search result:    n, N, *, #, g* and g#
-  -- Prev/next cursor location:  <C-O> and <C-I>
-  -- Screen scrolling:           zz, zt, zb, z., z<CR>, z-, z^, z+, <C-Y> and <C-E>
-  -- Horizontal scrolling:       zH, zL, zs, ze, zh and zl
-  extended_keymaps = true, -- Create extended keymaps.
-  -- Smooth scrolling for ...
-  -- Up/down movements:          j, k, <Up> and <Down>
-  -- Left/right movements:       h, l, <Left> and <Right>
-  override_keymaps = true, -- The plugin keymaps will override any existing keymaps.
-
-  -- OPTIONS:
-  always_scroll = true,    -- Scroll the cursor even when the window hasn't scrolled.
-  centered = true,          -- Keep cursor centered in window when using window scrolling.
-  disabled = false,         -- Disables the plugin.
-  default_delay = 5,        -- The default delay (in ms) between each line when scrolling.
-  hide_cursor = false,      -- Hide the cursor while scrolling. Requires enabling termguicolors!
-  horizontal_scroll = true, -- Enable smooth horizontal scrolling when view shifts left or right.
-  max_length = -1,          -- Maximum length (in ms) of a command. The line delay will be
-                            -- re-calculated. Setting to -1 will disable this option.
-  scroll_limit = 50,       -- Max number of lines moved before scrolling is skipped. Setting
-                            -- to -1 will disable this option.
-}
 
 require('refactoring').setup()
 
