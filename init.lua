@@ -1356,14 +1356,14 @@ local function telescope_live_grep_open_files()
   }
 end
 vim.keymap.set('n', '<leader>f/', telescope_live_grep_open_files, { desc = '[F]ind [/] in Open Files' })
-vim.keymap.set('n', '<leader>ft', require('telescope.builtin').builtin, { desc = '[F]ind [T]elescope' })
+vim.keymap.set('n', '<leader>fb', require('telescope.builtin').builtin, { desc = '[F]ind Telescope [B]uiltin' })
 vim.keymap.set('n', '<leader>fs', ':Telescope luasnip<CR>', { desc = '[F]ind [S]nippets' })
-vim.keymap.set('n', '<leader>fgf', require('telescope.builtin').git_files, { desc = '[F]ind [G]it [F]iles' })
+vim.keymap.set('n', '<leader>fg', require('telescope.builtin').git_files, { desc = '[F]ind [G]it Files' })
 vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = '[F]ind [F]iles' })
 vim.keymap.set('n', '<leader>fh', require('telescope.builtin').help_tags, { desc = '[F]ind [H]elp' })
 vim.keymap.set('n', '<leader>fw', require('telescope.builtin').grep_string, { desc = '[F]ind current [W]ord' })
-vim.keymap.set('n', '<leader>fG', require('telescope.builtin').live_grep, { desc = '[F]ind by [G]rep' })
-vim.keymap.set('n', '<leader>fgr', ':LiveGrepGitRoot<cr>', { desc = '[F]ind by Grep on [G]it [R]oot' })
+vim.keymap.set('n', '<leader>ft', require('telescope.builtin').live_grep, { desc = '[F]ind [T]ext by Grep' })
+vim.keymap.set('n', '<leader>fG', ':LiveGrepGitRoot<cr>', { desc = '[F]ind by Grep on [G]it Root' })
 vim.keymap.set('n', '<leader>fd', require('telescope.builtin').diagnostics, { desc = '[F]ind [D]iagnostics' })
 vim.keymap.set('n', '<leader>fr', require('telescope.builtin').resume, { desc = '[F]ind [R]esume Last Search' })
 
@@ -1500,8 +1500,6 @@ local on_attach = function(_, bufnr)
   nmap('K', '<Cmd>Lspsaga hover_doc<cr>', '[S]aga [H]over')
   nmap('gF', '<Cmd>Lspsaga finder<cr>', '[S]aga [F]inder')
   nmap('gp', '<Cmd>Lspsaga peek_definition<cr>', '[P]review [D]efinition')
-  nmap('<C-j>', '<Cmd>Lspsaga diagnostic_jump_next<cr>', '[S]aga Diagnostic Next')
-  nmap('<C-k>', '<Cmd>Lspsaga diagnostic_jump_prev<cr>', '[S]aga Diagnostic Prev')
   nmap('<leader>k', '<Cmd>Lspsaga show_cursor_diagnostics<cr>', 'Open floating diagnostic message' )
   nmap('<leader>A', '<Cmd>Lspsaga outline<cr>', 'Saga [O]utline' )
   nmap('<leader>rs', '<Cmd>Lspsaga rename<cr>', '[R]ename [S]aga')
@@ -1529,7 +1527,6 @@ end
 require('which-key').register {
   ['<leader>b'] = { name = '[B]ug', _ = 'which_key_ignore' },
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
-  ['<leader>fg'] = { name = '[F]ind [G]it', _ = 'which_key_ignore' },
   ['<leader>gd'] = { name = '[G]it [D]iff', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
