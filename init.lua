@@ -869,7 +869,8 @@ require('lazy').setup({
       'nvim-treesitter/nvim-treesitter', -- optional
       'nvim-tree/nvim-web-devicons'     -- optional
     }
-  }
+  },
+  {'ojroques/nvim-bufdel'}
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -913,6 +914,11 @@ require'nvim-treesitter.configs'.setup {
   autotag = {
     enable = true,
   }
+}
+
+require('bufdel').setup {
+  next = 'tabs',
+  quit = false,  -- quit Neovim when last buffer is closed
 }
 
 require('tabnine').setup({
@@ -1111,7 +1117,7 @@ vim.keymap.set("n", "<C-l>", "<C-w>l")
 vim.keymap.set('n', '<leader>j', require('treesj').toggle, { desc = "Toggle Join/Split of Code Block" })
 vim.keymap.set('n', '<C-p>', ':BufferLineCyclePrev<CR>', { desc = 'Previous Tab' })
 vim.keymap.set('n', '<C-n>', ':BufferLineCycleNext<CR>', { desc = 'Next Tab' })
-vim.keymap.set('n', '<leader>Q', ':BufferLinePickClose<CR>', { desc = 'Pick Tabs to close' })
+vim.keymap.set('n', '<leader>Q', ':q<CR>', { desc = 'Close Buffer Force' })
 
 vim.keymap.set('n', '<leader>TT', '<cmd>lua require("neotest").run.run()<CR>', {desc = '[T]est: Run nearest [T]est'})
 vim.keymap.set('n', '<leader>TF', '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>', {desc = '[T]est: Run [F]ile'})
@@ -1191,7 +1197,7 @@ vim.o.termguicolors = true
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
-vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Close Buffer' })
+vim.keymap.set('n', '<leader>q', ':BufDel<CR>', { desc = 'Close Buffer' })
 
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
