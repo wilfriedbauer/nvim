@@ -8,6 +8,8 @@ vim.g.maplocalleader = ' '
 vim.opt.guicursor = ""
 
 vim.opt.nu = true
+vim.opt.relativenumber = true
+vim.o.statuscolumn = "%s %l %=%r "
 
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
