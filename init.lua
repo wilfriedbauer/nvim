@@ -8,14 +8,10 @@ vim.g.maplocalleader = ' '
 vim.opt.guicursor = ""
 
 vim.opt.nu = true
-vim.opt.relativenumber = true
-vim.o.statuscolumn = "%s %l %=%r "
 
-local signs = { Error = "󰅚 ", Warn = "󰀪 ", Hint = "󰌶 ", Info = " " }
-for type, icon in pairs(signs) do
-  local hl = "DiagnosticSign" .. type
-  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-end
+-- enable relative line numbers next to absolute line numbers.
+-- vim.opt.relativenumber = true
+-- vim.o.statuscolumn = "%s %l %=%r "
 
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
@@ -35,12 +31,68 @@ vim.opt.incsearch = true
 
 vim.opt.scrolloff = 10
 vim.opt.sidescrolloff= 25
-vim.opt.colorcolumn = "80"
 
+-- enables colorcolumn plugin virt-column.nvim:
+vim.opt.colorcolumn = ""
+
+-- ufo.nvim
 vim.o.foldcolumn = '0' -- '0' is not bad
 vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
+
+-- change diagnostic signs and display the most severe one in the sign gutter on the right.
+local signs = { Error = "󰅚 ", Warn = "󰀪 ", Hint = "󰌶 ", Info = " " }
+for type, icon in pairs(signs) do
+  local hl = "DiagnosticSign" .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+end
+
+local filter_diagnostics = function(diagnostics)
+    if not diagnostics then
+        return {}
+    end
+
+    -- find the "worst" diagnostic per line
+    local most_severe = {}
+    for _, cur in pairs(diagnostics) do
+        local max = most_severe[cur.lnum]
+
+        -- higher severity has lower value (`:h diagnostic-severity`)
+        if not max or cur.severity < max.severity then
+            most_severe[cur.lnum] = cur
+        end
+    end
+
+    -- return list of diagnostics
+    return vim.tbl_values(most_severe)
+end
+
+---custom namespace
+local ns = vim.api.nvim_create_namespace('severe-diagnostics')
+
+---reference to the original handler
+local orig_signs_handler = vim.diagnostic.handlers.signs
+
+---Overriden diagnostics signs helper to only show the single most relevant sign
+---:h diagnostic-handlers
+vim.diagnostic.handlers.signs = {
+    show = function(_, bufnr, _, opts)
+        -- get all diagnostics from the whole buffer rather
+        -- than just the diagnostics passed to the handler
+        local diagnostics = vim.diagnostic.get(bufnr)
+
+        local filtered_diagnostics = filter_diagnostics(diagnostics)
+
+        -- pass the filtered diagnostics (with the
+        -- custom namespace) to the original handler
+        orig_signs_handler.show(ns, bufnr, filtered_diagnostics, opts)
+    end,
+
+    hide = function(_, bufnr)
+        orig_signs_handler.hide(ns, bufnr)
+    end,
+}
 
 
 -- [[ Install `lazy.nvim` plugin manager ]]
@@ -563,7 +615,6 @@ require('lazy').setup({
       -- You'll need to check that you have the required things installed
       -- online, please don't ask me how to install them :)
       ensure_installed = {
-        'python'
         -- Update this to ensure that you have the debuggers for the langs you want
         --'delve',
       },
@@ -724,6 +775,10 @@ require('lazy').setup({
   config = function()
     vim.diagnostic.config({
       virtual_text = false,
+      signs = true,
+      underline = true,
+      update_in_insert = false,
+      severity_sort = true,
     })
     require("lsp_lines").setup()
   end,
@@ -878,13 +933,52 @@ require('lazy').setup({
       'nvim-tree/nvim-web-devicons'     -- optional
     }
   },
-  {'ojroques/nvim-bufdel'}
+  {'ojroques/nvim-bufdel'},
+  {'IMOKURI/line-number-interval.nvim'}
 }, {})
 
 -- [[Setup Custom Plugins ]]
 
 -- colorscheme
 vim.cmd[[colorscheme catppuccin-mocha]]
+
+-- Config for line-number-interval.nvim:
+-- Enable line number interval at startup. (default: 0(disable))
+vim.g.line_number_interval_enable_at_startup = 1
+
+-- Set interval to highlight line number. (default: 10)
+vim.g["line_number_interval"] = 999999999999999999
+
+-- Enable to use custom interval. (default: 0(disable))
+-- If this option is enabled, highlight for relative position of cursor position.
+vim.g["line_number_interval#use_custom"] = 1
+
+-- Set custom interval list.
+-- (default: fibonacci sequence ([1, 2, 3, 5, 8, 13, 21, 34, 55, ...]))
+-- Relative position to highlight.
+vim.g["line_number_interval#custom_interval"] = { 5, 10, 15, 20, 25 }
+
+-- Set color to highlight and dim.
+-- (default: HighlightedLineNr use LineNr color,
+--           DimLineNr use same as background color (it seems hide).)
+vim.cmd("highlight HighlightedLineNr guifg=#a2a3ac ctermfg=7")
+vim.cmd("highlight DimLineNr guifg=#4e455a ctermfg=5")
+
+-- Tints of #4e455a for fade out effect on line number intervals:
+-- #45475a #57596a #6a6b7a #7c7e8b #8f909c #a2a3ac #b4b5bd #c7c7cd #d9dade #ececee #ffffff
+
+-- Additional highlight
+-- Use those colors for Nth (1st ~ 9th) element of custom interval.
+vim.cmd("highlight HighlightedLineNr1 guifg=#a2a3ac ctermfg=5")
+vim.cmd("highlight HighlightedLineNr2 guifg=#8f909c ctermfg=4")
+vim.cmd("highlight HighlightedLineNr3 guifg=#7c7e8b ctermfg=6")
+vim.cmd("highlight HighlightedLineNr4 guifg=#6a6b7a ctermfg=2")
+vim.cmd("highlight HighlightedLineNr5 guifg=#57596a ctermfg=3")
+
+-- Enable line number interval.
+vim.cmd("LineNumberIntervalEnable")
+
+
 
 require('lsp-inlayhints').setup()
 
@@ -1125,7 +1219,7 @@ vim.keymap.set("n", "<C-l>", "<C-w>l")
 vim.keymap.set('n', '<leader>j', require('treesj').toggle, { desc = "Toggle Join/Split of Code Block" })
 vim.keymap.set('n', '<C-p>', ':BufferLineCyclePrev<CR>', { desc = 'Previous Tab' })
 vim.keymap.set('n', '<C-n>', ':BufferLineCycleNext<CR>', { desc = 'Next Tab' })
-vim.keymap.set('n', '<leader>Q', ':q<CR>', { desc = 'Close Buffer Force' })
+vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Close Buffer Force' })
 
 vim.keymap.set('n', '<leader>TT', '<cmd>lua require("neotest").run.run()<CR>', {desc = '[T]est: Run nearest [T]est'})
 vim.keymap.set('n', '<leader>TF', '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>', {desc = '[T]est: Run [F]ile'})
@@ -1205,7 +1299,7 @@ vim.o.termguicolors = true
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
-vim.keymap.set('n', '<leader>q', ':BufDel<CR>', { desc = 'Close Buffer' })
+vim.keymap.set('n', '<leader>Q', ':BufDel<CR>', { desc = 'Close Buffer' })
 
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
