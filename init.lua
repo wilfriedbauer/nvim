@@ -30,14 +30,14 @@ vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
 vim.opt.scrolloff = 10
-vim.opt.sidescrolloff= 25
+vim.opt.sidescrolloff = 25
 
 -- enables colorcolumn plugin virt-column.nvim:
 vim.opt.colorcolumn = ""
 
 -- ufo.nvim
 vim.o.foldcolumn = '0' -- '0' is not bad
-vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+vim.o.foldlevel = 99   -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
 
@@ -49,23 +49,23 @@ for type, icon in pairs(signs) do
 end
 
 local filter_diagnostics = function(diagnostics)
-    if not diagnostics then
-        return {}
+  if not diagnostics then
+    return {}
+  end
+
+  -- find the "worst" diagnostic per line
+  local most_severe = {}
+  for _, cur in pairs(diagnostics) do
+    local max = most_severe[cur.lnum]
+
+    -- higher severity has lower value (`:h diagnostic-severity`)
+    if not max or cur.severity < max.severity then
+      most_severe[cur.lnum] = cur
     end
+  end
 
-    -- find the "worst" diagnostic per line
-    local most_severe = {}
-    for _, cur in pairs(diagnostics) do
-        local max = most_severe[cur.lnum]
-
-        -- higher severity has lower value (`:h diagnostic-severity`)
-        if not max or cur.severity < max.severity then
-            most_severe[cur.lnum] = cur
-        end
-    end
-
-    -- return list of diagnostics
-    return vim.tbl_values(most_severe)
+  -- return list of diagnostics
+  return vim.tbl_values(most_severe)
 end
 
 ---custom namespace
@@ -77,21 +77,21 @@ local orig_signs_handler = vim.diagnostic.handlers.signs
 ---Overriden diagnostics signs helper to only show the single most relevant sign
 ---:h diagnostic-handlers
 vim.diagnostic.handlers.signs = {
-    show = function(_, bufnr, _, opts)
-        -- get all diagnostics from the whole buffer rather
-        -- than just the diagnostics passed to the handler
-        local diagnostics = vim.diagnostic.get(bufnr)
+  show = function(_, bufnr, _, opts)
+    -- get all diagnostics from the whole buffer rather
+    -- than just the diagnostics passed to the handler
+    local diagnostics = vim.diagnostic.get(bufnr)
 
-        local filtered_diagnostics = filter_diagnostics(diagnostics)
+    local filtered_diagnostics = filter_diagnostics(diagnostics)
 
-        -- pass the filtered diagnostics (with the
-        -- custom namespace) to the original handler
-        orig_signs_handler.show(ns, bufnr, filtered_diagnostics, opts)
-    end,
+    -- pass the filtered diagnostics (with the
+    -- custom namespace) to the original handler
+    orig_signs_handler.show(ns, bufnr, filtered_diagnostics, opts)
+  end,
 
-    hide = function(_, bufnr)
-        orig_signs_handler.hide(ns, bufnr)
-    end,
+  hide = function(_, bufnr)
+    orig_signs_handler.hide(ns, bufnr)
+  end,
 }
 
 
@@ -142,19 +142,21 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {
-        -- display = {
-        --   render_limit = 5,          -- How many LSP messages to show at once
-        --   done_ttl = 1,
-        --   progress_ttl = 3,
-        --   },
-        notification = {
-          poll_rate = 1,             -- How frequently to update and render notifications
-          override_vim_notify = true,
+      {
+        'j-hui/fidget.nvim',
+        opts = {
+          -- display = {
+          --   render_limit = 5,          -- How many LSP messages to show at once
+          --   done_ttl = 1,
+          --   progress_ttl = 3,
+          --   },
+          notification = {
+            poll_rate = 1, -- How frequently to update and render notifications
+            override_vim_notify = true,
           },
           integration = {
             ["nvim-tree"] = {
-              enable = true,         -- Integrate with nvim-tree/nvim-tree.lua (if installed)
+              enable = true, -- Integrate with nvim-tree/nvim-tree.lua (if installed)
             },
           },
         }
@@ -272,12 +274,12 @@ require('lazy').setup({
           { name = "vim-dadbod-completion",   group_index = 1 },
           { name = "path",                    group_index = 1 },
           { name = "buffer",                  group_index = 1, max_item_count = 5, keyword_length = 2 },
-          { name = "git" ,                    group_index = 1, max_item_count = 5 },
-          { name = 'calc' ,                   group_index = 1, max_item_count = 5 },
-          { name = 'gitmoji' ,                group_index = 1, max_item_count = 5 },
-          { name = 'emoji' ,                  group_index = 1, max_item_count = 5 },
+          { name = "git",                     group_index = 1, max_item_count = 5 },
+          { name = 'calc',                    group_index = 1, max_item_count = 5 },
+          { name = 'gitmoji',                 group_index = 1, max_item_count = 5 },
+          { name = 'emoji',                   group_index = 1, max_item_count = 5 },
           { name = 'nerdfont',                group_index = 1, max_item_count = 5 },
-          { name = 'greek' ,                  group_index = 1, max_item_count = 5 },
+          { name = 'greek',                   group_index = 1, max_item_count = 5 },
           { name = "cmp_tabnine",             group_index = 2, max_item_count = 5 },
         },
       })
@@ -292,16 +294,16 @@ require('lazy').setup({
       cmp.setup.cmdline(':', {
         mapping = cmp.mapping.preset.cmdline(),
         sources = cmp.config.sources({
-          { name = 'path' }
-        },
-        {
+            { name = 'path' }
+          },
           {
-            name = 'cmdline',
-            option = {
-              ignore_cmds = { 'Man', '!' }
+            {
+              name = 'cmdline',
+              option = {
+                ignore_cmds = { 'Man', '!' }
+              }
             }
-          }
-        })
+          })
       })
       local presentAutopairs, cmp_autopairs = pcall(require, "nvim-autopairs.completion.cmp")
       if not presentAutopairs then
@@ -388,10 +390,10 @@ require('lazy').setup({
       end,
     },
     config =
-      function(_, opts)
-        require('gitsigns').setup(opts)
-        require("scrollbar.handlers.gitsigns").setup()
-      end,
+        function(_, opts)
+          require('gitsigns').setup(opts)
+          require("scrollbar.handlers.gitsigns").setup()
+        end,
   },
   {
     "folke/tokyonight.nvim",
@@ -419,9 +421,9 @@ require('lazy').setup({
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
     -- See `:help lualine.txt`
-     dependencies = {
-        "nvim-tree/nvim-web-devicons",
-        "meuter/lualine-so-fancy.nvim",
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+      "meuter/lualine-so-fancy.nvim",
     },
     opts = {
       options = {
@@ -430,33 +432,33 @@ require('lazy').setup({
         component_separators = '|',
         section_separators = '',
         globalstatus = true,
-          refresh = {
-              statusline = 100,
-          },
+        refresh = {
+          statusline = 100,
+        },
       },
       sections = {
         lualine_a = {
-            { "fancy_mode", width = 1 }
+          { "fancy_mode", width = 1 }
         },
         lualine_b = {
-            { "fancy_branch" },
-            { "fancy_diff" },
+          { "fancy_branch" },
+          { "fancy_diff" },
         },
         lualine_c = {
-            { "fancy_cwd", substitute_home = true },
-            { 'lsp_progress' }
+          { "fancy_cwd",   substitute_home = true },
+          { 'lsp_progress' }
         },
         lualine_x = {
-            { "fancy_macro" },
-            { "fancy_diagnostics" },
-            { "fancy_searchcount" },
-            { "fancy_location" },
+          { "fancy_macro" },
+          { "fancy_diagnostics" },
+          { "fancy_searchcount" },
+          { "fancy_location" },
         },
         lualine_y = {
-            { "fancy_filetype", ts_icon = "" }
+          { "fancy_filetype", ts_icon = "" }
         },
         lualine_z = {
-            { "fancy_lsp_servers" }
+          { "fancy_lsp_servers" }
         },
       },
     },
@@ -585,111 +587,112 @@ require('lazy').setup({
   --
   -- NOTE: Yes, you can install new plugins here!
   {
-  'mfussenegger/nvim-dap',
-  -- NOTE: And you can specify dependencies as well
-  dependencies = {
-    -- Creates a beautiful debugger UI
-    'rcarriga/nvim-dap-ui',
+    'mfussenegger/nvim-dap',
+    -- NOTE: And you can specify dependencies as well
+    dependencies = {
+      -- Creates a beautiful debugger UI
+      'rcarriga/nvim-dap-ui',
 
-    -- Installs the debug adapters for you
-    'williamboman/mason.nvim',
-    'jay-babu/mason-nvim-dap.nvim',
-    'theHamsta/nvim-dap-virtual-text',
+      -- Installs the debug adapters for you
+      'williamboman/mason.nvim',
+      'jay-babu/mason-nvim-dap.nvim',
+      'theHamsta/nvim-dap-virtual-text',
 
-    -- Add your own debuggers here
-  },
-  config = function()
-    vim.api.nvim_create_autocmd("ColorScheme", {
-    pattern = "*",
-    desc = "Prevent colorscheme clearing self-defined DAP marker colors",
-    callback = function()
-        -- Reuse current SignColumn background (except for DapStoppedLine)
-        local sign_column_hl = vim.api.nvim_get_hl(0, { name = 'SignColumn' })
-        -- if bg or ctermbg aren't found, use bg = 'bg' (which means current Normal) and ctermbg = 'Black'
-        -- convert to 6 digit hex value starting with #
-        local sign_column_bg = (sign_column_hl.bg ~= nil) and ('#%06x'):format(sign_column_hl.bg) or 'bg'
-        local sign_column_ctermbg = (sign_column_hl.ctermbg ~= nil) and sign_column_hl.ctermbg or 'Black'
+      -- Add your own debuggers here
+    },
+    config = function()
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        pattern = "*",
+        desc = "Prevent colorscheme clearing self-defined DAP marker colors",
+        callback = function()
+          -- Reuse current SignColumn background (except for DapStoppedLine)
+          local sign_column_hl = vim.api.nvim_get_hl(0, { name = 'SignColumn' })
+          -- if bg or ctermbg aren't found, use bg = 'bg' (which means current Normal) and ctermbg = 'Black'
+          -- convert to 6 digit hex value starting with #
+          local sign_column_bg = (sign_column_hl.bg ~= nil) and ('#%06x'):format(sign_column_hl.bg) or 'bg'
+          local sign_column_ctermbg = (sign_column_hl.ctermbg ~= nil) and sign_column_hl.ctermbg or 'Black'
 
-        vim.api.nvim_set_hl(0, 'DapStopped', { fg = '#00ff00', bg = sign_column_bg, ctermbg = sign_column_ctermbg })
-        vim.api.nvim_set_hl(0, 'DapStoppedLine', { bg = '#2e4d3d', ctermbg = 'Green' })
-        vim.api.nvim_set_hl(0, 'DapBreakpoint', { fg = '#c23127', bg = sign_column_bg, ctermbg = sign_column_ctermbg })
-        vim.api.nvim_set_hl(0, 'DapBreakpointRejected', { fg = '#888ca6', bg = sign_column_bg, ctermbg = sign_column_ctermbg })
-        vim.api.nvim_set_hl(0, 'DapLogPoint', { fg = '#61afef', bg = sign_column_bg, ctermbg = sign_column_ctermbg })
-      end
-    })
+          vim.api.nvim_set_hl(0, 'DapStopped', { fg = '#00ff00', bg = sign_column_bg, ctermbg = sign_column_ctermbg })
+          vim.api.nvim_set_hl(0, 'DapStoppedLine', { bg = '#2e4d3d', ctermbg = 'Green' })
+          vim.api.nvim_set_hl(0, 'DapBreakpoint', { fg = '#c23127', bg = sign_column_bg, ctermbg = sign_column_ctermbg })
+          vim.api.nvim_set_hl(0, 'DapBreakpointRejected',
+            { fg = '#888ca6', bg = sign_column_bg, ctermbg = sign_column_ctermbg })
+          vim.api.nvim_set_hl(0, 'DapLogPoint', { fg = '#61afef', bg = sign_column_bg, ctermbg = sign_column_ctermbg })
+        end
+      })
 
-    -- reload current color scheme to pick up colors override if it was set up in a lazy plugin definition fashion
-    vim.cmd.colorscheme(vim.g.colors_name)
+      -- reload current color scheme to pick up colors override if it was set up in a lazy plugin definition fashion
+      vim.cmd.colorscheme(vim.g.colors_name)
 
-    vim.fn.sign_define('DapBreakpoint', { text='•', texthl='DapBreakpoint' })
-    vim.fn.sign_define('DapBreakpointCondition', { text='•', texthl='DapBreakpoint' })
-    vim.fn.sign_define('DapBreakpointRejected', { text='', texthl='DapBreakpoint' })
-    vim.fn.sign_define('DapLogPoint', { text='', texthl='DapLogPoint' })
-    vim.fn.sign_define('DapStopped', { text='', texthl='DapStopped' })
+      vim.fn.sign_define('DapBreakpoint', { text = '•', texthl = 'DapBreakpoint' })
+      vim.fn.sign_define('DapBreakpointCondition', { text = '•', texthl = 'DapBreakpoint' })
+      vim.fn.sign_define('DapBreakpointRejected', { text = '', texthl = 'DapBreakpoint' })
+      vim.fn.sign_define('DapLogPoint', { text = '', texthl = 'DapLogPoint' })
+      vim.fn.sign_define('DapStopped', { text = '', texthl = 'DapStopped' })
 
-    local dap = require 'dap'
-    local dapui = require 'dapui'
+      local dap = require 'dap'
+      local dapui = require 'dapui'
 
-    require("mason").setup()
-    require('mason-nvim-dap').setup {
-      -- Makes a best effort to setup the various debuggers with
-      -- reasonable debug configurations
-      automatic_setup = true,
+      require("mason").setup()
+      require('mason-nvim-dap').setup {
+        -- Makes a best effort to setup the various debuggers with
+        -- reasonable debug configurations
+        automatic_setup = true,
 
-      -- You can provide additional configuration to the handlers,
-      -- see mason-nvim-dap README for more information
-      handlers = {},
+        -- You can provide additional configuration to the handlers,
+        -- see mason-nvim-dap README for more information
+        handlers = {},
 
-      -- You'll need to check that you have the required things installed
-      -- online, please don't ask me how to install them :)
-      ensure_installed = {
-        -- Update this to ensure that you have the debuggers for the langs you want
-        --'delve',
-      },
-    }
-
-
-    -- Basic debugging keymaps, feel free to change to your liking!
-    vim.keymap.set('n', '<leader>bc', dap.continue, { desc = '[B]ug: Start/[C]ontinue' })
-    vim.keymap.set('n', '<leader>bi', dap.step_into, { desc = '[B]ug: Step [I]nto' })
-    vim.keymap.set('n', '<leader>bo', dap.step_over, { desc = '[B]ug: Step [O]ver' })
-    vim.keymap.set('n', '<leader>bu', dap.step_out, { desc = '[B]ug: Step O[u]t' })
-    vim.keymap.set('n', '<leader>bp', dap.toggle_breakpoint, { desc = '[B]ug: Toggle [B]reakpoint' })
-    vim.keymap.set('n', '<leader>bP', function()
-      dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
-    end, { desc = '[B]ug: Set [c]onditional Breakpoint' })
-
-    -- Dap UI setup
-    -- For more information, see |:help nvim-dap-ui|
-    dapui.setup {
-      -- Set icons to characters that are more likely to work in every terminal.
-      --    Feel free to remove or use ones that you like more! :)
-      --    Don't feel like these are good choices.
-      icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
-      controls = {
-        icons = {
-          pause = '⏸',
-          play = '▶',
-          step_into = '⏎',
-          step_over = '⏭',
-          step_out = '⏮',
-          step_back = 'b',
-          run_last = '▶▶',
-          terminate = '⏹',
-          disconnect = '⏏',
+        -- You'll need to check that you have the required things installed
+        -- online, please don't ask me how to install them :)
+        ensure_installed = {
+          -- Update this to ensure that you have the debuggers for the langs you want
+          --'delve',
         },
-      },
-    }
+      }
 
-    -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-    vim.keymap.set('n', '<leader>bb', dapui.toggle, { desc = 'De[b]ug: Toggle UI' })
 
-    dap.listeners.after.event_initialized['dapui_config'] = dapui.open
-    dap.listeners.before.event_terminated['dapui_config'] = dapui.close
-    dap.listeners.before.event_exited['dapui_config'] = dapui.close
+      -- Basic debugging keymaps, feel free to change to your liking!
+      vim.keymap.set('n', '<leader>bc', dap.continue, { desc = '[B]ug: Start/[C]ontinue' })
+      vim.keymap.set('n', '<leader>bi', dap.step_into, { desc = '[B]ug: Step [I]nto' })
+      vim.keymap.set('n', '<leader>bo', dap.step_over, { desc = '[B]ug: Step [O]ver' })
+      vim.keymap.set('n', '<leader>bu', dap.step_out, { desc = '[B]ug: Step O[u]t' })
+      vim.keymap.set('n', '<leader>bp', dap.toggle_breakpoint, { desc = '[B]ug: Toggle [B]reakpoint' })
+      vim.keymap.set('n', '<leader>bP', function()
+        dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
+      end, { desc = '[B]ug: Set [c]onditional Breakpoint' })
 
-    -- Install golang specific config
-  end,
+      -- Dap UI setup
+      -- For more information, see |:help nvim-dap-ui|
+      dapui.setup {
+        -- Set icons to characters that are more likely to work in every terminal.
+        --    Feel free to remove or use ones that you like more! :)
+        --    Don't feel like these are good choices.
+        icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
+        controls = {
+          icons = {
+            pause = '⏸',
+            play = '▶',
+            step_into = '⏎',
+            step_over = '⏭',
+            step_out = '⏮',
+            step_back = 'b',
+            run_last = '▶▶',
+            terminate = '⏹',
+            disconnect = '⏏',
+          },
+        },
+      }
+
+      -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
+      vim.keymap.set('n', '<leader>bb', dapui.toggle, { desc = 'De[b]ug: Toggle UI' })
+
+      dap.listeners.after.event_initialized['dapui_config'] = dapui.open
+      dap.listeners.before.event_terminated['dapui_config'] = dapui.close
+      dap.listeners.before.event_exited['dapui_config'] = dapui.close
+
+      -- Install golang specific config
+    end,
   },
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
@@ -737,14 +740,15 @@ require('lazy').setup({
   'brenoprata10/nvim-highlight-colors',
   'petertriho/nvim-scrollbar',
   'mbbill/undotree',
-  {'akinsho/bufferline.nvim', version = "*", dependencies = 'nvim-tree/nvim-web-devicons'},
+  { 'akinsho/bufferline.nvim', version = "*",             dependencies = 'nvim-tree/nvim-web-devicons' },
   {
     "smjonas/inc-rename.nvim",
     config = function()
       require("inc_rename").setup()
     end,
   },
-  { "tpope/vim-dadbod",
+  {
+    "tpope/vim-dadbod",
     dependencies = {
       "kristijanhusak/vim-dadbod-ui",
       "kristijanhusak/vim-dadbod-completion",
@@ -799,37 +803,37 @@ require('lazy').setup({
   'nvim-tree/nvim-tree.lua',
   'nvim-treesitter/nvim-treesitter-context',
   {
-  'ErichDonGubler/lsp_lines.nvim',
-  config = function()
-    vim.diagnostic.config({
-      virtual_text = false,
-      signs = true,
-      underline = true,
-      update_in_insert = false,
-      severity_sort = true,
-    })
-    require("lsp_lines").setup()
-  end,
-  },
-  {
-  "aznhe21/actions-preview.nvim",
-  config = function()
-    require('actions-preview').setup{
-      telescope = {
-        sorting_strategy = "ascending",
-        layout_strategy = "horizontal",
-      },
-      vim.keymap.set({ "v", "n" }, "<leader>c", require("actions-preview").code_actions, { desc = "Code Action" })
-    }
+    'ErichDonGubler/lsp_lines.nvim',
+    config = function()
+      vim.diagnostic.config({
+        virtual_text = false,
+        signs = true,
+        underline = true,
+        update_in_insert = false,
+        severity_sort = true,
+      })
+      require("lsp_lines").setup()
     end,
   },
   {
-  'zegervdv/nrpattern.nvim',
-  config = function()
-    -- Basic setup
-    -- See below for more options
-    require("nrpattern").setup()
-  end,
+    "aznhe21/actions-preview.nvim",
+    config = function()
+      require('actions-preview').setup {
+        telescope = {
+          sorting_strategy = "ascending",
+          layout_strategy = "horizontal",
+        },
+        vim.keymap.set({ "v", "n" }, "<leader>c", require("actions-preview").code_actions, { desc = "Code Action" })
+      }
+    end,
+  },
+  {
+    'zegervdv/nrpattern.nvim',
+    config = function()
+      -- Basic setup
+      -- See below for more options
+      require("nrpattern").setup()
+    end,
   },
   {
     "rbong/vim-flog",
@@ -862,33 +866,36 @@ require('lazy').setup({
     end,
   },
   {
-  'Wansmer/treesj',
-  dependencies = { 'nvim-treesitter/nvim-treesitter' },
-  config = function()
-    require('treesj').setup({
-      --@type boolean Use default keymaps (<space>m - toggle, <space>j - join, <space>s - split)
-      use_default_keymaps = false,
-      max_join_length = 1000,})
-  end,
+    'Wansmer/treesj',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    config = function()
+      require('treesj').setup({
+        --@type boolean Use default keymaps (<space>m - toggle, <space>j - join, <space>s - split)
+        use_default_keymaps = false,
+        max_join_length = 1000,
+      })
+    end,
   },
   {
-  'Exafunction/codeium.vim',
-  event = 'BufEnter',
-  config = function ()
-    -- Change '<C-g>' here to any keycode you like.
-    vim.keymap.set('i', '<C-g>', function () return vim.fn['codeium#Accept']() end, { expr = true, silent = true })
-    vim.keymap.set('i', '<C-h>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true, silent = true })
-    vim.keymap.set('i', '<C-l>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true, silent = true })
-    vim.keymap.set('i', '<C-x>', function() return vim.fn['codeium#Clear']() end, { expr = true, silent = true })
-  end
+    'Exafunction/codeium.vim',
+    event = 'BufEnter',
+    config = function()
+      -- Change '<C-g>' here to any keycode you like.
+      vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true, silent = true })
+      vim.keymap.set('i', '<C-h>', function() return vim.fn['codeium#CycleCompletions'](1) end,
+        { expr = true, silent = true })
+      vim.keymap.set('i', '<C-l>', function() return vim.fn['codeium#CycleCompletions'](-1) end,
+        { expr = true, silent = true })
+      vim.keymap.set('i', '<C-x>', function() return vim.fn['codeium#Clear']() end, { expr = true, silent = true })
+    end
   },
-  { 'codota/tabnine-nvim', build = "./dl_binaries.sh" },
+  { 'codota/tabnine-nvim',     build = "./dl_binaries.sh" },
   {
-     'tzachar/cmp-tabnine',
-     build = './install.sh',
-     dependencies = 'hrsh7th/nvim-cmp',
+    'tzachar/cmp-tabnine',
+    build = './install.sh',
+    dependencies = 'hrsh7th/nvim-cmp',
   },
-  {'kevinhwang91/nvim-ufo', dependencies = 'kevinhwang91/promise-async'},
+  { 'kevinhwang91/nvim-ufo',          dependencies = 'kevinhwang91/promise-async' },
   {
     "nvim-neotest/neotest",
     dependencies = {
@@ -899,8 +906,8 @@ require('lazy').setup({
   },
   'lvimuser/lsp-inlayhints.nvim',
   { "lukas-reineke/virt-column.nvim", opts = {} },
-  { "Dynge/gitmoji.nvim", dependencies = { "hrsh7th/nvim-cmp" }, opts = {} },
-  { "petertriho/cmp-git", dependencies = { "nvim-lua/plenary.nvim" }, opts = {}},
+  { "Dynge/gitmoji.nvim",             dependencies = { "hrsh7th/nvim-cmp" },      opts = {} },
+  { "petertriho/cmp-git",             dependencies = { "nvim-lua/plenary.nvim" }, opts = {} },
   {
     "NeogitOrg/neogit",
     dependencies = {
@@ -912,7 +919,7 @@ require('lazy').setup({
   },
   {
     "Zeioth/compiler.nvim",
-    cmd = {"CompilerOpen", "CompilerToggleResults", "CompilerRedo"},
+    cmd = { "CompilerOpen", "CompilerToggleResults", "CompilerRedo" },
     dependencies = { "stevearc/overseer.nvim" },
     opts = {},
   },
@@ -929,7 +936,7 @@ require('lazy').setup({
       },
     },
   },
-  {'akinsho/toggleterm.nvim', version = "*", config = true},
+  { 'akinsho/toggleterm.nvim',          version = "*", config = true },
   {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
@@ -938,14 +945,14 @@ require('lazy').setup({
   },
   'cshuaimin/ssr.nvim',
   {
-  "ahmedkhalf/project.nvim",
-  config = function()
-    require("project_nvim").setup {
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-      -- refer to the configuration section below
-    }
-  end
+    "ahmedkhalf/project.nvim",
+    config = function()
+      require("project_nvim").setup {
+        -- your configuration comes here
+        -- or leave it empty to use the default settings
+        -- refer to the configuration section below
+      }
+    end
   },
   {
     'nvimdev/lspsaga.nvim',
@@ -958,17 +965,17 @@ require('lazy').setup({
     end,
     dependencies = {
       'nvim-treesitter/nvim-treesitter', -- optional
-      'nvim-tree/nvim-web-devicons'     -- optional
+      'nvim-tree/nvim-web-devicons'      -- optional
     }
   },
-  {'ojroques/nvim-bufdel'},
-  {'IMOKURI/line-number-interval.nvim'}
+  { 'ojroques/nvim-bufdel' },
+  { 'IMOKURI/line-number-interval.nvim' }
 }, {})
 
 -- [[Setup Custom Plugins ]]
 
 -- colorscheme
-vim.cmd[[colorscheme catppuccin-mocha]]
+vim.cmd [[colorscheme catppuccin-mocha]]
 
 -- Config for line-number-interval.nvim:
 -- Enable line number interval at startup. (default: 0(disable))
@@ -1040,7 +1047,7 @@ require("bufferline").setup()
 
 require("symbols-outline").setup()
 
-require'nvim-treesitter.configs'.setup {
+require 'nvim-treesitter.configs'.setup {
   autotag = {
     enable = true,
   }
@@ -1048,16 +1055,16 @@ require'nvim-treesitter.configs'.setup {
 
 require('bufdel').setup {
   next = 'tabs',
-  quit = false,  -- quit Neovim when last buffer is closed
+  quit = false, -- quit Neovim when last buffer is closed
 }
 
 require('tabnine').setup({
-  disable_auto_comment=true,
-  accept_keymap="<Tab>",
+  disable_auto_comment = true,
+  accept_keymap = "<Tab>",
   dismiss_keymap = "<C-]>",
   debounce_ms = 800,
-  suggestion_color = {gui = "#808080", cterm = 244},
-  exclude_filetypes = {"TelescopePrompt", "NvimTree"},
+  suggestion_color = { gui = "#808080", cterm = 244 },
+  exclude_filetypes = { "TelescopePrompt", "NvimTree" },
   log_file_path = nil, -- absolute path to Tabnine log file
 })
 
@@ -1083,9 +1090,9 @@ require("nvim-tree").setup({
 })
 
 require('ufo').setup({
-    provider_selector = function()
-        return {'treesitter', 'indent'}
-    end
+  provider_selector = function()
+    return { 'treesitter', 'indent' }
+  end
 })
 
 require("autoclose").setup()
@@ -1109,82 +1116,82 @@ require("scrollbar").setup({
 })
 
 require("harpoon").setup({
-	global_settings = { save_on_toggle = false, save_on_change = true, enter_on_sendcmd = false },
-	menu = { width = 50, height = 8, borderchars = { "", "", "", "", "", "", "", "" } },
+  global_settings = { save_on_toggle = false, save_on_change = true, enter_on_sendcmd = false },
+  menu = { width = 50, height = 8, borderchars = { "", "", "", "", "", "", "", "" } },
 })
 
 vim.api.nvim_set_keymap(
-	"n",
-	"''",
-	'<Cmd>lua require("harpoon.ui").toggle_quick_menu()<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "''",
+  '<Cmd>lua require("harpoon.ui").toggle_quick_menu()<CR>',
+  { noremap = true, silent = true }
 )
 
 vim.api.nvim_set_keymap(
-	"n",
-	"'a",
-	'<Cmd>lua require("harpoon.mark").add_file()<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "'a",
+  '<Cmd>lua require("harpoon.mark").add_file()<CR>',
+  { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-	"n",
-	"'1",
-	'<Cmd>lua require("harpoon.ui").nav_file(1)<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "'1",
+  '<Cmd>lua require("harpoon.ui").nav_file(1)<CR>',
+  { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-	"n",
-	"'2",
-	'<Cmd>lua require("harpoon.ui").nav_file(2)<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "'2",
+  '<Cmd>lua require("harpoon.ui").nav_file(2)<CR>',
+  { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-	"n",
-	"'3",
-	'<Cmd>lua require("harpoon.ui").nav_file(3)<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "'3",
+  '<Cmd>lua require("harpoon.ui").nav_file(3)<CR>',
+  { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-	"n",
-	"'4",
-	'<Cmd>lua require("harpoon.ui").nav_file(4)<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "'4",
+  '<Cmd>lua require("harpoon.ui").nav_file(4)<CR>',
+  { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-	"n",
-	"'5",
-	'<Cmd>lua require("harpoon.ui").nav_file(5)<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "'5",
+  '<Cmd>lua require("harpoon.ui").nav_file(5)<CR>',
+  { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-	"n",
-	"'6",
-	'<Cmd>lua require("harpoon.ui").nav_file(6)<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "'6",
+  '<Cmd>lua require("harpoon.ui").nav_file(6)<CR>',
+  { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-	"n",
-	"'7",
-	'<Cmd>lua require("harpoon.ui").nav_file(7)<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "'7",
+  '<Cmd>lua require("harpoon.ui").nav_file(7)<CR>',
+  { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-	"n",
-	"'8",
-	'<Cmd>lua require("harpoon.ui").nav_file(8)<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "'8",
+  '<Cmd>lua require("harpoon.ui").nav_file(8)<CR>',
+  { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-	"n",
-	"'9",
-	'<Cmd>lua require("harpoon.ui").nav_file(9)<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "'9",
+  '<Cmd>lua require("harpoon.ui").nav_file(9)<CR>',
+  { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
-	"n",
-	"'0",
-	'<Cmd>lua require("harpoon.ui").nav_file(0)<CR>',
-	{ noremap = true, silent = true }
+  "n",
+  "'0",
+  '<Cmd>lua require("harpoon.ui").nav_file(0)<CR>',
+  { noremap = true, silent = true }
 )
 vim.cmd([[
 highlight HarpoonBorder guibg=#282828 guifg=white
@@ -1208,12 +1215,13 @@ vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end, 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
 vim.keymap.set("n", "<leader>p", ":Telescope projects<CR>")
 
--- have to set <C-_> instead of <C-/> for terminal toggle on CTRL-/. 
+-- have to set <C-_> instead of <C-/> for terminal toggle on CTRL-/.
 -- same hotkey for leaving terminal as ESC cant be used for vi keybinds in terminal.
-vim.keymap.set('n', '<C-_>', '<cmd>ToggleTerm size=15 dir=git_dir direction=horizontal name=TERMINAL<CR>', {desc = 'Toggle Terminal', noremap = true})
+vim.keymap.set('n', '<C-_>', '<cmd>ToggleTerm size=15 dir=git_dir direction=horizontal name=TERMINAL<CR>',
+  { desc = 'Toggle Terminal', noremap = true })
 
 function _G.set_terminal_keymaps()
-  local opts = {buffer = 0}
+  local opts = { buffer = 0 }
   vim.keymap.set('t', '<C-_>', [[<C-\><C-n>]], opts)
   vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
   vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
@@ -1221,6 +1229,7 @@ function _G.set_terminal_keymaps()
   vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
   vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
 end
+
 -- if you only want these mappings for toggle term use term://*toggleterm#* instead
 vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
 
@@ -1249,9 +1258,10 @@ vim.keymap.set('n', '<C-p>', ':BufferLineCyclePrev<CR>', { desc = 'Previous Tab'
 vim.keymap.set('n', '<C-n>', ':BufferLineCycleNext<CR>', { desc = 'Next Tab' })
 vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Close Buffer Force' })
 
-vim.keymap.set('n', '<leader>TT', '<cmd>lua require("neotest").run.run()<CR>', {desc = '[T]est: Run nearest [T]est'})
-vim.keymap.set('n', '<leader>TF', '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>', {desc = '[T]est: Run [F]ile'})
-vim.keymap.set('n', '<leader>TS', '<cmd>lua require("neotest").run.stop()<CR>', {desc = '[T]est: [S]top'})
+vim.keymap.set('n', '<leader>TT', '<cmd>lua require("neotest").run.run()<CR>', { desc = '[T]est: Run nearest [T]est' })
+vim.keymap.set('n', '<leader>TF', '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>',
+  { desc = '[T]est: Run [F]ile' })
+vim.keymap.set('n', '<leader>TS', '<cmd>lua require("neotest").run.stop()<CR>', { desc = '[T]est: [S]top' })
 
 vim.keymap.set('n', '<leader>gdd', ':DiffviewOpen<cr>', { desc = '[G]it [D]iff View' })
 vim.keymap.set('n', '<leader>gdo', ':DiffviewOpen ', { desc = '[G]it [D]iff View [O]pen' })
@@ -1345,8 +1355,10 @@ vim.keymap.set("n", "<leader>tw", function() require("trouble").toggle("workspac
 vim.keymap.set("n", "<leader>td", function() require("trouble").toggle("document_diagnostics") end,
   { desc = '[T]rouble [D]ocument Diagnostics' })
 vim.keymap.set("n", "<leader>tq", function() require("trouble").toggle("quickfix") end, { desc = '[T]rouble [Q]uickfix' })
-vim.keymap.set("n", "<leader>tl", function() require("trouble").toggle("loclist") end, { desc = '[T]rouble [L]ocation List' })
-vim.keymap.set("n", "gR", function() require("trouble").toggle("lsp_references") end, { desc = '[T]rouble LSP [R]eferences' })
+vim.keymap.set("n", "<leader>tl", function() require("trouble").toggle("loclist") end,
+  { desc = '[T]rouble [L]ocation List' })
+vim.keymap.set("n", "gR", function() require("trouble").toggle("lsp_references") end,
+  { desc = '[T]rouble LSP [R]eferences' })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -1636,8 +1648,8 @@ local on_attach = function(_, bufnr)
   nmap('K', '<Cmd>Lspsaga hover_doc<cr>', '[S]aga [H]over')
   nmap('gF', '<Cmd>Lspsaga finder<cr>', '[S]aga [F]inder')
   nmap('gp', '<Cmd>Lspsaga peek_definition<cr>', '[P]review [D]efinition')
-  nmap('<leader>k', '<Cmd>Lspsaga show_cursor_diagnostics<cr>', 'Open floating diagnostic message' )
-  nmap('<leader>A', '<Cmd>Lspsaga outline<cr>', 'Saga [O]utline' )
+  nmap('<leader>k', '<Cmd>Lspsaga show_cursor_diagnostics<cr>', 'Open floating diagnostic message')
+  nmap('<leader>A', '<Cmd>Lspsaga outline<cr>', 'Saga [O]utline')
   nmap('<leader>rs', '<Cmd>Lspsaga rename<cr>', '[R]ename [S]aga')
   nmap('<leader>rp', '<Cmd>Lspsaga project_replace<cr>', '[R]ename [S]aga Project')
   imap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
@@ -1749,7 +1761,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
     vim.api.nvim_command [[menu PopUp.Start\ \Compiler <cmd>:CompilerOpen<CR>]]
     vim.api.nvim_command [[menu PopUp.Start\ \Debugger <cmd>:DapContinue<CR>]]
     vim.api.nvim_command [[menu PopUp.Run\ \Test <cmd>:Neotest run<CR>]]
-
   end,
 })
 
