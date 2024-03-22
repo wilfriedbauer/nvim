@@ -36,10 +36,11 @@ vim.opt.sidescrolloff = 25
 vim.opt.colorcolumn = ""
 
 -- ufo.nvim
-vim.o.foldcolumn = '0' -- '0' is not bad
+vim.o.foldcolumn = '1' -- '0' is not bad
 vim.o.foldlevel = 99   -- Using ufo provider need a large value, feel free to decrease the value
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
+vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
 
 -- change diagnostic signs and display the most severe one in the sign gutter on the right.
 local signs = { Error = "󰅚 ", Warn = "󰀪 ", Hint = "󰌶 ", Info = " " }
@@ -895,7 +896,41 @@ require('lazy').setup({
     build = './install.sh',
     dependencies = 'hrsh7th/nvim-cmp',
   },
-  { 'kevinhwang91/nvim-ufo',          dependencies = 'kevinhwang91/promise-async' },
+  {
+    "kevinhwang91/nvim-ufo",
+    dependencies = {
+      "kevinhwang91/promise-async",
+      {
+        "luukvbaal/statuscol.nvim",
+        config = function()
+          local builtin = require("statuscol.builtin")
+          require("statuscol").setup({
+            relculright = true,
+            segments = {
+              { text = { "%s" },                  click = "v:lua.ScSa" },
+              { text = { builtin.lnumfunc, " " }, click = "v:lua.ScLa" },
+              { text = { builtin.foldfunc },      click = "v:lua.ScFa" },
+            },
+          })
+        end,
+      },
+    },
+    event = "BufReadPost",
+    opts = {
+      provider_selector = function()
+        return { "treesitter", "indent" }
+      end,
+    },
+
+    init = function()
+      vim.keymap.set("n", "zO", function()
+        require("ufo").openAllFolds()
+      end)
+      vim.keymap.set("n", "zC", function()
+        require("ufo").closeAllFolds()
+      end)
+    end,
+  },
   {
     "nvim-neotest/neotest",
     dependencies = {
@@ -1236,9 +1271,6 @@ vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
 vim.keymap.set("n", "<leader>RR", "<cmd>CompilerOpen<cr>")
 vim.keymap.set("n", "<leader>RS", "<cmd>CompilerStop<cr>")
 vim.keymap.set("n", "<leader>RT", "<cmd>CompilerToggleResults<cr>")
-
-vim.keymap.set('n', 'zO', require('ufo').openAllFolds)
-vim.keymap.set('n', 'zC', require('ufo').closeAllFolds)
 
 vim.keymap.set('n', 'zh', 'zH', { desc = 'Scroll right' })
 vim.keymap.set('n', 'zl', 'zL', { desc = 'Scroll left' })
