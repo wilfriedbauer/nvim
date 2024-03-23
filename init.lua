@@ -42,7 +42,15 @@ vim.o.foldlevelstart = 99
 vim.o.foldenable = true
 vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
 
--- change diagnostic signs and display the most severe one in the sign gutter on the right.
+-- change diagnostic signs and display the most severe one in the sign gutter on the left.
+vim.diagnostic.config({
+  virtual_text = true,
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+  severity_sort = true,
+})
+
 local signs = { Error = "󰅚 ", Warn = "󰀪 ", Hint = "󰌶 ", Info = " " }
 for type, icon in pairs(signs) do
   local hl = "DiagnosticSign" .. type
@@ -803,19 +811,6 @@ require('lazy').setup({
   'm-demare/hlargs.nvim',
   'nvim-tree/nvim-tree.lua',
   'nvim-treesitter/nvim-treesitter-context',
-  {
-    'ErichDonGubler/lsp_lines.nvim',
-    config = function()
-      vim.diagnostic.config({
-        virtual_text = false,
-        signs = true,
-        underline = true,
-        update_in_insert = false,
-        severity_sort = true,
-      })
-      require("lsp_lines").setup()
-    end,
-  },
   {
     "aznhe21/actions-preview.nvim",
     config = function()
