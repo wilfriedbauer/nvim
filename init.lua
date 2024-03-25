@@ -633,8 +633,8 @@ require('lazy').setup({
       -- reload current color scheme to pick up colors override if it was set up in a lazy plugin definition fashion
       vim.cmd.colorscheme(vim.g.colors_name)
 
-      vim.fn.sign_define('DapBreakpoint', { text = '•', texthl = 'DapBreakpoint' })
-      vim.fn.sign_define('DapBreakpointCondition', { text = '•', texthl = 'DapBreakpoint' })
+      vim.fn.sign_define('DapBreakpoint', { text = '', texthl = 'DapBreakpoint' })
+      vim.fn.sign_define('DapBreakpointCondition', { text = '', texthl = 'DapBreakpoint' })
       vim.fn.sign_define('DapBreakpointRejected', { text = '', texthl = 'DapBreakpoint' })
       vim.fn.sign_define('DapLogPoint', { text = '', texthl = 'DapLogPoint' })
       vim.fn.sign_define('DapStopped', { text = '', texthl = 'DapStopped' })
@@ -897,15 +897,47 @@ require('lazy').setup({
       "kevinhwang91/promise-async",
       {
         "luukvbaal/statuscol.nvim",
+        event = "VimEnter",
         config = function()
           local builtin = require("statuscol.builtin")
           require("statuscol").setup({
-            foldfunc = "builtin",
-            setopt = true,
             relculright = true,
             segments = {
-              { text = { "%s" },                  click = "v:lua.ScSa" },
-              { text = { builtin.lnumfunc, " " }, click = "v:lua.ScLa" },
+              {
+                sign = {
+                  name = {
+                    "Diagnostic",
+                  },
+                  maxwidth = 1,
+                  colwidth = 1,
+                  auto = true,
+                },
+                click = "v:lua.ScSa",
+              },
+              {
+                sign = {
+                  namespace = { "gitsign" },
+                  maxwidth = 1,
+                  colwidth = 1,
+                  auto = true,
+                  fillchar = "",
+                  fillcharhl = "StatusColumnSeparator",
+                },
+                click = "v:lua.ScSa",
+              },
+              { text = { builtin.lnumfunc }, click = "v:lua.ScLa" },
+              {
+                sign = {
+                  name = {
+                    "Dap",
+                    "neotest",
+                  },
+                  maxwidth = 1,
+                  colwidth = 1,
+                  auto = false,
+                },
+                click = "v:lua.ScSa",
+              },
               { text = { builtin.foldfunc },      click = "v:lua.ScFa" },
             },
           })
