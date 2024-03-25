@@ -1001,7 +1001,8 @@ require('lazy').setup({
     }
   },
   { 'ojroques/nvim-bufdel' },
-  { 'IMOKURI/line-number-interval.nvim' }
+  { 'IMOKURI/line-number-interval.nvim' },
+  { 'LunarVim/bigfile.nvim' }
 }, {})
 
 -- [[Setup Custom Plugins ]]
