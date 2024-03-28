@@ -895,54 +895,7 @@ require('lazy').setup({
     "kevinhwang91/nvim-ufo",
     dependencies = {
       "kevinhwang91/promise-async",
-      {
-        "luukvbaal/statuscol.nvim",
-        event = "VimEnter",
-        config = function()
-          local builtin = require("statuscol.builtin")
-          require("statuscol").setup({
-            relculright = true,
-            segments = {
-              {
-                sign = {
-                  name = {
-                    "Diagnostic",
-                  },
-                  maxwidth = 1,
-                  colwidth = 1,
-                  auto = true,
-                },
-                click = "v:lua.ScSa",
-              },
-              {
-                sign = {
-                  namespace = { "gitsign" },
-                  maxwidth = 1,
-                  colwidth = 1,
-                  auto = true,
-                  fillchar = "",
-                  fillcharhl = "StatusColumnSeparator",
-                },
-                click = "v:lua.ScSa",
-              },
-              { text = { builtin.lnumfunc }, click = "v:lua.ScLa" },
-              {
-                sign = {
-                  name = {
-                    "Dap",
-                    "neotest",
-                  },
-                  maxwidth = 1,
-                  colwidth = 1,
-                  auto = false,
-                },
-                click = "v:lua.ScSa",
-              },
-              { text = { builtin.foldfunc },      click = "v:lua.ScFa" },
-            },
-          })
-        end,
-      },
+      "luukvbaal/statuscol.nvim",
     },
     event = "BufReadPost",
     opts = {
@@ -958,6 +911,54 @@ require('lazy').setup({
       vim.keymap.set("n", "zC", function()
         require("ufo").closeAllFolds()
       end)
+    end,
+  },
+  {
+    "luukvbaal/statuscol.nvim",
+    event = "VimEnter",
+    config = function()
+      local builtin = require("statuscol.builtin")
+      require("statuscol").setup({
+        relculright = true,
+        segments = {
+          {
+            sign = {
+              name = {
+                "Diagnostic",
+              },
+              maxwidth = 1,
+              colwidth = 1,
+              auto = true,
+            },
+            click = "v:lua.ScSa",
+          },
+          {
+            sign = {
+              namespace = { "gitsign" },
+              maxwidth = 1,
+              colwidth = 1,
+              auto = true,
+              fillchar = "",
+              fillcharhl = "StatusColumnSeparator",
+            },
+            click = "v:lua.ScSa",
+          },
+          { text = { builtin.lnumfunc }, click = "v:lua.ScLa" },
+          {
+            sign = {
+              name = {
+                "Dap",
+                "neotest",
+              },
+              maxwidth = 1,
+              colwidth = 1,
+              auto = false,
+            },
+            click = "v:lua.ScSa",
+          },
+          { text = { builtin.foldfunc },      click = "v:lua.ScFa" },
+        },
+      })
     end,
   },
   {
