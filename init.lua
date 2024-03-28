@@ -1034,7 +1034,12 @@ require('lazy').setup({
   },
   { 'ojroques/nvim-bufdel' },
   { 'IMOKURI/line-number-interval.nvim' },
-  { 'LunarVim/bigfile.nvim' }
+  { 'LunarVim/bigfile.nvim' },
+  { "tiagovla/scope.nvim",
+        config = function()
+      require('scope').setup()
+    end,
+}
 }, {})
 
 -- [[Setup Custom Plugins ]]
