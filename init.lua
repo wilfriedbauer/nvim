@@ -1062,7 +1062,7 @@ vim.g["line_number_interval#use_custom"] = 1
 -- Set custom interval list.
 -- (default: fibonacci sequence ([1, 2, 3, 5, 8, 13, 21, 34, 55, ...]))
 -- Relative position to highlight.
-vim.g["line_number_interval#custom_interval"] = { 5, 10, 15, 20, 25 }
+vim.g["line_number_interval#custom_interval"] = { 5, 10, 15, 20, 25, 30, 35, 40, 45 }
 
 -- Set color to highlight and dim.
 -- (default: HighlightedLineNr use LineNr color,
@@ -1075,11 +1075,15 @@ vim.cmd("highlight DimLineNr guifg=#4e455a ctermfg=5")
 
 -- Additional highlight
 -- Use those colors for Nth (1st ~ 9th) element of custom interval.
-vim.cmd("highlight HighlightedLineNr1 guifg=#a2a3ac ctermfg=5")
-vim.cmd("highlight HighlightedLineNr2 guifg=#8f909c ctermfg=4")
-vim.cmd("highlight HighlightedLineNr3 guifg=#7c7e8b ctermfg=6")
-vim.cmd("highlight HighlightedLineNr4 guifg=#6a6b7a ctermfg=2")
-vim.cmd("highlight HighlightedLineNr5 guifg=#57596a ctermfg=3")
+vim.cmd("highlight HighlightedLineNr1 guifg=#b4b5bd ctermfg=3")
+vim.cmd("highlight HighlightedLineNr2 guifg=#a2a3ac ctermfg=3")
+vim.cmd("highlight HighlightedLineNr3 guifg=#8f909c ctermfg=3")
+vim.cmd("highlight HighlightedLineNr4 guifg=#7c7e8b ctermfg=5")
+vim.cmd("highlight HighlightedLineNr5 guifg=#6a6b7a ctermfg=4")
+vim.cmd("highlight HighlightedLineNr6 guifg=#6a6b7a ctermfg=6")
+vim.cmd("highlight HighlightedLineNr7 guifg=#57596a ctermfg=2")
+vim.cmd("highlight HighlightedLineNr8 guifg=#57596a ctermfg=3")
+vim.cmd("highlight HighlightedLineNr9 guifg=#57596a ctermfg=3")
 
 -- Enable line number interval.
 vim.cmd("LineNumberIntervalEnable")
