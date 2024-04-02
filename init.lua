@@ -147,7 +147,6 @@ require('lazy').setup({
       -- Automatically install LSPs to stdpath for neovim
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
-      'nvimdev/lspsaga.nvim',
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
@@ -1019,20 +1018,6 @@ require('lazy').setup({
       }
     end
   },
-  {
-    'nvimdev/lspsaga.nvim',
-    config = function()
-      require('lspsaga').setup({
-        ui = {
-          code_action = ''
-        }
-      })
-    end,
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter', -- optional
-      'nvim-tree/nvim-web-devicons'      -- optional
-    }
-  },
   { 'ojroques/nvim-bufdel' },
   { 'IMOKURI/line-number-interval.nvim' },
   { 'LunarVim/bigfile.nvim' },
@@ -1418,6 +1403,7 @@ vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
+vim.keymap.set('n', '<leader>k', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 vim.keymap.set('n', '<leader>K', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 -- Trouble keymaps
@@ -1429,7 +1415,7 @@ vim.keymap.set("n", "<leader>td", function() require("trouble").toggle("document
 vim.keymap.set("n", "<leader>tq", function() require("trouble").toggle("quickfix") end, { desc = '[T]rouble [Q]uickfix' })
 vim.keymap.set("n", "<leader>tl", function() require("trouble").toggle("loclist") end,
   { desc = '[T]rouble [L]ocation List' })
-vim.keymap.set("n", "gR", function() require("trouble").toggle("lsp_references") end,
+vim.keymap.set("n", "<leader>tr", function() require("trouble").toggle("lsp_references") end,
   { desc = '[T]rouble LSP [R]eferences' })
 
 -- [[ Highlight on yank ]]
@@ -1708,22 +1694,31 @@ local on_attach = function(_, bufnr)
   end
 
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  -- nmap('<leader>c', vim.lsp.buf.code_action, '[C]ode Action')
+  nmap('<leader>C', vim.lsp.buf.code_action, '[LSP] [C]ode Action')
 
+  -- Jump to the definition of the word under your cursor.
+  --  This is where a variable was first declared, or where a function is defined, etc.
+  --  To jump back, press <C-t>.
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+
+  -- Find references for the word under your cursor.
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+
+  -- Jump to the implementation of the word under your cursor.
+  --  Useful when your language has ways of declaring types without an actual implementation.
   nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-  nmap('gP', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-  nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+  -- Jump to the type of the word under your cursor.
+  --  Useful when you're not sure what type a variable is and you want to see
+  --  the definition of its *type*, not where it was *defined*.
+  nmap('gD', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+
+  -- WARN: This is not Goto Definition, this is Goto Declaration.
+  --  For example, in C this would take you to the header.
+  nmap('gR', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
   -- See `:help K` for why this keymap
-  -- nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('K', '<Cmd>Lspsaga hover_doc<cr>', '[S]aga [H]over')
-  nmap('gF', '<Cmd>Lspsaga finder<cr>', '[S]aga [F]inder')
-  nmap('gp', '<Cmd>Lspsaga peek_definition<cr>', '[P]review [D]efinition')
-  nmap('<leader>k', '<Cmd>Lspsaga show_cursor_diagnostics<cr>', 'Open floating diagnostic message')
-  nmap('<leader>A', '<Cmd>Lspsaga outline<cr>', 'Saga [O]utline')
-  nmap('<leader>rs', '<Cmd>Lspsaga rename<cr>', '[R]ename [S]aga')
-  nmap('<leader>rp', '<Cmd>Lspsaga project_replace<cr>', '[R]ename [S]aga Project')
+  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
   imap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
   nmap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
