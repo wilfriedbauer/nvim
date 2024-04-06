@@ -654,8 +654,31 @@ require('lazy').setup({
         -- You'll need to check that you have the required things installed
         -- online, please don't ask me how to install them :)
         ensure_installed = {
+          'netcoredbg',
           -- Update this to ensure that you have the debuggers for the langs you want
           --'delve',
+        },
+      }
+      dap.adapters.coreclr = {
+        type = "executable",
+        command = "/usr/bin/netcoredbg",
+        args = { "--interpreter=vscode" },
+      }
+
+      dap.adapters.netcoredbg = {
+        type = "executable",
+        command = "/usr/bin/netcoredbg",
+        args = { "--interpreter=vscode" },
+      }
+
+      dap.configurations.cs = {
+        {
+          type = "coreclr",
+          name = "launch - netcoredbg",
+          request = "launch",
+          program = function()
+            return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/src/", "file")
+          end,
         },
       }
 
@@ -955,7 +978,7 @@ require('lazy').setup({
             },
             click = "v:lua.ScSa",
           },
-          { text = { builtin.foldfunc },      click = "v:lua.ScFa" },
+          { text = { builtin.foldfunc }, click = "v:lua.ScFa" },
         },
       })
     end,
@@ -1021,11 +1044,13 @@ require('lazy').setup({
   { 'ojroques/nvim-bufdel' },
   { 'IMOKURI/line-number-interval.nvim' },
   { 'LunarVim/bigfile.nvim' },
-  { "tiagovla/scope.nvim",
-        config = function()
+  {
+    "tiagovla/scope.nvim",
+    config = function()
       require('scope').setup()
     end,
-}
+  },
+  { 'WhoIsSethDaniel/mason-tool-installer.nvim' }
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -1127,6 +1152,67 @@ require('tabnine').setup({
   exclude_filetypes = { "TelescopePrompt", "NvimTree" },
   log_file_path = nil, -- absolute path to Tabnine log file
 })
+
+require('mason-tool-installer').setup {
+
+  -- a list of all tools you want to ensure are installed upon
+  -- start
+  ensure_installed = {
+
+    -- you can pin a tool to a particular version
+    -- { 'golangci-lint', version = 'v1.47.0' },
+
+    -- you can turn off/on auto_update per tool
+    -- { 'bash-language-server', auto_update = true },
+    'csharp-language-server', 
+    'csharp_ls',
+    'csharpier',
+    'debugpy',
+    'eslint-lsp',
+    'eslint',
+    'python-lsp-server',
+    'eslint',
+    'lua-language-server',
+    'lua_ls',
+    'netcoredbg',
+    'omnisharp',
+    'prettier',
+    'selene',
+    'stylua',
+    'typescript-language-server',
+    'tsserver',
+    'tsserver',
+    'bash-language-server',
+    'lua-language-server',
+    'vim-language-server',
+  },
+
+  -- if set to true this will check each tool for updates. If updates
+  -- are available the tool will be updated. This setting does not
+  -- affect :MasonToolsUpdate or :MasonToolsInstall.
+  -- Default: false
+  auto_update = true,
+
+  -- automatically install / update on startup. If set to false nothing
+  -- will happen on startup. You can use :MasonToolsInstall or
+  -- :MasonToolsUpdate to install tools and check for updates.
+  -- Default: true
+  run_on_start = true,
+
+  -- set a delay (in ms) before the installation starts. This is only
+  -- effective if run_on_start is set to true.
+  -- e.g.: 5000 = 5 second delay, 10000 = 10 second delay, etc...
+  -- Default: 0
+  start_delay = 3000, -- 3 second delay
+
+  -- Only attempt to install if 'debounce_hours' number of hours has
+  -- elapsed since the last time Neovim was started. This stores a
+  -- timestamp in a file named stdpath('data')/mason-tool-installer-debounce.
+  -- This is only relevant when you are using 'run_on_start'. It has no
+  -- effect when running manually via ':MasonToolsInstall' etc....
+  -- Default: nil
+  debounce_hours = nil, -- at least 5 hours between attempts to install/update
+}
 
 require("nvim-tree").setup({
   sort = {
