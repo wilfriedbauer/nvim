@@ -563,6 +563,7 @@ require('lazy').setup({
                 previous_parameter = "<C-h>",
                 close_signature = "<C-s>"
               },
+              display_automatically = false -- Uses trigger characters to automatically display the signature overloads when typing a method signature
             })
           end
 
