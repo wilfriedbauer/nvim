@@ -268,9 +268,7 @@ require('lazy').setup({
           ["<Tab>"] = cmp_next,
           ["<down>"] = cmp_next,
           ["<C-n>"] = cmp_next,
-          ["<C-j>"] = cmp_next,
           ["<S-Tab>"] = cmp_prev,
-          ["<C-k>"] = cmp_prev,
           ["<C-p>"] = cmp_prev,
           ["<up>"] = cmp_prev,
         },
@@ -512,87 +510,100 @@ require('lazy').setup({
     },
     build = ':TSUpdate',
   },
+  {
+    -- Use your language server to automatically format your code on save.
+    -- Adds additional commands as well to manage the behavior
+    'neovim/nvim-lspconfig',
+    config = function()
+      -- Switch for controlling whether you want autoformatting.
+      --  Use :FormatToggle to toggle autoformatting on or off
+      local format_is_enabled = true
+      vim.api.nvim_create_user_command('FormatToggle', function()
+        format_is_enabled = not format_is_enabled
+        print('Setting autoformatting to: ' .. tostring(format_is_enabled))
+      end, {})
 
-  -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
-  --       These are some example plugins that I've included in the kickstart repository.
-  --       Uncomment any of the lines below to enable them.
-  -- require 'kickstart.plugins.autoformat',
-  --
-  -- autoformat.lua
-  --
-  -- Use your language server to automatically format your code on save.
-  -- Adds additional commands as well to manage the behavior
-  'neovim/nvim-lspconfig',
-  config = function()
-    -- Switch for controlling whether you want autoformatting.
-    --  Use :KickstartFormatToggle to toggle autoformatting on or off
-    local format_is_enabled = true
-    vim.api.nvim_create_user_command('KickstartFormatToggle', function()
-      format_is_enabled = not format_is_enabled
-      print('Setting autoformatting to: ' .. tostring(format_is_enabled))
-    end, {})
+      -- Create an augroup that is used for managing our formatting autocmds.
+      --      We need one augroup per client to make sure that multiple clients
+      --      can attach to the same buffer without interfering with each other.
+      local _augroups = {}
+      local get_augroup = function(client)
+        if not _augroups[client.id] then
+          local group_name = 'kickstart-lsp-format-' .. client.name
+          local id = vim.api.nvim_create_augroup(group_name, { clear = true })
+          _augroups[client.id] = id
+        end
 
-    -- Create an augroup that is used for managing our formatting autocmds.
-    --      We need one augroup per client to make sure that multiple clients
-    --      can attach to the same buffer without interfering with each other.
-    local _augroups = {}
-    local get_augroup = function(client)
-      if not _augroups[client.id] then
-        local group_name = 'kickstart-lsp-format-' .. client.name
-        local id = vim.api.nvim_create_augroup(group_name, { clear = true })
-        _augroups[client.id] = id
+        return _augroups[client.id]
       end
 
-      return _augroups[client.id]
-    end
+      -- Whenever an LSP attaches to a buffer, we will run this function.
+      --
+      -- See `:help LspAttach` for more information about this autocmd event.
+      vim.api.nvim_create_autocmd('LspAttach', {
+        group = vim.api.nvim_create_augroup('kickstart-lsp-attach-format', { clear = true }),
+        -- This is where we attach the autoformatting for reasonable clients
+        callback = function(args)
+          local client_id = args.data.client_id
+          local client = vim.lsp.get_client_by_id(client_id)
+          local bufnr = args.buf
 
-    -- Whenever an LSP attaches to a buffer, we will run this function.
-    --
-    -- See `:help LspAttach` for more information about this autocmd event.
-    vim.api.nvim_create_autocmd('LspAttach', {
-      group = vim.api.nvim_create_augroup('kickstart-lsp-attach-format', { clear = true }),
-      -- This is where we attach the autoformatting for reasonable clients
-      callback = function(args)
-        local client_id = args.data.client_id
-        local client = vim.lsp.get_client_by_id(client_id)
-        local bufnr = args.buf
+          -- Setup lsp-overloads.nvim
+          --- Guard against servers without the signatureHelper capability
+          if client.server_capabilities.signatureHelpProvider then
+            vim.keymap.set("n", "<C-s>", "<cmd>LspOverloadsSignature<CR>",
+              { noremap = true, silent = true, buffer = bufnr })
+            vim.keymap.set("i", "<C-s>", "<cmd>LspOverloadsSignature<CR>",
+              { noremap = true, silent = true, buffer = bufnr })
+            require('lsp-overloads').setup(client, {
+              keymaps = {
+                next_signature = "<C-j>",
+                previous_signature = "<C-k>",
+                next_parameter = "<C-l>",
+                previous_parameter = "<C-h>",
+                close_signature = "<C-s>"
+              },
+            })
+          end
 
-        -- Only attach to clients that support document formatting
-        if not client.server_capabilities.documentFormattingProvider then
-          return
-        end
+          -- only in neovim 0.10-nightly
+          -- if client.server_capabilities.inlayHintProvider then
+          --   vim.lsp.buf.inlay_hint(bufnr, true)
+          -- end
 
-        -- Tsserver usually works poorly. Sorry you work with bad languages
-        -- You can remove this line if you know what you're doing :)
-        if client.name == 'tsserver' then
-          return
-        end
+          -- Only attach to clients that support document formatting
+          if not client.server_capabilities.documentFormattingProvider then
+            return
+          end
 
-        -- Create an autocmd that will run *before* we save the buffer.
-        --  Run the formatting command for the LSP that has just attached.
-        vim.api.nvim_create_autocmd('BufWritePre', {
-          group = get_augroup(client),
-          buffer = bufnr,
-          callback = function()
-            if not format_is_enabled then
-              return
-            end
+          -- Tsserver usually works poorly. Sorry you work with bad languages
+          -- You can remove this line if you know what you're doing :)
+          if client.name == 'tsserver' then
+            return
+          end
 
-            vim.lsp.buf.format {
-              async = false,
-              filter = function(c)
-                return c.id == client.id
-              end,
-            }
-          end,
-        })
-      end,
-    })
-  end,
+          -- Create an autocmd that will run *before* we save the buffer.
+          --  Run the formatting command for the LSP that has just attached.
+          vim.api.nvim_create_autocmd('BufWritePre', {
+            group = get_augroup(client),
+            buffer = bufnr,
+            callback = function()
+              if not format_is_enabled then
+                return
+              end
 
-  -- require 'kickstart.plugins.debug',
-  --
-  -- NOTE: Yes, you can install new plugins here!
+              vim.lsp.buf.format {
+                async = false,
+                filter = function(c)
+                  return c.id == client.id
+                end,
+              }
+            end,
+          })
+        end,
+      })
+    end,
+  },
   {
     'mfussenegger/nvim-dap',
     -- NOTE: And you can specify dependencies as well
@@ -770,7 +781,11 @@ require('lazy').setup({
   'brenoprata10/nvim-highlight-colors',
   'petertriho/nvim-scrollbar',
   'mbbill/undotree',
-  { 'akinsho/bufferline.nvim', version = "*",             dependencies = 'nvim-tree/nvim-web-devicons' },
+  {
+    'akinsho/bufferline.nvim',
+    version = "*",
+    dependencies = 'nvim-tree/nvim-web-devicons',
+  },
   {
     "smjonas/inc-rename.nvim",
     config = function()
@@ -971,7 +986,6 @@ require('lazy').setup({
       "nvim-treesitter/nvim-treesitter"
     }
   },
-  'lvimuser/lsp-inlayhints.nvim',
   { "lukas-reineke/virt-column.nvim", opts = {} },
   { "Dynge/gitmoji.nvim",             dependencies = { "hrsh7th/nvim-cmp" },      opts = {} },
   { "petertriho/cmp-git",             dependencies = { "nvim-lua/plenary.nvim" }, opts = {} },
@@ -1065,13 +1079,13 @@ require('lazy').setup({
     event = 'InsertCharPre', -- Set the event to 'InsertCharPre' for better compatibility
     priority = 1000,
   },
-  -- {
-  --   "L3MON4D3/LuaSnip",
-  --   keys = function()
-  --     -- Disable default tab keybinding in LuaSnip
-  --     return {}
-  --   end,
-  -- },
+  { 'Issafalcon/lsp-overloads.nvim' },
+  {
+    "karb94/neoscroll.nvim",
+    config = function()
+      require('neoscroll').setup {}
+    end
+  }
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -1118,24 +1132,6 @@ vim.cmd("highlight HighlightedLineNr9 guifg=#57596a ctermfg=3")
 
 -- Enable line number interval.
 vim.cmd("LineNumberIntervalEnable")
-
-
-
-require('lsp-inlayhints').setup()
-
-vim.api.nvim_create_augroup("LspAttach_inlayhints", {})
-vim.api.nvim_create_autocmd("LspAttach", {
-  group = "LspAttach_inlayhints",
-  callback = function(args)
-    if not (args.data and args.data.client_id) then
-      return
-    end
-
-    local bufnr = args.buf
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    require("lsp-inlayhints").on_attach(client, bufnr)
-  end,
-})
 
 require('virt-column').setup()
 
@@ -1816,8 +1812,8 @@ local on_attach = function(_, bufnr)
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  imap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
-  nmap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  -- imap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  -- nmap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
   nmap('<leader>wd', require('telescope.builtin').lsp_document_symbols, '[D]ocument Symbols')
