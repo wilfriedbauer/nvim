@@ -288,7 +288,6 @@ require('lazy').setup({
           { name = 'emoji',                   group_index = 1, max_item_count = 5 },
           { name = 'nerdfont',                group_index = 1, max_item_count = 5 },
           { name = 'greek',                   group_index = 1, max_item_count = 5 },
-          { name = "cmp_tabnine",             group_index = 2, max_item_count = 5 },
         },
       })
       -- `/` cmdline setup.
@@ -895,25 +894,6 @@ require('lazy').setup({
     end,
   },
   {
-    'Exafunction/codeium.vim',
-    event = 'BufEnter',
-    config = function()
-      -- Change '<C-g>' here to any keycode you like.
-      vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true, silent = true })
-      vim.keymap.set('i', '<C-h>', function() return vim.fn['codeium#CycleCompletions'](1) end,
-        { expr = true, silent = true })
-      vim.keymap.set('i', '<C-l>', function() return vim.fn['codeium#CycleCompletions'](-1) end,
-        { expr = true, silent = true })
-      vim.keymap.set('i', '<C-x>', function() return vim.fn['codeium#Clear']() end, { expr = true, silent = true })
-    end
-  },
-  { 'codota/tabnine-nvim',     build = "./dl_binaries.sh" },
-  {
-    'tzachar/cmp-tabnine',
-    build = './install.sh',
-    dependencies = 'hrsh7th/nvim-cmp',
-  },
-  {
     "kevinhwang91/nvim-ufo",
     dependencies = {
       "kevinhwang91/promise-async",
@@ -1050,7 +1030,48 @@ require('lazy').setup({
       require('scope').setup()
     end,
   },
-  { 'WhoIsSethDaniel/mason-tool-installer.nvim' }
+  { 'WhoIsSethDaniel/mason-tool-installer.nvim' },
+  {
+    'abecodes/tabout.nvim',
+    lazy = false,
+    config = function()
+      require('tabout').setup {
+        tabkey = '<Tab>',             -- key to trigger tabout, set to an empty string to disable
+        backwards_tabkey = '<S-Tab>', -- key to trigger backwards tabout, set to an empty string to disable
+        act_as_tab = true,            -- shift content if tab out is not possible
+        act_as_shift_tab = false,     -- reverse shift content if tab out is not possible (if your keyboard/terminal supports <S-Tab>)
+        default_tab = '<C-t>',        -- shift default action (only at the beginning of a line, otherwise <TAB> is used)
+        default_shift_tab = '<C-d>',  -- reverse shift default action,
+        enable_backwards = true,      -- well ...
+        completion = false,           -- if the tabkey is used in a completion pum
+        tabouts = {
+          { open = "'", close = "'" },
+          { open = '"', close = '"' },
+          { open = '`', close = '`' },
+          { open = '(', close = ')' },
+          { open = '[', close = ']' },
+          { open = '{', close = '}' }
+        },
+        ignore_beginning = true, --[[ if the cursor is at the beginning of a filled element it will rather tab out than shift the content ]]
+        exclude = {} -- tabout will ignore these filetypes
+      }
+    end,
+    requires = {
+      "nvim-treesitter/nvim-treesitter",
+      "L3MON4D3/LuaSnip",
+      "hrsh7th/nvim-cmp"
+    },
+    opt = true,              -- Set this to true if the plugin is optional
+    event = 'InsertCharPre', -- Set the event to 'InsertCharPre' for better compatibility
+    priority = 1000,
+  },
+  -- {
+  --   "L3MON4D3/LuaSnip",
+  --   keys = function()
+  --     -- Disable default tab keybinding in LuaSnip
+  --     return {}
+  --   end,
+  -- },
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -1143,16 +1164,6 @@ require('bufdel').setup {
   quit = false, -- quit Neovim when last buffer is closed
 }
 
-require('tabnine').setup({
-  disable_auto_comment = true,
-  accept_keymap = "<Tab>",
-  dismiss_keymap = "<C-]>",
-  debounce_ms = 800,
-  suggestion_color = { gui = "#808080", cterm = 244 },
-  exclude_filetypes = { "TelescopePrompt", "NvimTree" },
-  log_file_path = nil, -- absolute path to Tabnine log file
-})
-
 require('mason-tool-installer').setup {
 
   -- a list of all tools you want to ensure are installed upon
@@ -1164,7 +1175,7 @@ require('mason-tool-installer').setup {
 
     -- you can turn off/on auto_update per tool
     -- { 'bash-language-server', auto_update = true },
-    'csharp-language-server', 
+    'csharp-language-server',
     'csharp_ls',
     'csharpier',
     'debugpy',
