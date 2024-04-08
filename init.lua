@@ -280,7 +280,6 @@ require('lazy').setup({
           { name = "vim-dadbod-completion",   group_index = 1 },
           { name = "path",                    group_index = 1 },
           { name = "buffer",                  group_index = 1, max_item_count = 5, keyword_length = 2 },
-          { name = "git",                     group_index = 1, max_item_count = 5 },
           { name = 'calc',                    group_index = 1, max_item_count = 5 },
           { name = 'gitmoji',                 group_index = 1, max_item_count = 5 },
           { name = 'emoji',                   group_index = 1, max_item_count = 5 },
@@ -788,12 +787,6 @@ require('lazy').setup({
     dependencies = 'nvim-tree/nvim-web-devicons',
   },
   {
-    "smjonas/inc-rename.nvim",
-    config = function()
-      require("inc_rename").setup()
-    end,
-  },
-  {
     "tpope/vim-dadbod",
     dependencies = {
       "kristijanhusak/vim-dadbod-ui",
@@ -844,7 +837,6 @@ require('lazy').setup({
     dependencies = { "rafamadriz/friendly-snippets" },
   },
   'benfowler/telescope-luasnip.nvim',
-  'ThePrimeagen/harpoon',
   'm-demare/hlargs.nvim',
   'nvim-tree/nvim-tree.lua',
   'nvim-treesitter/nvim-treesitter-context',
@@ -910,28 +902,6 @@ require('lazy').setup({
     end,
   },
   {
-    "kevinhwang91/nvim-ufo",
-    dependencies = {
-      "kevinhwang91/promise-async",
-      "luukvbaal/statuscol.nvim",
-    },
-    event = "BufReadPost",
-    opts = {
-      provider_selector = function()
-        return { "treesitter", "indent" }
-      end,
-    },
-
-    init = function()
-      vim.keymap.set("n", "zO", function()
-        require("ufo").openAllFolds()
-      end)
-      vim.keymap.set("n", "zC", function()
-        require("ufo").closeAllFolds()
-      end)
-    end,
-  },
-  {
     "luukvbaal/statuscol.nvim",
     event = "VimEnter",
     config = function()
@@ -980,6 +950,28 @@ require('lazy').setup({
     end,
   },
   {
+    "kevinhwang91/nvim-ufo",
+    dependencies = {
+      "kevinhwang91/promise-async",
+      "luukvbaal/statuscol.nvim",
+    },
+    event = "BufReadPost",
+    opts = {
+      provider_selector = function()
+        return { "treesitter", "indent" }
+      end,
+    },
+
+    init = function()
+      vim.keymap.set("n", "zO", function()
+        require("ufo").openAllFolds()
+      end)
+      vim.keymap.set("n", "zC", function()
+        require("ufo").closeAllFolds()
+      end)
+    end,
+  },
+  {
     "nvim-neotest/neotest",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -988,8 +980,7 @@ require('lazy').setup({
     }
   },
   { "lukas-reineke/virt-column.nvim", opts = {} },
-  { "Dynge/gitmoji.nvim",             dependencies = { "hrsh7th/nvim-cmp" },      opts = {} },
-  { "petertriho/cmp-git",             dependencies = { "nvim-lua/plenary.nvim" }, opts = {} },
+  { "Dynge/gitmoji.nvim",             dependencies = { "hrsh7th/nvim-cmp" }, opts = {} },
   {
     "NeogitOrg/neogit",
     dependencies = {
@@ -1237,12 +1228,6 @@ require("nvim-tree").setup({
   },
 })
 
-require('ufo').setup({
-  provider_selector = function()
-    return { 'treesitter', 'indent' }
-  end
-})
-
 require("autoclose").setup()
 
 require('matchparen').setup()
@@ -1263,101 +1248,7 @@ require("scrollbar").setup({
   },
 })
 
-require("harpoon").setup({
-  global_settings = { save_on_toggle = false, save_on_change = true, enter_on_sendcmd = false },
-  menu = { width = 50, height = 8, borderchars = { "", "", "", "", "", "", "", "" } },
-})
-
-vim.api.nvim_set_keymap(
-  "n",
-  "''",
-  '<Cmd>lua require("harpoon.ui").toggle_quick_menu()<CR>',
-  { noremap = true, silent = true }
-)
-
-vim.api.nvim_set_keymap(
-  "n",
-  "'a",
-  '<Cmd>lua require("harpoon.mark").add_file()<CR>',
-  { noremap = true, silent = true }
-)
-vim.api.nvim_set_keymap(
-  "n",
-  "'1",
-  '<Cmd>lua require("harpoon.ui").nav_file(1)<CR>',
-  { noremap = true, silent = true }
-)
-vim.api.nvim_set_keymap(
-  "n",
-  "'2",
-  '<Cmd>lua require("harpoon.ui").nav_file(2)<CR>',
-  { noremap = true, silent = true }
-)
-vim.api.nvim_set_keymap(
-  "n",
-  "'3",
-  '<Cmd>lua require("harpoon.ui").nav_file(3)<CR>',
-  { noremap = true, silent = true }
-)
-vim.api.nvim_set_keymap(
-  "n",
-  "'4",
-  '<Cmd>lua require("harpoon.ui").nav_file(4)<CR>',
-  { noremap = true, silent = true }
-)
-vim.api.nvim_set_keymap(
-  "n",
-  "'5",
-  '<Cmd>lua require("harpoon.ui").nav_file(5)<CR>',
-  { noremap = true, silent = true }
-)
-vim.api.nvim_set_keymap(
-  "n",
-  "'6",
-  '<Cmd>lua require("harpoon.ui").nav_file(6)<CR>',
-  { noremap = true, silent = true }
-)
-vim.api.nvim_set_keymap(
-  "n",
-  "'7",
-  '<Cmd>lua require("harpoon.ui").nav_file(7)<CR>',
-  { noremap = true, silent = true }
-)
-vim.api.nvim_set_keymap(
-  "n",
-  "'8",
-  '<Cmd>lua require("harpoon.ui").nav_file(8)<CR>',
-  { noremap = true, silent = true }
-)
-vim.api.nvim_set_keymap(
-  "n",
-  "'9",
-  '<Cmd>lua require("harpoon.ui").nav_file(9)<CR>',
-  { noremap = true, silent = true }
-)
-vim.api.nvim_set_keymap(
-  "n",
-  "'0",
-  '<Cmd>lua require("harpoon.ui").nav_file(0)<CR>',
-  { noremap = true, silent = true }
-)
-vim.cmd([[
-highlight HarpoonBorder guibg=#282828 guifg=white
-highlight HarpoonWindow guibg=#282828 guifg=white
-augroup vimrc_harpoon
-  autocmd!
-  autocmd Filetype harpoon nnoremap <buffer><silent> <Esc> <Cmd>lua require("harpoon.cmd-ui").toggle_quick_menu()<CR>
-augroup END
-]])
-
 -- [[ Setting Custom Plugins Keymaps ]]
-vim.keymap.set(
-  "n",
-  "<leader>rr",
-  function() return ":IncRename " .. vim.fn.expand("<cword>") end,
-  { desc = "Rename word under cursor" }
-)
-
 vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end, { desc = "Structural Replace" })
 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
@@ -1399,9 +1290,9 @@ vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
 
 vim.keymap.set('n', '<leader>j', require('treesj').toggle, { desc = "Toggle Join/Split of Code Block" })
+
 vim.keymap.set('n', '<C-p>', ':BufferLineCyclePrev<CR>', { desc = 'Previous Tab' })
 vim.keymap.set('n', '<C-n>', ':BufferLineCycleNext<CR>', { desc = 'Next Tab' })
-vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Close Buffer Force' })
 
 vim.keymap.set('n', '<leader>TT', '<cmd>lua require("neotest").run.run()<CR>', { desc = '[T]est: Run nearest [T]est' })
 vim.keymap.set('n', '<leader>TF', '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>',
@@ -1436,7 +1327,7 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 -- (These commands only work in normal mode, not in insert mode.)
 
 
--- paste without overwriting paste register
+-- paste without overwriting paste register while in visual mode
 vim.keymap.set("v", "p", '"_dP')
 
 -- [[ Setting options ]]
@@ -1482,7 +1373,9 @@ vim.o.termguicolors = true
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
+
 vim.keymap.set('n', '<leader>Q', ':BufDel<CR>', { desc = 'Close Buffer' })
+vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Close Buffer Force' })
 
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -1781,7 +1674,7 @@ local on_attach = function(_, bufnr)
     vim.keymap.set('i', keys, func, { buffer = bufnr, desc = desc })
   end
 
-  nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+  nmap('<leader>r', vim.lsp.buf.rename, '[R]ename')
   nmap('<leader>C', vim.lsp.buf.code_action, '[LSP] [C]ode Action')
 
   -- Jump to the definition of the word under your cursor.
@@ -1832,7 +1725,6 @@ require('which-key').register {
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
   ['<leader>gd'] = { name = '[G]it [D]iff', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
-  ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
   ['<leader>f'] = { name = '[F]ind', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]rouble', _ = 'which_key_ignore' },
   ['<leader>T'] = { name = '[T]est', _ = 'which_key_ignore' },
