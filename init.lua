@@ -1081,12 +1081,6 @@ require('lazy').setup({
     priority = 1000,
   },
   { 'Issafalcon/lsp-overloads.nvim' },
-  {
-    "karb94/neoscroll.nvim",
-    config = function()
-      require('neoscroll').setup {}
-    end
-  }
 }, {})
 
 -- [[Setup Custom Plugins ]]
