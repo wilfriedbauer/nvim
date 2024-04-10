@@ -1119,6 +1119,18 @@ require('lazy').setup({
     config = function(_, opts) require 'lsp_signature'.setup(opts) end
   },
   { "soulis-1256/eagle.nvim" },
+  {
+    "iabdelkareem/csharp.nvim",
+    dependencies = {
+      "williamboman/mason.nvim", -- Required, automatically installs omnisharp
+      "mfussenegger/nvim-dap",
+      "Tastyep/structlog.nvim",  -- Optional, but highly recommended for debugging
+    },
+    config = function()
+      require("mason").setup() -- Mason setup must run before csharp
+      require("csharp").setup()
+    end
+  },
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -1727,6 +1739,19 @@ local on_attach = function(_, bufnr)
   --  This is where a variable was first declared, or where a function is defined, etc.
   --  To jump back, press <C-t>.
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+
+  -- csharp.nvim settings
+  if vim.bo.filetype == 'cs' then
+    -- replaces vim.lsp.buf.definition()
+    vim.keymap.set('n', 'gd', function() require("csharp").go_to_definition() end,
+      { buffer = bufnr, desc = '[LSP] OMNI Definition' })
+
+    vim.keymap.set('n', '<leader>bn', function() require("csharp").debug_project() end,
+      { buffer = bufnr, desc = '[B]ug: [DOTNET] Start' })
+
+    vim.keymap.set('n', '<leader>Rn', function() require("csharp").run_project() end,
+      { buffer = bufnr, desc = '[R]un: [DOTNET] Run' })
+  end
 
   -- Find references for the word under your cursor.
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
