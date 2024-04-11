@@ -29,8 +29,8 @@ vim.opt.undofile = true
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
-vim.opt.scrolloff = 10
-vim.opt.sidescrolloff = 25
+vim.opt.scrolloff = 2
+vim.opt.sidescrolloff = 5
 
 -- enables colorcolumn plugin virt-column.nvim:
 vim.opt.colorcolumn = ""
