@@ -656,6 +656,12 @@ require('lazy').setup({
         args = { "--interpreter=vscode" },
       }
 
+      dap.adapters.netcoredbg = {
+        type = "executable",
+        command = "netcoredbg",
+        args = { "--interpreter=vscode" },
+      }
+
       dap.configurations.cs = {
         {
           type = "coreclr",
@@ -1384,7 +1390,7 @@ vim.keymap.set('n', '<leader>j', require('treesj').toggle, { desc = "Toggle Join
 vim.keymap.set('n', '<C-p>', ':BufferLineCyclePrev<CR>', { desc = 'Previous Tab' })
 vim.keymap.set('n', '<C-n>', ':BufferLineCycleNext<CR>', { desc = 'Next Tab' })
 
-vim.keymap.set('n', '<leader>Ts', '<cmd>Neotest summary toggle<CR>', { desc = '[T]est: [S]ummary toggle' })
+vim.keymap.set('n', '<leader>TS', '<cmd>Neotest summary toggle<CR>', { desc = '[T]est: [S]ummary toggle' })
 vim.keymap.set('n', '<leader>TT', '<cmd>Neotest output toggle<CR>', { desc = '[T]est: Output line toggle' })
 vim.keymap.set('n', '<leader>Tt', '<cmd>Neotest output-panel toggle<CR>', { desc = '[T]est: Output panel toggle' })
 vim.keymap.set('n', '<leader>Tn', '<cmd>lua require("neotest").run.run()<CR>', { desc = '[T]est: Run [N]earest Test' })
