@@ -1223,8 +1223,6 @@ require('mason-tool-installer').setup {
 
     -- you can turn off/on auto_update per tool
     -- { 'bash-language-server', auto_update = true },
-    'csharp-language-server',
-    'csharp_ls',
     'csharpier',
     'debugpy',
     'eslint-lsp',
