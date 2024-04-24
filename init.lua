@@ -863,16 +863,6 @@ require('lazy').setup({
     },
   },
   {
-    "ThePrimeagen/refactoring.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-    config = function()
-      require("refactoring").setup()
-    end,
-  },
-  {
     'Wansmer/treesj',
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
@@ -881,6 +871,28 @@ require('lazy').setup({
         use_default_keymaps = false,
         max_join_length = 1000,
       })
+    end,
+  },
+  {
+    "kevinhwang91/nvim-ufo",
+    dependencies = {
+      "kevinhwang91/promise-async",
+      "luukvbaal/statuscol.nvim",
+    },
+    event = "BufReadPost",
+    opts = {
+      provider_selector = function()
+        return { "treesitter", "indent" }
+      end,
+    },
+
+    init = function()
+      vim.keymap.set("n", "zO", function()
+        require("ufo").openAllFolds()
+      end)
+      vim.keymap.set("n", "zC", function()
+        require("ufo").closeAllFolds()
+      end)
     end,
   },
   {
@@ -908,7 +920,7 @@ require('lazy').setup({
               maxwidth = 1,
               colwidth = 1,
               auto = true,
-              fillchar = "",
+              fillchar = " ",
               fillcharhl = "StatusColumnSeparator",
             },
             click = "v:lua.ScSa",
@@ -929,28 +941,6 @@ require('lazy').setup({
           { text = { builtin.foldfunc }, click = "v:lua.ScFa" },
         },
       })
-    end,
-  },
-  {
-    "kevinhwang91/nvim-ufo",
-    dependencies = {
-      "kevinhwang91/promise-async",
-      "luukvbaal/statuscol.nvim",
-    },
-    event = "BufReadPost",
-    opts = {
-      provider_selector = function()
-        return { "treesitter", "indent" }
-      end,
-    },
-
-    init = function()
-      vim.keymap.set("n", "zO", function()
-        require("ufo").openAllFolds()
-      end)
-      vim.keymap.set("n", "zC", function()
-        require("ufo").closeAllFolds()
-      end)
     end,
   },
   {
@@ -1134,6 +1124,7 @@ require('lazy').setup({
       require("csharp").setup()
     end
   },
+  { 'HiPhish/rainbow-delimiters.nvim' },
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -1224,8 +1215,6 @@ require('nvim-highlight-colors').setup()
 require("luasnip.loaders.from_vscode").lazy_load()
 
 require("nvim-dap-virtual-text").setup()
-
-require('refactoring').setup()
 
 require('hlargs').setup()
 
