@@ -995,6 +995,7 @@ require('lazy').setup({
     "ahmedkhalf/project.nvim",
     config = function()
       require("project_nvim").setup {
+        manual_mode = true,
         -- your configuration comes here
         -- or leave it empty to use the default settings
         -- refer to the configuration section below
@@ -1554,10 +1555,10 @@ require("nvim-tree").setup({
   },
   sync_root_with_cwd = true,
   respect_buf_cwd = true,
-  update_focused_file = {
-    enable = true,
-    update_root = true
-  },
+  -- update_focused_file = {
+  --   enable = true,
+  --   update_root = true
+  -- },
 })
 
 require("autoclose").setup()
@@ -1585,6 +1586,7 @@ vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end, 
 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
 vim.keymap.set("n", "<leader>p", ":Telescope projects<CR>")
+vim.keymap.set("n", "<leader>P", ":ProjectRoot<CR>")
 
 -- create new lines in Normal mode
 vim.keymap.set('n', '<leader>o', "o<Esc>^Da<Esc>k", { desc = 'Newline Below', silent = true })
