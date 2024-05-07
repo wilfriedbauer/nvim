@@ -1652,8 +1652,8 @@ vim.keymap.set('n', '<leader>gs', ':G status<cr>', { desc = '[G]it [S]tatus' })
 vim.keymap.set('n', '<leader>gl', ':Gclog<cr>', { desc = '[G]it [L]og' })
 vim.keymap.set("n", "<leader>gf", ":Flog<CR>", { desc = '[G]it [F]log' })
 
-vim.keymap.set("n", '<leader>e', "<CMD>Oil<CR>", { desc = "Open parent directory" })
-vim.keymap.set('n', '<leader>n', ':NvimTreeToggle<cr>', { desc = '[N]vim [T]ree Toggle' })
+vim.keymap.set("n", '<leader>e', "<CMD>Oil<CR>", { desc = "[E]dit Filetree [OIL]" })
+vim.keymap.set('n', '<leader>n', ':NvimTreeToggle<cr>', { desc = '[N]vim Tree Toggle' })
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = '[U]ndotree Toggle' })
 
