@@ -1338,6 +1338,10 @@ vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end, 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
 vim.keymap.set("n", "<leader>p", ":Telescope projects<CR>")
 
+-- create new lines in Normal mode
+vim.keymap.set('n', '<leader>o', "o<Esc>^Da<Esc>k", { desc = 'Newline Below', silent = true })
+vim.keymap.set('n', '<leader>O', "O<Esc>^Da<Esc>j", { desc = 'Newline Above', silent = true })
+
 -- have to set <C-_> instead of <C-/> for terminal toggle on CTRL-/.
 -- same hotkey for leaving terminal as ESC cant be used for vi keybinds in terminal.
 vim.keymap.set('n', '<C-_>', '<cmd>ToggleTerm size=15 dir=git_dir direction=horizontal name=TERMINAL<CR>',
