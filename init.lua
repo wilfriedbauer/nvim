@@ -42,6 +42,9 @@ vim.o.foldlevelstart = 99
 vim.o.foldenable = true
 vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
 
+-- auto-session.nvim
+vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+
 -- change diagnostic signs and display the most severe one in the sign gutter on the left.
 vim.diagnostic.config({
   virtual_text = true,
@@ -1002,6 +1005,15 @@ require('lazy').setup({
       }
     end
   },
+  {
+    'rmagatti/auto-session',
+    config = function()
+      require("auto-session").setup {
+        log_level = "error",
+        auto_session_enable_last_session = vim.loop.cwd() == vim.loop.os_homedir(),
+      }
+    end
+  },
   { 'ojroques/nvim-bufdel' },
   { 'IMOKURI/line-number-interval.nvim' },
   { 'LunarVim/bigfile.nvim' },
@@ -1545,6 +1557,7 @@ require("nvim-tree").setup({
     sorter = "case_sensitive",
   },
   view = {
+    side = "right",
     width = 30,
   },
   renderer = {
@@ -1587,6 +1600,8 @@ vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end, 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
 vim.keymap.set("n", "<leader>p", ":Telescope projects<CR>")
 vim.keymap.set("n", "<leader>P", ":ProjectRoot<CR>")
+vim.keymap.set("n", "<leader>S", require("auto-session.session-lens").search_session,
+  { noremap = true, desc = "Sessions" })
 
 -- create new lines in Normal mode
 vim.keymap.set('n', '<leader>o', "o<Esc>^Da<Esc>k", { desc = 'Newline Below', silent = true })
@@ -2183,5 +2198,4 @@ rd -r ~\AppData\Local\nvim-data
 --]]
 
 -- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
 -- vim: ts=2 sts=2 sw=2 et
