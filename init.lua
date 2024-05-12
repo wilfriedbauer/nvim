@@ -1165,7 +1165,7 @@ require('lazy').setup({
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
       require("gx").setup {
-        open_browser_app = "explorer.exe", -- specify your browser app; default for macOS is "open", Linux "xdg-open" and Windows "powershell.exe"
+        open_browser_app = "powershell.exe", -- specify your browser app; default for macOS is "open", Linux "xdg-open" and Windows "powershell.exe"
         open_browser_args = {},            -- specify any arguments, such as --background for macOS' "open".
         handlers = {
           plugin = true,                   -- open plugin links in lua (e.g. packer, lazy, ..)
