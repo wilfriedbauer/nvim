@@ -1617,6 +1617,10 @@ vim.keymap.set('n', '<leader>O', "O<Esc>^Da<Esc>j", { desc = 'Newline Above', si
 -- same hotkey for leaving terminal as ESC cant be used for vi keybinds in terminal.
 vim.keymap.set('n', '<C-_>', '<cmd>ToggleTerm size=15 dir=git_dir direction=horizontal name=TERMINAL<CR>',
   { desc = 'Toggle Terminal', noremap = true })
+vim.api.nvim_create_user_command('Tf', 'ToggleTerm size=15 dir=git_dir direction=float name=TERMINAL<CR>', {})
+vim.api.nvim_create_user_command('Tv', 'ToggleTerm size=35 dir=git_dir direction=vertical name=TERMINAL<CR>', {})
+vim.api.nvim_create_user_command('Th', 'ToggleTerm size=15 dir=git_dir direction=horizontal name=TERMINAL<CR>', {})
+vim.api.nvim_create_user_command('T', 'ToggleTerm size=15 dir=git_dir direction=tab name=TERMINAL<CR>', {})
 
 function _G.set_terminal_keymaps()
   local opts = { buffer = 0 }
