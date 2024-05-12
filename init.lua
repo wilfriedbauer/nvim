@@ -1165,17 +1165,18 @@ require('lazy').setup({
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
       require("gx").setup {
+        -- CHANGE BELOW: OS specific ( Windows, Linux, MacOS )
         open_browser_app = "powershell.exe", -- specify your browser app; default for macOS is "open", Linux "xdg-open" and Windows "powershell.exe"
-        open_browser_args = {},            -- specify any arguments, such as --background for macOS' "open".
+        open_browser_args = {},              -- specify any arguments, such as --background for macOS' "open".
         handlers = {
-          plugin = true,                   -- open plugin links in lua (e.g. packer, lazy, ..)
-          github = true,                   -- open github issues
-          brewfile = true,                 -- open Homebrew formulaes and casks
-          package_json = true,             -- open dependencies from package.json
-          search = true,                   -- search the web/selection on the web if nothing else is found
-          go = true,                       -- open pkg.go.dev from an import statement (uses treesitter)
-          jira = {                         -- custom handler to open Jira tickets (these have higher precedence than builtin handlers)
-            name = "jira",                 -- set name of handler
+          plugin = true,                     -- open plugin links in lua (e.g. packer, lazy, ..)
+          github = true,                     -- open github issues
+          brewfile = true,                   -- open Homebrew formulaes and casks
+          package_json = true,               -- open dependencies from package.json
+          search = true,                     -- search the web/selection on the web if nothing else is found
+          go = true,                         -- open pkg.go.dev from an import statement (uses treesitter)
+          jira = {                           -- custom handler to open Jira tickets (these have higher precedence than builtin handlers)
+            name = "jira",                   -- set name of handler
             handle = function(mode, line, _)
               local ticket = require("gx.helper").find(line, mode, "(%u+-%d+)")
               if ticket and #ticket < 20 then
