@@ -679,12 +679,12 @@ require('lazy').setup({
       vim.o.noshellslash = true
 
       -- Basic debugging keymaps, feel free to change to your liking!
-      vim.keymap.set('n', '<leader>bc', dap.continue, { desc = '[B]ug: Start/[C]ontinue' })
-      vim.keymap.set('n', '<leader>bi', dap.step_into, { desc = '[B]ug: Step [I]nto' })
-      vim.keymap.set('n', '<leader>bo', dap.step_over, { desc = '[B]ug: Step [O]ver' })
-      vim.keymap.set('n', '<leader>bu', dap.step_out, { desc = '[B]ug: Step O[u]t' })
-      vim.keymap.set('n', '<leader>bp', dap.toggle_breakpoint, { desc = '[B]ug: Toggle [B]reakpoint' })
-      vim.keymap.set('n', '<leader>bP', function()
+      vim.keymap.set('n', '<leader>Bc', dap.continue, { desc = '[B]ug: Start/[C]ontinue' })
+      vim.keymap.set('n', '<leader>Bi', dap.step_into, { desc = '[B]ug: Step [I]nto' })
+      vim.keymap.set('n', '<leader>Bo', dap.step_over, { desc = '[B]ug: Step [O]ver' })
+      vim.keymap.set('n', '<leader>Bu', dap.step_out, { desc = '[B]ug: Step O[u]t' })
+      vim.keymap.set('n', '<leader>Bp', dap.toggle_breakpoint, { desc = '[B]ug: Toggle [B]reakpoint' })
+      vim.keymap.set('n', '<leader>BP', function()
         dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
       end, { desc = '[B]ug: Set [c]onditional Breakpoint' })
 
@@ -711,7 +711,7 @@ require('lazy').setup({
       }
 
       -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-      vim.keymap.set('n', '<leader>bb', dapui.toggle, { desc = 'De[b]ug: Toggle UI' })
+      vim.keymap.set('n', '<leader>Bb', dapui.toggle, { desc = 'De[b]ug: Toggle UI' })
 
       dap.listeners.after.event_initialized['dapui_config'] = dapui.open
       dap.listeners.before.event_terminated['dapui_config'] = dapui.close
@@ -805,10 +805,10 @@ require('lazy').setup({
       })
     end,
     keys = {
-      { "<leader>dd", "<cmd>DBUIToggle<cr>",        desc = "Toggle UI" },
-      { "<leader>df", "<cmd>DBUIFindBuffer<cr>",    desc = "Find Buffer" },
-      { "<leader>dr", "<cmd>DBUIRenameBuffer<cr>",  desc = "Rename Buffer" },
-      { "<leader>dq", "<cmd>DBUILastQueryInfo<cr>", desc = "Last Query Info" },
+      { "<leader>Dd", "<cmd>DBUIToggle<cr>",        desc = "Toggle UI" },
+      { "<leader>Df", "<cmd>DBUIFindBuffer<cr>",    desc = "Find Buffer" },
+      { "<leader>Dr", "<cmd>DBUIRenameBuffer<cr>",  desc = "Rename Buffer" },
+      { "<leader>Dq", "<cmd>DBUILastQueryInfo<cr>", desc = "Last Query Info" },
     },
   },
   'simrat39/symbols-outline.nvim',
@@ -833,7 +833,7 @@ require('lazy').setup({
           sorting_strategy = "ascending",
           layout_strategy = "horizontal",
         },
-        vim.keymap.set({ "v", "n" }, "<leader>c", require("actions-preview").code_actions, { desc = "Code Action" })
+        vim.keymap.set({ "v", "n" }, "<leader>c", require("actions-preview").code_actions, { desc = "Code Action (Preview)" })
       }
     end,
   },
@@ -1123,7 +1123,18 @@ require('lazy').setup({
     },
     config = function(_, opts) require 'lsp_signature'.setup(opts) end
   },
-  { "soulis-1256/eagle.nvim" },
+  {
+    "soulis-1256/eagle.nvim",
+    config = function()
+      require("eagle").setup({
+        -- override the default values found in config.lua
+        border = 'none'
+      })
+      -- make sure mousemoveevent is enabled
+      vim.o.mousemoveevent = true
+    end,
+    enabled = false, -- set to true to get mouseover lsp hints and diagnostics. (rightclick menu doesnt work!)
+  },
   {
     "iabdelkareem/csharp.nvim",
     dependencies = {
@@ -1150,21 +1161,21 @@ require('lazy').setup({
     init = function()
       vim.g.netrw_nogx = 1 -- disable netrw gx
     end,
+    enabled = true,
     dependencies = { "nvim-lua/plenary.nvim" },
-    -- you can specify also another config if you want
     config = function()
       require("gx").setup {
-        open_browser_app = "os_specific",       -- specify your browser app; default for macOS is "open", Linux "xdg-open" and Windows "powershell.exe"
-        open_browser_args = { "--background" }, -- specify any arguments, such as --background for macOS' "open".
+        open_browser_app = "explorer.exe", -- specify your browser app; default for macOS is "open", Linux "xdg-open" and Windows "powershell.exe"
+        open_browser_args = {},            -- specify any arguments, such as --background for macOS' "open".
         handlers = {
-          plugin = true,                        -- open plugin links in lua (e.g. packer, lazy, ..)
-          github = true,                        -- open github issues
-          brewfile = true,                      -- open Homebrew formulaes and casks
-          package_json = true,                  -- open dependencies from package.json
-          search = true,                        -- search the web/selection on the web if nothing else is found
-          go = true,                            -- open pkg.go.dev from an import statement (uses treesitter)
-          jira = {                              -- custom handler to open Jira tickets (these have higher precedence than builtin handlers)
-            name = "jira",                      -- set name of handler
+          plugin = true,                   -- open plugin links in lua (e.g. packer, lazy, ..)
+          github = true,                   -- open github issues
+          brewfile = true,                 -- open Homebrew formulaes and casks
+          package_json = true,             -- open dependencies from package.json
+          search = true,                   -- search the web/selection on the web if nothing else is found
+          go = true,                       -- open pkg.go.dev from an import statement (uses treesitter)
+          jira = {                         -- custom handler to open Jira tickets (these have higher precedence than builtin handlers)
+            name = "jira",                 -- set name of handler
             handle = function(mode, line, _)
               local ticket = require("gx.helper").find(line, mode, "(%u+-%d+)")
               if ticket and #ticket < 20 then
@@ -1418,12 +1429,6 @@ require("neotest").setup({
   }
 })
 
-require("eagle").setup({
-  -- override the default values found in config.lua
-  border = 'none'
-})
--- make sure mousemoveevent is enabled
-vim.o.mousemoveevent = true
 
 -- colorscheme
 vim.cmd [[colorscheme catppuccin-mocha]]
@@ -1597,9 +1602,9 @@ require("scrollbar").setup({
 -- [[ Setting Custom Plugins Keymaps ]]
 vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end, { desc = "Structural Replace" })
 
-vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>")
-vim.keymap.set("n", "<leader>p", ":Telescope projects<CR>")
-vim.keymap.set("n", "<leader>P", ":ProjectRoot<CR>")
+vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>", { desc = "Symbols Outline (Code Aerial View)" })
+vim.keymap.set("n", "<leader>p", ":Telescope projects<CR>", { desc = "Projects" })
+vim.keymap.set("n", "<leader>P", ":ProjectRoot<CR>", { desc = " Find Project Root Automatically" })
 vim.keymap.set("n", "<leader>S", require("auto-session.session-lens").search_session,
   { noremap = true, desc = "Sessions" })
 
@@ -1632,10 +1637,10 @@ vim.keymap.set("n", "<leader>RT", "<cmd>CompilerToggleResults<cr>")
 vim.keymap.set('n', 'zh', 'zH', { desc = 'Scroll right' })
 vim.keymap.set('n', 'zl', 'zL', { desc = 'Scroll left' })
 
-vim.keymap.set('n', '<Up>', ':resize -2<CR>', { desc = 'Resize Down' })
-vim.keymap.set('n', '<Down>', ':resize +2<CR>', { desc = 'Resize Up' })
-vim.keymap.set('n', '<Left>', ':vertical resize +2<CR>', { desc = 'Resize Left' })
-vim.keymap.set('n', '<Right>', ':vertical resize -2<CR>', { desc = 'Resize Right' })
+vim.keymap.set('n', '<Up>', ':resize -5<CR>', { desc = 'Resize Down' })
+vim.keymap.set('n', '<Down>', ':resize +5<CR>', { desc = 'Resize Up' })
+vim.keymap.set('n', '<Left>', ':vertical resize +5<CR>', { desc = 'Resize Left' })
+vim.keymap.set('n', '<Right>', ':vertical resize -5<CR>', { desc = 'Resize Right' })
 
 vim.keymap.set("n", "<C-h>", "<C-w>h")
 vim.keymap.set("n", "<C-j>", "<C-w>j")
@@ -1667,8 +1672,8 @@ vim.keymap.set('n', '<leader>gs', ':G status<cr>', { desc = '[G]it [S]tatus' })
 vim.keymap.set('n', '<leader>gl', ':Gclog<cr>', { desc = '[G]it [L]og' })
 vim.keymap.set("n", "<leader>gf", ":Flog<CR>", { desc = '[G]it [F]log' })
 
-vim.keymap.set("n", '<leader>e', "<CMD>Oil<CR>", { desc = "[E]dit Filetree [OIL]" })
-vim.keymap.set('n', '<leader>n', ':NvimTreeToggle<cr>', { desc = '[N]vim Tree Toggle' })
+vim.keymap.set("n", '<leader>e', "<CMD>Oil<CR>", { desc = "[E]dit Filetree with vim keymaps" })
+vim.keymap.set('n', '<leader>n', ':NvimTreeToggle<cr>', { desc = '[N] Filetree Toggle' })
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = '[U]ndotree Toggle' })
 
@@ -1734,8 +1739,8 @@ vim.o.termguicolors = true
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
-vim.keymap.set('n', '<leader>Q', ':BufDel<CR>', { desc = 'Close Buffer' })
-vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Close Buffer Force' })
+vim.keymap.set('n', '<leader>Q', ':BufDel<CR>', { desc = 'Close Buffer (smart)' })
+vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Close Buffer (:q)' })
 
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -1744,7 +1749,7 @@ vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
-vim.keymap.set('n', '<leader>k', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
+vim.keymap.set('n', '<leader>k', vim.diagnostic.open_float, { desc = 'Show diagnostic Error messages' })
 vim.keymap.set('n', '<leader>K', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 -- Trouble keymaps
@@ -2027,7 +2032,7 @@ local on_attach = function(_, bufnr)
   end
 
   nmap('<leader>r', vim.lsp.buf.rename, '[R]ename')
-  nmap('<leader>C', vim.lsp.buf.code_action, '[LSP] [C]ode Action')
+  nmap('<leader>C', vim.lsp.buf.code_action, 'Code Action (Builtin LSP)')
 
   -- Jump to the definition of the word under your cursor.
   --  This is where a variable was first declared, or where a function is defined, etc.
@@ -2040,7 +2045,7 @@ local on_attach = function(_, bufnr)
     vim.keymap.set('n', 'gd', function() require("csharp").go_to_definition() end,
       { buffer = bufnr, desc = '[LSP] OMNI Definition' })
 
-    vim.keymap.set('n', '<leader>bn', function() require("csharp").debug_project() end,
+    vim.keymap.set('n', '<leader>Bn', function() require("csharp").debug_project() end,
       { buffer = bufnr, desc = '[B]ug: [DOTNET] Start' })
 
     vim.keymap.set('n', '<leader>Rn', function() require("csharp").run_project() end,
@@ -2087,16 +2092,16 @@ end
 
 -- document existing key chains
 require('which-key').register {
-  ['<leader>b'] = { name = '[B]ug', _ = 'which_key_ignore' },
+  ['<leader>B'] = { name = '[B]ug', _ = 'which_key_ignore' },
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
   ['<leader>gd'] = { name = '[G]it [D]iff', _ = 'which_key_ignore' },
-  ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
+  ['<leader>h'] = { name = '[H]unk Git', _ = 'which_key_ignore' },
   ['<leader>f'] = { name = '[F]ind', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]rouble', _ = 'which_key_ignore' },
   ['<leader>T'] = { name = '[T]est', _ = 'which_key_ignore' },
   ['<leader>R'] = { name = '[R]un', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
-  ['<leader>d'] = { name = '[D]atabase', _ = 'which_key_ignore' },
+  ['<leader>D'] = { name = '[D]atabase', _ = 'which_key_ignore' },
 }
 -- register which-key VISUAL mode
 -- required for visual <leader>hs (hunk stage) to work
