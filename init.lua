@@ -1226,6 +1226,14 @@ require('lazy').setup({
       }
     end,
   },
+  {
+    "arsham/indent-tools.nvim",
+    dependencies = {
+      "arsham/arshlib.nvim",
+      "nvim-treesitter/nvim-treesitter-textobjects",
+    },
+    config = true,
+  }
 }, {})
 
 -- [[Setup Custom Plugins ]]
