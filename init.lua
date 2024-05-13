@@ -18,9 +18,19 @@ vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 
+vim.opt.inccommand = "split"
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+
+vim.opt.textwidth = 0
+vim.opt.wrapmargin = 0
+vim.opt.breakindent = true
+vim.opt.showbreak = string.rep(" ", 3) .. "↪   " -- Make it so that long lines wrap smartly
+vim.opt.linebreak = true
+vim.opt.wrap = true
+
 vim.opt.smartindent = true
 
-vim.opt.wrap = false
 
 vim.opt.swapfile = false
 vim.opt.backup = false
