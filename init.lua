@@ -1024,7 +1024,12 @@ require('lazy').setup({
   },
   { 'ojroques/nvim-bufdel' },
   { 'IMOKURI/line-number-interval.nvim' },
-  { 'LunarVim/bigfile.nvim' },
+  {
+    'pteroctopus/faster.nvim',
+    config = function()
+      require('faster').setup()
+    end,
+  },
   {
     "tiagovla/scope.nvim",
     config = function()
