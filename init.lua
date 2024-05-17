@@ -25,7 +25,7 @@ vim.opt.splitright = true
 vim.opt.textwidth = 0
 vim.opt.wrapmargin = 0
 vim.opt.breakindent = true
-vim.opt.showbreak = string.rep(" ", 3) .. "↪   " -- Make it so that long lines wrap smartly
+vim.opt.showbreak = string.rep(" ", 2) .. "↪  " -- Make it so that long lines wrap smartly
 vim.opt.linebreak = true
 vim.opt.wrap = true
 
@@ -187,6 +187,7 @@ require('lazy').setup({
       'folke/neodev.nvim',
     },
   },
+
   -- [[ Configure nvim-cmp ]]
   -- See `:help cmp`
   {
@@ -331,7 +332,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',  opts = {} },
+  { 'folke/which-key.nvim',           opts = {} },
 
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -490,9 +491,6 @@ require('lazy').setup({
     opts = {},
   },
 
-  -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
-
   -- Fuzzy Finder (files, lsp, etc)
   {
     'nvim-telescope/telescope.nvim',
@@ -560,10 +558,10 @@ require('lazy').setup({
           local client = vim.lsp.get_client_by_id(client_id)
           local bufnr = args.buf
 
-          -- only in neovim 0.10-nightly
-          -- if client.server_capabilities.inlayHintProvider then
-          --   vim.lsp.buf.inlay_hint(bufnr, true)
-          -- end
+          if client.server_capabilities.inlayHintProvider then
+            vim.g.inlay_hints_visible = true
+            vim.lsp.inlay_hint.enable(true)
+          end
 
           -- Only attach to clients that support document formatting
           if not client.server_capabilities.documentFormattingProvider then
@@ -686,8 +684,6 @@ require('lazy').setup({
         },
       }
 
-      vim.o.noshellslash = true
-
       -- Basic debugging keymaps, feel free to change to your liking!
       vim.keymap.set('n', '<leader>Bc', dap.continue, { desc = '[B]ug: Start/[C]ontinue' })
       vim.keymap.set('n', '<leader>Bi', dap.step_into, { desc = '[B]ug: Step [I]nto' })
@@ -776,11 +772,6 @@ require('lazy').setup({
   'brenoprata10/nvim-highlight-colors',
   'petertriho/nvim-scrollbar',
   'mbbill/undotree',
-  {
-    'akinsho/bufferline.nvim',
-    version = "*",
-    dependencies = 'nvim-tree/nvim-web-devicons',
-  },
   {
     "tpope/vim-dadbod",
     dependencies = {
@@ -994,7 +985,6 @@ require('lazy').setup({
       },
     },
   },
-  { 'akinsho/toggleterm.nvim',          version = "*", config = true },
   {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
@@ -1028,12 +1018,6 @@ require('lazy').setup({
     'pteroctopus/faster.nvim',
     config = function()
       require('faster').setup()
-    end,
-  },
-  {
-    "tiagovla/scope.nvim",
-    config = function()
-      require('scope').setup()
     end,
   },
   { 'WhoIsSethDaniel/mason-tool-installer.nvim' },
@@ -1071,84 +1055,6 @@ require('lazy').setup({
     priority = 1000,
   },
   {
-    "ray-x/lsp_signature.nvim",
-    event = "VeryLazy",
-    opts = {
-      debug = false,                                              -- set to true to enable debug logging
-      log_path = vim.fn.stdpath("cache") .. "/lsp_signature.log", -- log dir when debug is on
-      -- default is  ~/.cache/nvim/lsp_signature.log
-      verbose = false,                                            -- show debug line number
-
-      bind = true,                                                -- This is mandatory, otherwise border config won't get registered.
-      -- If you want to hook lspsaga or other signature handler, pls set to false
-      doc_lines = 100,                                            -- will show two lines of comment/doc(if there are more than two lines in doc, will be truncated);
-      -- set to 0 if you DO NOT want any API comments be shown
-      -- This setting only take effect in insert mode, it does not affect signature help in normal
-      -- mode, 10 by default
-
-      max_height = 25,                       -- max height of signature floating_window
-      max_width = 80,                        -- max_width of signature floating_window, line will be wrapped if exceed max_width
-      -- the value need >= 40
-      wrap = true,                           -- allow doc/signature text wrap inside floating_window, useful if your lsp return doc/sig is too long
-      floating_window = true,                -- show hint in a floating window, set to false for virtual text only mode
-
-      floating_window_above_cur_line = true, -- try to place the floating above the current line when possible Note:
-      -- will set to true when fully tested, set to false will use whichever side has more space
-      -- this setting will be helpful if you do not want the PUM and floating win overlap
-
-      floating_window_off_x = 1, -- adjust float windows x position.
-      -- can be either a number or function
-      floating_window_off_y = 0, -- adjust float windows y position. e.g -2 move window up 2 lines; 2 move down 2 lines
-      -- can be either number or function, see examples
-
-      close_timeout = 4000,                      -- close floating window after ms when laster parameter is entered
-      fix_pos = false,                           -- set to true, the floating window will not auto-close until finish all parameters
-      hint_enable = false,                       -- virtual hint enable
-      hint_prefix = "",                          -- Panda for parameter, NOTE: for the terminal not support emoji, might crash
-      hint_scheme = "String",
-      hint_inline = function() return false end, -- should the hint be inline(nvim 0.10 only)?  default false
-      -- return true | 'inline' to show hint inline, return 'eol' to show hint at end of line, return false to disable
-      -- return 'right_align' to display hint right aligned in the current line
-      hi_parameter = "LspSignatureActiveParameter", -- how your parameter will be highlight
-      handler_opts = {
-        border = "none"                             -- double, rounded, single, shadow, none, or a table of borders
-      },
-
-      always_trigger = false,                  -- sometime show signature on new line or in middle of parameter can be confusing, set it to false for #58
-
-      auto_close_after = nil,                  -- autoclose signature float win after x sec, disabled if nil.
-      extra_trigger_chars = {},                -- Array of extra characters that will trigger signature completion, e.g., {"(", ","}
-      zindex = 200,                            -- by default it will be on top of all floating windows, set to <= 50 send it to bottom
-
-      padding = '',                            -- character to pad on left and right of signature can be ' ', or '|'  etc
-
-      transparency = nil,                      -- disabled by default, allow floating win transparent value 1~100
-      shadow_blend = 36,                       -- if you using shadow as border use this set the opacity
-      shadow_guibg = 'Black',                  -- if you using shadow as border use this set the color e.g. 'Green' or '#121315'
-      timer_interval = 200,                    -- default timer check interval set to lower value if you want to reduce latency
-      toggle_key = '<C-s>',                    -- toggle signature on and off in insert mode,  e.g. toggle_key = '<M-x>'
-      toggle_key_flip_floatwin_setting = true, -- true: toggle floating_windows: true|false setting after toggle key pressed
-      -- false: floating_windows setup will not change, toggle_key will pop up signature helper, but signature
-      -- may not popup when typing depends on floating_window setting
-
-      select_signature_key = '<C-j>', -- cycle to next signature, e.g. '<M-n>' function overloading
-      move_cursor_key = '<C-k>',      -- imap, use nvim_set_current_win to move cursor between current win and floating
-    },
-    config = function(_, opts) require 'lsp_signature'.setup(opts) end
-  },
-  {
-    "soulis-1256/eagle.nvim",
-    config = function()
-      require("eagle").setup({
-        -- override the default values found in config.lua
-        border = 'none'
-      })
-      -- make sure mousemoveevent is enabled
-      vim.o.mousemoveevent = true
-    end,
-    enabled = false, -- set to true to get mouseover lsp hints and diagnostics. (rightclick menu doesnt work!)
-  },
-  {
     "iabdelkareem/csharp.nvim",
     dependencies = {
       "williamboman/mason.nvim", -- Required, automatically installs omnisharp
@@ -1166,70 +1072,6 @@ require('lazy').setup({
     opts = {},
     -- Optional dependencies
     dependencies = { "nvim-tree/nvim-web-devicons" },
-  },
-  {
-    "chrishrb/gx.nvim",
-    keys = { { "gx", "<cmd>Browse<cr>", mode = { "n", "x" } } },
-    cmd = { "Browse" },
-    init = function()
-      vim.g.netrw_nogx = 1 -- disable netrw gx
-    end,
-    enabled = true,
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      require("gx").setup {
-        -- CHANGE BELOW: OS specific ( Windows, Linux, MacOS )
-        open_browser_app = "powershell.exe", -- specify your browser app; default for macOS is "open", Linux "xdg-open" and Windows "powershell.exe"
-        open_browser_args = {},              -- specify any arguments, such as --background for macOS' "open".
-        handlers = {
-          plugin = true,                     -- open plugin links in lua (e.g. packer, lazy, ..)
-          github = true,                     -- open github issues
-          brewfile = true,                   -- open Homebrew formulaes and casks
-          package_json = true,               -- open dependencies from package.json
-          search = true,                     -- search the web/selection on the web if nothing else is found
-          go = true,                         -- open pkg.go.dev from an import statement (uses treesitter)
-          jira = {                           -- custom handler to open Jira tickets (these have higher precedence than builtin handlers)
-            name = "jira",                   -- set name of handler
-            handle = function(mode, line, _)
-              local ticket = require("gx.helper").find(line, mode, "(%u+-%d+)")
-              if ticket and #ticket < 20 then
-                return "http://jira.company.com/browse/" .. ticket
-              end
-            end,
-          },
-          rust = {                   -- custom handler to open rust's cargo packages
-            name = "rust",           -- set name of handler
-            filetype = { "toml" },   -- you can also set the required filetype for this handler
-            filename = "Cargo.toml", -- or the necessary filename
-            handle = function(mode, line, _)
-              local crate = require("gx.helper").find(line, mode, "(%w+)%s-=%s")
-
-              if crate then
-                return "https://crates.io/crates/" .. crate
-              end
-            end,
-          },
-        },
-        handler_options = {
-          search_engine = "google",               -- you can select between google, bing, duckduckgo, and ecosia
-          -- search_engine = "https://search.brave.com/search?q=", -- or you can pass in a custom search engine
-          select_for_search = false,              -- if your cursor is e.g. on a link, the pattern for the link AND for the word will always match. This disables this behaviour for default so that the link is opened without the select option for the word AND link
-
-          git_remotes = { "upstream", "origin" }, -- list of git remotes to search for git issue linking, in priority
-          -- git_remotes = function(fname)                       -- you can also pass in a function
-          --   if fname:match("myproject") then
-          --     return { "mygit" }
-          --   end
-          --   return { "upstream", "origin" }
-          -- end,
-
-          git_remote_push = true, -- use the push url for git issue linking,
-          -- git_remote_push = function(fname) -- you can also pass in a function
-          --   return fname:match("myproject")
-          -- end,
-        },
-      }
-    end,
   },
   {
     "arsham/indent-tools.nvim",
@@ -1505,8 +1347,6 @@ require("nvim-dap-virtual-text").setup()
 
 require('hlargs').setup()
 
-require("bufferline").setup()
-
 require("symbols-outline").setup()
 
 require 'nvim-treesitter.configs'.setup {
@@ -1624,6 +1464,15 @@ require("scrollbar").setup({
 -- [[ Setting Custom Plugins Keymaps ]]
 vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end, { desc = "Structural Replace" })
 
+vim.keymap.set('n', '<leader>i', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
+  { desc = "Inlay Hints Toggle" })
+vim.keymap.set('n', '<leader>l', function()
+    vim.lsp.codelens.refresh()
+    vim.lsp.codelens.run()
+  end,
+  { desc = "Codelens Toggle" })
+
+
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>", { desc = "Symbols Outline (Code Aerial View)" })
 vim.keymap.set("n", "<leader>p", ":Telescope projects<CR>", { desc = "Projects" })
 vim.keymap.set("n", "<leader>P", ":ProjectRoot<CR>", { desc = " Find Project Root Automatically" })
@@ -1634,14 +1483,47 @@ vim.keymap.set("n", "<leader>S", require("auto-session.session-lens").search_ses
 vim.keymap.set('n', '<leader>o', "o<Esc>^Da<Esc>k", { desc = 'Newline Below', silent = true })
 vim.keymap.set('n', '<leader>O', "O<Esc>^Da<Esc>j", { desc = 'Newline Above', silent = true })
 
+-- Terminal:
+local te_buf = nil
+local te_win_id = nil
+
+local v = vim
+local fun = v.fn
+local cmd = v.api.nvim_command
+local gotoid = fun.win_gotoid
+local getid = fun.win_getid
+
+local function openTerminal()
+  if fun.bufexists(te_buf) ~= 1 then
+    cmd("au TermOpen * setlocal nonumber norelativenumber signcolumn=no")
+    cmd("sp | winc J | res 10 | te")
+    te_win_id = getid()
+    te_buf = fun.bufnr('%')
+  elseif gotoid(te_win_id) ~= 1 then
+    cmd("sb " .. te_buf .. "| winc J | res 10")
+    te_win_id = getid()
+  end
+  cmd("startinsert")
+end
+
+local function hideTerminal()
+  if gotoid(te_win_id) == 1 then
+    cmd("hide")
+  end
+end
+
+function ToggleTerminal()
+  if gotoid(te_win_id) == 1 then
+    hideTerminal()
+  else
+    openTerminal()
+  end
+end
+
 -- have to set <C-_> instead of <C-/> for terminal toggle on CTRL-/.
 -- same hotkey for leaving terminal as ESC cant be used for vi keybinds in terminal.
-vim.keymap.set('n', '<C-_>', '<cmd>ToggleTerm size=15 dir=git_dir direction=horizontal name=TERMINAL<CR>',
+vim.keymap.set('n', '<C-_>', function() ToggleTerminal() end,
   { desc = 'Toggle Terminal', noremap = true })
-vim.api.nvim_create_user_command('Tf', 'ToggleTerm size=15 dir=git_dir direction=float name=TERMINAL<CR>', {})
-vim.api.nvim_create_user_command('Tv', 'ToggleTerm size=35 dir=git_dir direction=vertical name=TERMINAL<CR>', {})
-vim.api.nvim_create_user_command('Th', 'ToggleTerm size=15 dir=git_dir direction=horizontal name=TERMINAL<CR>', {})
-vim.api.nvim_create_user_command('T', 'ToggleTerm size=15 dir=git_dir direction=tab name=TERMINAL<CR>', {})
 
 function _G.set_terminal_keymaps()
   local opts = { buffer = 0 }
@@ -1653,7 +1535,6 @@ function _G.set_terminal_keymaps()
   vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
 end
 
--- if you only want these mappings for toggle term use term://*toggleterm#* instead
 vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
 
 vim.keymap.set("n", "<leader>RR", "<cmd>CompilerOpen<cr>")
@@ -1674,9 +1555,6 @@ vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
 
 vim.keymap.set('n', '<leader>j', require('treesj').toggle, { desc = "Toggle Join/Split of Code Block" })
-
-vim.keymap.set('n', '<C-p>', ':BufferLineCyclePrev<CR>', { desc = 'Previous Tab' })
-vim.keymap.set('n', '<C-n>', ':BufferLineCycleNext<CR>', { desc = 'Next Tab' })
 
 vim.keymap.set('n', '<leader>TS', '<cmd>Neotest summary toggle<CR>', { desc = '[T]est: [S]ummary toggle' })
 vim.keymap.set('n', '<leader>TT', '<cmd>Neotest output toggle<CR>', { desc = '[T]est: Output line toggle' })
@@ -2094,8 +1972,6 @@ local on_attach = function(_, bufnr)
   --  For example, in C this would take you to the header.
   nmap('gR', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
-  -- See `:help K` for why this keymap
-  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
   -- nmap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
   nmap('<C-s>', function() require('lsp_signature').toggle_float_win() end, 'Signature Documentation')
 
@@ -2159,6 +2035,7 @@ local servers = {
 
   lua_ls = {
     Lua = {
+      hint = { enable = true },
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
       -- NOTE: toggle below to ignore Lua_LS's noisy `missing-fields` warnings
@@ -2229,4 +2106,5 @@ rd -r ~\AppData\Local\nvim-data
 --]]
 
 -- The line beneath this is called `modeline`. See `:help modeline`
+-- vim: ts=2 sts=2 sw=2 et
 -- vim: ts=2 sts=2 sw=2 et
