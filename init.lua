@@ -479,6 +479,14 @@ require('lazy').setup({
           { "fancy_lsp_servers" }
         },
       },
+      tabline = {
+        lualine_a = { 'buffers' },
+        lualine_b = {},
+        lualine_c = {},
+        lualine_x = {},
+        lualine_y = {},
+        lualine_z = { 'tabs' }
+      }
     },
   },
 
@@ -1471,6 +1479,12 @@ vim.keymap.set('n', '<leader>l', function()
     vim.lsp.codelens.run()
   end,
   { desc = "Codelens Toggle" })
+
+vim.api.nvim_create_user_command('InlayHint',
+  function()
+    print("InlayHint Enabled: ")
+    print(vim.lsp.inlay_hint.is_enabled())
+  end, {})
 
 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>", { desc = "Symbols Outline (Code Aerial View)" })
