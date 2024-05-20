@@ -167,13 +167,26 @@ require('lazy').setup({
         'j-hui/fidget.nvim',
         opts = {
           -- display = {
-          --   render_limit = 5,          -- How many LSP messages to show at once
+          --   render_limit = 5, -- How many LSP messages to show at once
           --   done_ttl = 1,
           --   progress_ttl = 3,
-          --   },
+          -- },
           notification = {
-            poll_rate = 1, -- How frequently to update and render notifications
-            override_vim_notify = true,
+            poll_rate = 10, -- How frequently to update and render notifications
+            override_vim_notify = false,
+            -- Options related to the notification window and buffer
+            window = {
+              normal_hl = "Comment", -- Base highlight group in the notification window
+              winblend = 0,          -- Background color opacity in the notification window
+              border = "none",       -- Border around the notification window
+              zindex = 45,           -- Stacking priority of the notification window
+              max_width = 0,         -- Maximum width of the notification window
+              max_height = 0,        -- Maximum height of the notification window
+              x_padding = 1,         -- Padding from right edge of window boundary
+              y_padding = 0,         -- Padding from bottom edge of window boundary
+              align = "bottom",      -- How to align the notification window
+              relative = "editor",   -- What the notification window position is relative to
+            },
           },
           integration = {
             ["nvim-tree"] = {
@@ -434,7 +447,6 @@ require('lazy').setup({
     priority = 1000,
     opts = {},
   },
-  'arkav/lualine-lsp-progress',
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
@@ -463,8 +475,7 @@ require('lazy').setup({
           { "fancy_diff" },
         },
         lualine_c = {
-          { "fancy_cwd",   substitute_home = true },
-          { 'lsp_progress' }
+          { "fancy_cwd", substitute_home = true },
         },
         lualine_x = {
           { "fancy_macro" },
@@ -1471,6 +1482,9 @@ require("scrollbar").setup({
 
 -- [[ Setting Custom Plugins Keymaps ]]
 vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end, { desc = "Structural Replace" })
+
+vim.keymap.set('n', '<c-p>', '<cmd>bp<cr>', { desc = "Previous Buffer" })
+vim.keymap.set('n', '<c-n>', '<cmd>bn<cr>', { desc = "Next Buffer" })
 
 vim.keymap.set('n', '<leader>i', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end,
   { desc = "Inlay Hints Toggle" })
