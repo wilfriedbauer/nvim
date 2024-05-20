@@ -460,7 +460,7 @@ require('lazy').setup({
         icons_enabled = true,
         theme = 'catppuccin',
         component_separators = '|',
-        section_separators = '',
+        section_separators = { left = '', right = '' },
         globalstatus = true,
         refresh = {
           statusline = 100,
