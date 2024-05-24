@@ -30,7 +30,7 @@ vim.opt.linebreak = true
 vim.opt.wrap = true
 
 vim.opt.smartindent = true
-
+vim.opt.jumpoptions = "stack,view"
 
 vim.opt.swapfile = false
 vim.opt.backup = false
