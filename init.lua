@@ -13,6 +13,21 @@ vim.opt.nu = true
 -- vim.opt.relativenumber = true
 -- vim.o.statuscolumn = "%s %l %=%r "
 
+-- -- Sets how neovim will display certain whitespace characters in the editor.
+--  See `:help 'list'`
+--  and `:help 'listchars'`
+vim.opt.list = true
+vim.opt.listchars = {
+  tab = '» ',
+  trail = '·',
+  nbsp = '␣',
+  -- eol = '↵',
+}
+
+-- Show which line your cursor is on
+vim.opt.cursorline = true
+
+
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
@@ -36,8 +51,9 @@ vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.undofile = true
 
-vim.opt.hlsearch = false
 vim.opt.incsearch = true
+vim.opt.hlsearch = true
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 vim.opt.scrolloff = 2
 vim.opt.sidescrolloff = 5
