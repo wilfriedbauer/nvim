@@ -7,7 +7,71 @@ vim.g.maplocalleader = ' '
 --settings:
 vim.opt.guicursor = ""
 
+-- make y behave like d or c. shift-y copy whole line
+vim.keymap.set("n", "Y", "y$")
+
+-- move visual selection up or down a line with <s-j> and <s-k>
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
+
+-- INFO:
+-- Instead of pressing ^ you can press _(underscore) to jump to the first non-whitespace character on the same line the cursor is on.
+--
+-- + and - jump to the first non-whitespace character on the next / previous line.
+--
+-- (These commands only work in normal mode, not in insert mode.)
+
+-- paste without overwriting paste register while in visual mode
+vim.keymap.set("v", "p", '"_dP')
+
+-- [[ Setting options ]]
+-- See `:help vim.o`
+-- NOTE: You can change these options as you wish!
+
+-- Make line numbers default
+vim.wo.number = true
+
+-- Enable mouse mode
+vim.o.mouse = 'a'
+
+-- Sync clipboard between OS and Neovim.
+--  Remove this option if you want your OS clipboard to remain independent.
+--  See `:help 'clipboard'`
+vim.o.clipboard = 'unnamedplus'
+
+-- Enable break indent
+vim.o.breakindent = true
+
+-- Save undo history
+vim.o.undofile = true
+
+-- Case-insensitive searching UNLESS \C or capital in search
+vim.o.ignorecase = true
+vim.o.smartcase = true
+
+-- Keep signcolumn on by default
+vim.wo.signcolumn = 'yes'
+
+-- Decrease update time
+vim.o.updatetime = 50
+vim.o.timeoutlen = 500
+
+-- Set completeopt to have a better completion experience
+vim.o.completeopt = 'menuone,noselect'
+
+-- NOTE: You should make sure your terminal supports this
+vim.o.termguicolors = true
+
+-- [[ Basic Keymaps ]]
+
+-- Keymaps for better default experience
+-- See `:help vim.keymap.set()`
+vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.opt.nu = true
+
+-- Remap for dealing with word wrap
+vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- enable relative line numbers next to absolute line numbers.
 -- vim.opt.relativenumber = true
@@ -26,7 +90,8 @@ vim.opt.listchars = {
 
 -- Show which line your cursor is on
 vim.opt.cursorline = true
-
+vim.opt.cursorlineopt = "number"
+vim.opt.cursorcolumn = false
 
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
@@ -69,7 +134,7 @@ vim.o.foldenable = true
 vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
 
 -- auto-session.nvim
-vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+vim.o.sessionoptions = "blank,buffers,tabpages,globals,curdir,folds,help,winsize,winpos,terminal,localoptions"
 
 -- change diagnostic signs and display the most severe one in the sign gutter on the left.
 vim.diagnostic.config({
@@ -430,7 +495,7 @@ require('lazy').setup({
 
         -- Toggles
         map('n', '<leader>gb', gs.toggle_current_line_blame, { desc = 'toggle git blame line' })
-        --map('n', '<leader>gd', gs.toggle_deleted, { desc = 'toggle git show deleted' })
+        map('n', '<leader>gD', gs.toggle_deleted, { desc = 'toggle git show deleted' })
 
         -- Text object
         map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
@@ -1040,10 +1105,33 @@ require('lazy').setup({
   {
     'rmagatti/auto-session',
     config = function()
-      require("auto-session").setup {
+      local function change_nvim_tree_dir()
+        local nvim_tree = require("nvim-tree")
+        nvim_tree.change_dir(vim.fn.getcwd())
+      end
+
+      require("auto-session").setup({
         log_level = "error",
         auto_session_enable_last_session = vim.loop.cwd() == vim.loop.os_homedir(),
-      }
+        post_restore_cmds = { change_nvim_tree_dir, "ProjectRoot", "NvimTreeOpen", "ScopeLoadState" },
+        pre_save_cmds = { "NvimTreeClose", "ScopeSaveState" },
+      })
+    end
+  },
+  {
+    "tiagovla/scope.nvim",
+    config = function()
+      require("telescope").load_extension("scope")
+      require("scope").setup({
+        hooks = {
+          pre_tab_enter = function()
+            -- Your custom logic to run before entering a tab
+            vim.cmd("ProjectRoot")
+          end,
+        },
+      })
+      vim.keymap.set('n', '<leader><space>', ':Telescope scope buffers<cr>',
+        { desc = 'Search all open buffers in all tabs' })
     end
   },
   { 'ojroques/nvim-bufdel' },
@@ -1088,18 +1176,18 @@ require('lazy').setup({
     event = 'InsertCharPre', -- Set the event to 'InsertCharPre' for better compatibility
     priority = 1000,
   },
-  {
-    "iabdelkareem/csharp.nvim",
-    dependencies = {
-      "williamboman/mason.nvim", -- Required, automatically installs omnisharp
-      "mfussenegger/nvim-dap",
-      "Tastyep/structlog.nvim",  -- Optional, but highly recommended for debugging
-    },
-    config = function()
-      require("mason").setup() -- Mason setup must run before csharp
-      require("csharp").setup()
-    end
-  },
+  -- {
+  --   "iabdelkareem/csharp.nvim",
+  --   dependencies = {
+  --     "williamboman/mason.nvim", -- Required, automatically installs omnisharp
+  --     "mfussenegger/nvim-dap",
+  --     "Tastyep/structlog.nvim",  -- Optional, but highly recommended for debugging
+  --   },
+  --   config = function()
+  --     require("mason").setup() -- Mason setup must run before csharp
+  --     require("csharp").setup()
+  --   end
+  -- },
   { 'HiPhish/rainbow-delimiters.nvim' },
   {
     'stevearc/oil.nvim',
@@ -1414,7 +1502,7 @@ require('mason-tool-installer').setup {
     'lua-language-server',
     'lua_ls',
     'netcoredbg',
-    'omnisharp',
+    -- 'omnisharp',
     'prettier',
     'selene',
     'stylua',
@@ -1469,10 +1557,10 @@ require("nvim-tree").setup({
   },
   sync_root_with_cwd = true,
   respect_buf_cwd = true,
-  -- update_focused_file = {
-  --   enable = true,
-  --   update_root = true
-  -- },
+  update_focused_file = {
+    enable = true,
+    update_root = false
+  },
 })
 
 require("autoclose").setup()
@@ -1624,74 +1712,8 @@ vim.keymap.set('n', '<leader>n', ':NvimTreeToggle<cr>', { desc = '[N] Filetree T
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = '[U]ndotree Toggle' })
 
--- make y behave like d or c. shift-y copy whole line
-vim.keymap.set("n", "Y", "y$")
-
--- move visual selection up or down a line with <s-j> and <s-k>
-vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
-vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
-
--- INFO:
--- Instead of pressing ^ you can press _(underscore) to jump to the first non-whitespace character on the same line the cursor is on.
---
--- + and - jump to the first non-whitespace character on the next / previous line.
---
--- (These commands only work in normal mode, not in insert mode.)
-
-
--- paste without overwriting paste register while in visual mode
-vim.keymap.set("v", "p", '"_dP')
-
--- [[ Setting options ]]
--- See `:help vim.o`
--- NOTE: You can change these options as you wish!
-
--- Make line numbers default
-vim.wo.number = true
-
--- Enable mouse mode
-vim.o.mouse = 'a'
-
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
-vim.o.clipboard = 'unnamedplus'
-
--- Enable break indent
-vim.o.breakindent = true
-
--- Save undo history
-vim.o.undofile = true
-
--- Case-insensitive searching UNLESS \C or capital in search
-vim.o.ignorecase = true
-vim.o.smartcase = true
-
--- Keep signcolumn on by default
-vim.wo.signcolumn = 'yes'
-
--- Decrease update time
-vim.o.updatetime = 50
-vim.o.timeoutlen = 500
-
--- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
-
--- NOTE: You should make sure your terminal supports this
-vim.o.termguicolors = true
-
--- [[ Basic Keymaps ]]
-
--- Keymaps for better default experience
--- See `:help vim.keymap.set()`
-vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
-
 vim.keymap.set('n', '<leader>Q', ':BufDel<CR>', { desc = 'Close Buffer (smart)' })
 vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Close Buffer (:q)' })
-
--- Remap for dealing with word wrap
-vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
@@ -1700,15 +1722,15 @@ vim.keymap.set('n', '<leader>k', vim.diagnostic.open_float, { desc = 'Show diagn
 vim.keymap.set('n', '<leader>K', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 -- Trouble keymaps
-vim.keymap.set("n", "<leader>tt", function() require("trouble").toggle() end, { desc = '[T]rouble [T]oggle' })
-vim.keymap.set("n", "<leader>tw", function() require("trouble").toggle("workspace_diagnostics") end,
-  { desc = '[T]rouble [W]orkspace Diagnostics' })
-vim.keymap.set("n", "<leader>td", function() require("trouble").toggle("document_diagnostics") end,
+vim.keymap.set("n", "<leader>dt", "<cmd>Trouble diagnostics toggle<cr>", { desc = '[T]rouble [T]oggle' })
+vim.keymap.set("n", "<leader>ds", "<cmd>Trouble symbols toggle focus=false<cr>",
+  { desc = '[T]rouble [S]ymbols' })
+vim.keymap.set("n", "<leader>dd", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
   { desc = '[T]rouble [D]ocument Diagnostics' })
-vim.keymap.set("n", "<leader>tq", function() require("trouble").toggle("quickfix") end, { desc = '[T]rouble [Q]uickfix' })
-vim.keymap.set("n", "<leader>tl", function() require("trouble").toggle("loclist") end,
+vim.keymap.set("n", "<leader>dq", "<cmd>Trouble qflist toggle<cr>", { desc = '[T]rouble [Q]uickfix' })
+vim.keymap.set("n", "<leader>dl", "<cmd>Trouble loclist toggle<cr>",
   { desc = '[T]rouble [L]ocation List' })
-vim.keymap.set("n", "<leader>tr", function() require("trouble").toggle("lsp_references") end,
+vim.keymap.set("n", "<leader>dr", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
   { desc = '[T]rouble LSP [R]eferences' })
 
 -- [[ Highlight on yank ]]
@@ -1835,12 +1857,12 @@ vim.keymap.set(
   require('telescope.builtin').oldfiles,
   { desc = '[?] Find recently opened files' }
 )
-vim.keymap.set(
-  'n',
-  '<leader><space>',
-  require('telescope.builtin').buffers,
-  { desc = '[ ] Find existing buffers' }
-)
+-- vim.keymap.set(
+--   'n',
+--   '<leader><space>',
+--   require('telescope.builtin').buffers,
+--   { desc = '[ ] Find existing buffers' }
+-- )
 vim.keymap.set(
   'n',
   '<leader>/',
@@ -1984,40 +2006,45 @@ local on_attach = function(_, bufnr)
   -- Jump to the definition of the word under your cursor.
   --  This is where a variable was first declared, or where a function is defined, etc.
   --  To jump back, press <C-t>.
-  nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+  -- nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
-  -- csharp.nvim settings
-  if vim.bo.filetype == 'cs' then
-    -- replaces vim.lsp.buf.definition()
-    vim.keymap.set('n', 'gd', function() require("csharp").go_to_definition() end,
-      { buffer = bufnr, desc = '[LSP] OMNI Definition' })
+  -- -- csharp.nvim settings
+  -- if vim.bo.filetype == 'cs' then
+  --   -- replaces vim.lsp.buf.definition()
+  --   vim.keymap.set('n', 'gd', function() require("csharp").go_to_definition() end,
+  --     { buffer = bufnr, desc = '[LSP] OMNI Definition' })
+  --
+  --   vim.keymap.set('n', '<leader>Bn', function() require("csharp").debug_project() end,
+  --     { buffer = bufnr, desc = '[B]ug: [DOTNET] Start' })
+  --
+  --   vim.keymap.set('n', '<leader>Rn', function() require("csharp").run_project() end,
+  --     { buffer = bufnr, desc = '[R]un: [DOTNET] Run' })
+  -- end
 
-    vim.keymap.set('n', '<leader>Bn', function() require("csharp").debug_project() end,
-      { buffer = bufnr, desc = '[B]ug: [DOTNET] Start' })
+  -- -- Find references for the word under your cursor.
+  -- nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+  --
+  -- -- Jump to the implementation of the word under your cursor.
+  -- --  Useful when your language has ways of declaring types without an actual implementation.
+  -- nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+  --
+  -- -- Jump to the type of the word under your cursor.
+  -- --  Useful when you're not sure what type a variable is and you want to see
+  -- --  the definition of its *type*, not where it was *defined*.
+  -- nmap('gD', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+  --
+  -- -- WARN: This is not Goto Definition, this is Goto Declaration.
+  -- --  For example, in C this would take you to the header.
+  -- nmap('gR', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
-    vim.keymap.set('n', '<leader>Rn', function() require("csharp").run_project() end,
-      { buffer = bufnr, desc = '[R]un: [DOTNET] Run' })
-  end
+  nmap("gR", function() vim.lsp.buf.declaration() end, "Declaration")
+  nmap("gd", function() vim.lsp.buf.definition() end, "Definition")
+  nmap("gr", function() vim.lsp.buf.references() end, "References")
+  nmap("gI", function() vim.lsp.buf.implementation() end, "Implementation")
+  nmap("gD", function() vim.lsp.buf.type_definition() end, "Type Definition")
 
-  -- Find references for the word under your cursor.
-  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
-  -- Jump to the implementation of the word under your cursor.
-  --  Useful when your language has ways of declaring types without an actual implementation.
-  nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-
-  -- Jump to the type of the word under your cursor.
-  --  Useful when you're not sure what type a variable is and you want to see
-  --  the definition of its *type*, not where it was *defined*.
-  nmap('gD', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-
-  -- WARN: This is not Goto Definition, this is Goto Declaration.
-  --  For example, in C this would take you to the header.
-  nmap('gR', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-
-  -- nmap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
-  nmap('<C-s>', function() require('lsp_signature').toggle_float_win() end, 'Signature Documentation')
-
+  nmap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
   nmap('<leader>wd', require('telescope.builtin').lsp_document_symbols, '[D]ocument Symbols')
@@ -2042,7 +2069,7 @@ require('which-key').register {
   ['<leader>gd'] = { name = '[G]it [D]iff', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = '[H]unk Git', _ = 'which_key_ignore' },
   ['<leader>f'] = { name = '[F]ind', _ = 'which_key_ignore' },
-  ['<leader>t'] = { name = '[T]rouble', _ = 'which_key_ignore' },
+  ['<leader>d'] = { name = '[D]iagnostics', _ = 'which_key_ignore' },
   ['<leader>T'] = { name = '[T]est', _ = 'which_key_ignore' },
   ['<leader>R'] = { name = '[R]un', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
@@ -2149,5 +2176,4 @@ rd -r ~\AppData\Local\nvim-data
 --]]
 
 -- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
 -- vim: ts=2 sts=2 sw=2 et
