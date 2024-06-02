@@ -1554,6 +1554,7 @@ require('mason-tool-installer').setup {
     'netcoredbg',
     -- 'omnisharp',
     'prettier',
+    'clangd',
     'selene',
     'stylua',
     'typescript-language-server',
