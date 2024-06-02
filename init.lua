@@ -1765,6 +1765,9 @@ vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = '[U]ndotree To
 vim.keymap.set('n', '<leader>Q', ':BufDel<CR>', { desc = 'Close Buffer (smart)' })
 vim.keymap.set('n', '<leader>q', ':q<CR>', { desc = 'Close Buffer (:q)' })
 
+vim.keymap.set('n', '<leader>tt', ':tabnew<CR>', { desc = 'Open new tab' })
+vim.keymap.set('n', '<leader>tq', ':tabclose<CR>', { desc = 'Close tab' })
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
@@ -2120,6 +2123,7 @@ require('which-key').register {
   ['<leader>h'] = { name = '[H]unk Git', _ = 'which_key_ignore' },
   ['<leader>f'] = { name = '[F]ind', _ = 'which_key_ignore' },
   ['<leader>d'] = { name = '[D]iagnostics', _ = 'which_key_ignore' },
+  ['<leader>t'] = { name = '[T]ab', _ = 'which_key_ignore' },
   ['<leader>T'] = { name = '[T]est', _ = 'which_key_ignore' },
   ['<leader>R'] = { name = '[R]un', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
