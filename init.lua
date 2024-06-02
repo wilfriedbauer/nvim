@@ -1176,18 +1176,18 @@ require('lazy').setup({
     event = 'InsertCharPre', -- Set the event to 'InsertCharPre' for better compatibility
     priority = 1000,
   },
-  -- {
-  --   "iabdelkareem/csharp.nvim",
-  --   dependencies = {
-  --     "williamboman/mason.nvim", -- Required, automatically installs omnisharp
-  --     "mfussenegger/nvim-dap",
-  --     "Tastyep/structlog.nvim",  -- Optional, but highly recommended for debugging
-  --   },
-  --   config = function()
-  --     require("mason").setup() -- Mason setup must run before csharp
-  --     require("csharp").setup()
-  --   end
-  -- },
+  {
+    "iabdelkareem/csharp.nvim",
+    dependencies = {
+      "williamboman/mason.nvim", -- Required, automatically installs omnisharp
+      "mfussenegger/nvim-dap",
+      "Tastyep/structlog.nvim",  -- Optional, but highly recommended for debugging
+    },
+    config = function()
+      require("mason").setup() -- Mason setup must run before csharp
+      require("csharp").setup()
+    end
+  },
   { 'HiPhish/rainbow-delimiters.nvim' },
   {
     'stevearc/oil.nvim',
@@ -2006,43 +2006,43 @@ local on_attach = function(_, bufnr)
   -- Jump to the definition of the word under your cursor.
   --  This is where a variable was first declared, or where a function is defined, etc.
   --  To jump back, press <C-t>.
-  -- nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+  nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
-  -- -- csharp.nvim settings
-  -- if vim.bo.filetype == 'cs' then
-  --   -- replaces vim.lsp.buf.definition()
-  --   vim.keymap.set('n', 'gd', function() require("csharp").go_to_definition() end,
-  --     { buffer = bufnr, desc = '[LSP] OMNI Definition' })
-  --
-  --   vim.keymap.set('n', '<leader>Bn', function() require("csharp").debug_project() end,
-  --     { buffer = bufnr, desc = '[B]ug: [DOTNET] Start' })
-  --
-  --   vim.keymap.set('n', '<leader>Rn', function() require("csharp").run_project() end,
-  --     { buffer = bufnr, desc = '[R]un: [DOTNET] Run' })
-  -- end
+  -- csharp.nvim settings
+  if vim.bo.filetype == 'cs' then
+    -- replaces vim.lsp.buf.definition()
+    vim.keymap.set('n', 'gd', function() require("csharp").go_to_definition() end,
+      { buffer = bufnr, desc = '[LSP] OMNI Definition' })
 
-  -- -- Find references for the word under your cursor.
-  -- nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-  --
-  -- -- Jump to the implementation of the word under your cursor.
-  -- --  Useful when your language has ways of declaring types without an actual implementation.
-  -- nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-  --
-  -- -- Jump to the type of the word under your cursor.
-  -- --  Useful when you're not sure what type a variable is and you want to see
-  -- --  the definition of its *type*, not where it was *defined*.
-  -- nmap('gD', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-  --
-  -- -- WARN: This is not Goto Definition, this is Goto Declaration.
-  -- --  For example, in C this would take you to the header.
-  -- nmap('gR', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+    vim.keymap.set('n', '<leader>Bn', function() require("csharp").debug_project() end,
+      { buffer = bufnr, desc = '[B]ug: [DOTNET] Start' })
 
-  nmap("gR", function() vim.lsp.buf.declaration() end, "Declaration")
-  nmap("gd", function() vim.lsp.buf.definition() end, "Definition")
-  nmap("gr", function() vim.lsp.buf.references() end, "References")
-  nmap("gI", function() vim.lsp.buf.implementation() end, "Implementation")
-  nmap("gD", function() vim.lsp.buf.type_definition() end, "Type Definition")
+    vim.keymap.set('n', '<leader>Rn', function() require("csharp").run_project() end,
+      { buffer = bufnr, desc = '[R]un: [DOTNET] Run' })
+  end
 
+  -- Find references for the word under your cursor.
+  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+
+  -- Jump to the implementation of the word under your cursor.
+  --  Useful when your language has ways of declaring types without an actual implementation.
+  nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+
+  -- Jump to the type of the word under your cursor.
+  --  Useful when you're not sure what type a variable is and you want to see
+  --  the definition of its *type*, not where it was *defined*.
+  nmap('gD', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+
+  -- WARN: This is not Goto Definition, this is Goto Declaration.
+  --  For example, in C this would take you to the header.
+  nmap('gR', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+  -- Standard Neovim Mappings:
+  -- nmap("gR", function() vim.lsp.buf.declaration() end, "Declaration")
+  -- nmap("gd", function() vim.lsp.buf.definition() end, "Definition")
+  -- nmap("gr", function() vim.lsp.buf.references() end, "References")
+  -- nmap("gI", function() vim.lsp.buf.implementation() end, "Implementation")
+  -- nmap("gD", function() vim.lsp.buf.type_definition() end, "Type Definition")
 
   nmap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
