@@ -574,14 +574,14 @@ require('lazy').setup({
           { "fancy_lsp_servers" }
         },
       },
-      tabline = {
-        lualine_a = { 'buffers' },
-        lualine_b = {},
-        lualine_c = {},
-        lualine_x = {},
-        lualine_y = {},
-        lualine_z = { 'tabs' }
-      }
+      -- tabline = {
+      --   lualine_a = { 'buffers' },
+      --   lualine_b = {},
+      --   lualine_c = {},
+      --   lualine_x = {},
+      --   lualine_y = {},
+      --   lualine_z = { 'tabs' }
+      -- }
     },
   },
 
@@ -1205,7 +1205,54 @@ require('lazy').setup({
       "nvim-treesitter/nvim-treesitter-textobjects",
     },
     config = true,
-  }
+  },
+  {
+    'akinsho/bufferline.nvim',
+    version = "*",
+    dependencies = 'nvim-tree/nvim-web-devicons',
+    config = function()
+      require("bufferline").setup {
+        options = {
+          themable = false,
+          indicator = {
+            style = 'underline',
+          },
+          buffer_close_icon = '󰅖',
+          modified_icon = '●',
+          close_icon = '',
+          left_trunc_marker = '',
+          right_trunc_marker = '',
+          diagnostics = "nvim_lsp",
+          -- The diagnostics indicator can be set to nil to keep the buffer name highlight but delete the highlighting
+          diagnostics_indicator = function(count, level, diagnostics_dict, context)
+            local icon = level:match("error") and " " or " "
+            return " " .. icon
+          end,
+          offsets = {
+            {
+              filetype = "NvimTree",
+              text = function()
+                return vim.fn.getcwd()
+              end,
+              text_align = "left",
+              separator = true
+            },
+          },
+          separator_style = "slant",
+        }
+      }
+      vim.keymap.set('n', '<leader>1', '<Cmd>BufferLineGoToBuffer 1<CR>', { desc = 'Go to Buffer 1' })
+      vim.keymap.set('n', '<leader>2', '<Cmd>BufferLineGoToBuffer 2<CR>', { desc = 'Go to Buffer 2' })
+      vim.keymap.set('n', '<leader>3', '<Cmd>BufferLineGoToBuffer 3<CR>', { desc = 'Go to Buffer 3' })
+      vim.keymap.set('n', '<leader>4', '<Cmd>BufferLineGoToBuffer 4<CR>', { desc = 'Go to Buffer 4' })
+      vim.keymap.set('n', '<leader>5', '<Cmd>BufferLineGoToBuffer 5<CR>', { desc = 'Go to Buffer 5' })
+      vim.keymap.set('n', '<leader>6', '<Cmd>BufferLineGoToBuffer 6<CR>', { desc = 'Go to Buffer 6' })
+      vim.keymap.set('n', '<leader>7', '<Cmd>BufferLineGoToBuffer 7<CR>', { desc = 'Go to Buffer 7' })
+      vim.keymap.set('n', '<leader>8', '<Cmd>BufferLineGoToBuffer 8<CR>', { desc = 'Go to Buffer 8' })
+      vim.keymap.set('n', '<leader>9', '<Cmd>BufferLineGoToBuffer 9<CR>', { desc = 'Go to Buffer 9' })
+      vim.keymap.set('n', '<leader>$', '<Cmd>BufferLineGoToBuffer -1<CR>', { desc = 'Go to last Buffer' })
+    end
+  },
 }, {})
 
 -- [[Setup Custom Plugins ]]
