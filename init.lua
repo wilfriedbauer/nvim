@@ -21,6 +21,9 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 --
 -- (These commands only work in normal mode, not in insert mode.)
 
+-- INFO:
+-- In visual mode press 'o' to switch the side of the selection the cursor is on.
+
 -- paste without overwriting paste register while in visual mode
 vim.keymap.set("v", "p", '"_dP')
 
