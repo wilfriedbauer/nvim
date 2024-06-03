@@ -2086,25 +2086,13 @@ local on_attach = function(_, bufnr)
   end
 
   nmap('<leader>r', vim.lsp.buf.rename, '[R]ename')
-  nmap('<leader>C', vim.lsp.buf.code_action, 'Code Action (Builtin LSP)')
+
+  -- nmap('<leader>C', vim.lsp.buf.code_action, 'Code Action (Builtin LSP)')
 
   -- Jump to the definition of the word under your cursor.
   --  This is where a variable was first declared, or where a function is defined, etc.
   --  To jump back, press <C-t>.
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-
-  -- csharp.nvim settings
-  if vim.bo.filetype == 'cs' then
-    -- replaces vim.lsp.buf.definition()
-    vim.keymap.set('n', 'gd', function() require("csharp").go_to_definition() end,
-      { buffer = bufnr, desc = '[LSP] OMNI Definition' })
-
-    vim.keymap.set('n', '<leader>Bn', function() require("csharp").debug_project() end,
-      { buffer = bufnr, desc = '[B]ug: [DOTNET] Start' })
-
-    vim.keymap.set('n', '<leader>Rn', function() require("csharp").run_project() end,
-      { buffer = bufnr, desc = '[R]un: [DOTNET] Run' })
-  end
 
   -- Find references for the word under your cursor.
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -2122,14 +2110,14 @@ local on_attach = function(_, bufnr)
   --  For example, in C this would take you to the header.
   nmap('gR', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
+  nmap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
+
   -- Standard Neovim Mappings:
   -- nmap("gR", function() vim.lsp.buf.declaration() end, "Declaration")
   -- nmap("gd", function() vim.lsp.buf.definition() end, "Definition")
   -- nmap("gr", function() vim.lsp.buf.references() end, "References")
   -- nmap("gI", function() vim.lsp.buf.implementation() end, "Implementation")
   -- nmap("gD", function() vim.lsp.buf.type_definition() end, "Type Definition")
-
-  nmap('<C-s>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
   nmap('<leader>wd', require('telescope.builtin').lsp_document_symbols, '[D]ocument Symbols')
@@ -2140,6 +2128,19 @@ local on_attach = function(_, bufnr)
   nmap('<leader>wl', function()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, '[W]orkspace [L]ist Folders')
+
+  -- csharp.nvim settings
+  if vim.bo.filetype == 'cs' then
+    -- replaces vim.lsp.buf.definition()
+    vim.keymap.set('n', '<leader>CD', function() require("csharp").go_to_definition() end,
+      { buffer = bufnr, desc = '[CSharp] OMNI Definition' })
+
+    vim.keymap.set('n', '<leader>CB', function() require("csharp").debug_project() end,
+      { buffer = bufnr, desc = '[CSharp] Debug' })
+
+    vim.keymap.set('n', '<leader>CR', function() require("csharp").run_project() end,
+      { buffer = bufnr, desc = '[CSharp] Run' })
+  end
 
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
@@ -2160,6 +2161,7 @@ require('which-key').register {
   ['<leader>R'] = { name = '[R]un', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
   ['<leader>D'] = { name = '[D]atabase', _ = 'which_key_ignore' },
+  ['<leader>C'] = { name = '[C]-Sharp', _ = 'which_key_ignore' },
 }
 -- register which-key VISUAL mode
 -- required for visual <leader>hs (hunk stage) to work
