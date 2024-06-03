@@ -544,7 +544,7 @@ require('lazy').setup({
         icons_enabled = true,
         theme = 'catppuccin',
         component_separators = '|',
-        section_separators = { left = '', right = '' },
+        section_separators = { left = '', right = '' },
         globalstatus = true,
         refresh = {
           statusline = 100,
@@ -1116,27 +1116,40 @@ require('lazy').setup({
       require("auto-session").setup({
         log_level = "error",
         auto_session_enable_last_session = vim.loop.cwd() == vim.loop.os_homedir(),
-        post_restore_cmds = { change_nvim_tree_dir, "ProjectRoot", "NvimTreeOpen", "ScopeLoadState" },
-        pre_save_cmds = { "NvimTreeClose", "ScopeSaveState" },
-      })
-    end
-  },
-  {
-    "tiagovla/scope.nvim",
-    config = function()
-      require("telescope").load_extension("scope")
-      require("scope").setup({
-        hooks = {
-          pre_tab_enter = function()
-            -- Your custom logic to run before entering a tab
-            vim.cmd("ProjectRoot")
-          end,
+        post_restore_cmds = {
+          change_nvim_tree_dir,
+          -- "ProjectRoot",
         },
+        pre_save_cmds = { "NvimTreeClose" },
       })
-      vim.keymap.set('n', '<leader><space>', ':Telescope scope buffers<cr>',
-        { desc = 'Search all open buffers in all tabs' })
     end
   },
+  -- {
+  --   "tiagovla/scope.nvim",
+  --   config = function()
+  --     require("telescope").load_extension("scope")
+  --     require("scope").setup({
+  --       hooks = {
+  --         -- pre_tab_enter = function()
+  --         --   -- Your custom logic to run before entering a tab
+  --         --   vim.cmd("NvimTreeClose")
+  --         --   vim.cmd("ProjectRoot")
+  --         --   vim.cmd("NvimTreeOpen")
+  --         -- end,
+  --         post_tab_enter = function()
+  --           -- Your custom logic to run after entering a tab
+  --           vim.cmd("NvimTreeClose")
+  --           vim.cmd("ProjectRoot")
+  --           vim.cmd("NvimTreeOpen")
+  --           vim.cmd("wincmd h")
+  --         end,
+  --
+  --       },
+  --     })
+  --     vim.keymap.set('n', '<leader><space>', ':Telescope scope buffers<cr>',
+  --       { desc = '[ ] Search all open buffers in all tabs' })
+  --   end
+  -- },
   { 'ojroques/nvim-bufdel' },
   { 'IMOKURI/line-number-interval.nvim' },
   {
@@ -1231,9 +1244,10 @@ require('lazy').setup({
           offsets = {
             {
               filetype = "NvimTree",
-              text = function()
-                return vim.fn.getcwd()
-              end,
+              text = " Files:",
+              -- text = function()
+              --   return vim.fn.getcwd()
+              -- end,
               text_align = "left",
               separator = true
             },
@@ -1552,7 +1566,7 @@ require('mason-tool-installer').setup {
     'lua-language-server',
     'lua_ls',
     'netcoredbg',
-    -- 'omnisharp',
+    'omnisharp',
     'prettier',
     'clangd',
     'selene',
@@ -1928,12 +1942,12 @@ vim.keymap.set(
   require('telescope.builtin').oldfiles,
   { desc = '[?] Find recently opened files' }
 )
--- vim.keymap.set(
---   'n',
---   '<leader><space>',
---   require('telescope.builtin').buffers,
---   { desc = '[ ] Find existing buffers' }
--- )
+vim.keymap.set(
+  'n',
+  '<leader><space>',
+  require('telescope.builtin').buffers,
+  { desc = '[ ] Find existing buffers' }
+)
 vim.keymap.set(
   'n',
   '<leader>/',
