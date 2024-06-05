@@ -1124,32 +1124,6 @@ require('lazy').setup({
       })
     end
   },
-  -- {
-  --   "tiagovla/scope.nvim",
-  --   config = function()
-  --     require("telescope").load_extension("scope")
-  --     require("scope").setup({
-  --       hooks = {
-  --         -- pre_tab_enter = function()
-  --         --   -- Your custom logic to run before entering a tab
-  --         --   vim.cmd("NvimTreeClose")
-  --         --   vim.cmd("ProjectRoot")
-  --         --   vim.cmd("NvimTreeOpen")
-  --         -- end,
-  --         post_tab_enter = function()
-  --           -- Your custom logic to run after entering a tab
-  --           vim.cmd("NvimTreeClose")
-  --           vim.cmd("ProjectRoot")
-  --           vim.cmd("NvimTreeOpen")
-  --           vim.cmd("wincmd h")
-  --         end,
-  --
-  --       },
-  --     })
-  --     vim.keymap.set('n', '<leader><space>', ':Telescope scope buffers<cr>',
-  --       { desc = '[ ] Search all open buffers in all tabs' })
-  --   end
-  -- },
   { 'ojroques/nvim-bufdel' },
   { 'IMOKURI/line-number-interval.nvim' },
   {
@@ -1191,18 +1165,6 @@ require('lazy').setup({
     },
     event = 'InsertCharPre', -- Set the event to 'InsertCharPre' for better compatibility
     priority = 1000,
-  },
-  {
-    "iabdelkareem/csharp.nvim",
-    dependencies = {
-      "williamboman/mason.nvim", -- Required, automatically installs omnisharp
-      "mfussenegger/nvim-dap",
-      "Tastyep/structlog.nvim",  -- Optional, but highly recommended for debugging
-    },
-    config = function()
-      require("mason").setup() -- Mason setup must run before csharp
-      require("csharp").setup()
-    end
   },
   { 'HiPhish/rainbow-delimiters.nvim' },
   {
@@ -1267,6 +1229,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>$', '<Cmd>BufferLineGoToBuffer -1<CR>', { desc = 'Go to last Buffer' })
     end
   },
+  { "jmederosalvarado/roslyn.nvim" },
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -1566,7 +1529,6 @@ require('mason-tool-installer').setup {
     'lua-language-server',
     'lua_ls',
     'netcoredbg',
-    'omnisharp',
     'prettier',
     'clangd',
     'selene',
@@ -2129,19 +2091,6 @@ local on_attach = function(_, bufnr)
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, '[W]orkspace [L]ist Folders')
 
-  -- csharp.nvim settings
-  if vim.bo.filetype == 'cs' then
-    -- replaces vim.lsp.buf.definition()
-    vim.keymap.set('n', '<leader>CD', function() require("csharp").go_to_definition() end,
-      { buffer = bufnr, desc = '[CSharp] OMNI Definition' })
-
-    vim.keymap.set('n', '<leader>CB', function() require("csharp").debug_project() end,
-      { buffer = bufnr, desc = '[CSharp] Debug' })
-
-    vim.keymap.set('n', '<leader>CR', function() require("csharp").run_project() end,
-      { buffer = bufnr, desc = '[CSharp] Run' })
-  end
-
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
     vim.lsp.buf.format()
@@ -2216,6 +2165,12 @@ mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
   automatic_installation = true,
 }
+require("roslyn").setup({
+  dotnet_cmd = "dotnet",              -- this is the default
+  roslyn_version = "4.8.0-3.23475.7", -- this is the default
+  on_attach = on_attach,
+  capabilities = capabilities,
+})
 
 mason_lspconfig.setup_handlers {
   function(server_name)
