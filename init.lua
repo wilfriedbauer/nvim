@@ -908,10 +908,10 @@ require('lazy').setup({
       })
     end,
     keys = {
-      { "<leader>Dd", "<cmd>DBUIToggle<cr>",        desc = "Toggle UI" },
-      { "<leader>Df", "<cmd>DBUIFindBuffer<cr>",    desc = "Find Buffer" },
-      { "<leader>Dr", "<cmd>DBUIRenameBuffer<cr>",  desc = "Rename Buffer" },
-      { "<leader>Dq", "<cmd>DBUILastQueryInfo<cr>", desc = "Last Query Info" },
+      { "<leader>DD", "<cmd>DBUIToggle<cr>",        desc = "Toggle UI" },
+      { "<leader>DF", "<cmd>DBUIFindBuffer<cr>",    desc = "Find Buffer" },
+      { "<leader>DR", "<cmd>DBUIRenameBuffer<cr>",  desc = "Rename Buffer" },
+      { "<leader>DQ", "<cmd>DBUILastQueryInfo<cr>", desc = "Last Query Info" },
     },
   },
   'simrat39/symbols-outline.nvim',
@@ -1732,14 +1732,14 @@ vim.keymap.set("n", "<C-l>", "<C-w>l")
 vim.keymap.set('n', '<leader>j', require('treesj').toggle, { desc = "Toggle Join/Split of Code Block" })
 
 vim.keymap.set('n', '<leader>TS', '<cmd>Neotest summary toggle<CR>', { desc = '[T]est: [S]ummary toggle' })
-vim.keymap.set('n', '<leader>TT', '<cmd>Neotest output toggle<CR>', { desc = '[T]est: Output line toggle' })
-vim.keymap.set('n', '<leader>Tt', '<cmd>Neotest output-panel toggle<CR>', { desc = '[T]est: Output panel toggle' })
-vim.keymap.set('n', '<leader>Tn', '<cmd>lua require("neotest").run.run()<CR>', { desc = '[T]est: Run [N]earest Test' })
-vim.keymap.set('n', '<leader>Tf', '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>',
+vim.keymap.set('n', '<leader>Tt', '<cmd>Neotest output toggle<CR>', { desc = '[T]est: Output line toggle' })
+vim.keymap.set('n', '<leader>TT', '<cmd>Neotest output-panel toggle<CR>', { desc = '[T]est: Output panel toggle' })
+vim.keymap.set('n', '<leader>TN', '<cmd>lua require("neotest").run.run()<CR>', { desc = '[T]est: Run [N]earest Test' })
+vim.keymap.set('n', '<leader>TF', '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>',
   { desc = '[T]est: Run [F]ile' })
-vim.keymap.set('n', '<leader>Ta', '<cmd>lua require("neotest").run.attach()<CR>',
+vim.keymap.set('n', '<leader>TA', '<cmd>lua require("neotest").run.attach()<CR>',
   { desc = '[T]est: [A]ttach to nearest [T]est' })
-vim.keymap.set('n', '<leader>Tb', '<cmd>lua require("neotest").run.run({strategy = "dap"})<CR>',
+vim.keymap.set('n', '<leader>TB', '<cmd>lua require("neotest").run.run({strategy = "dap"})<CR>',
   { desc = '[T]est: De[b]ug nearest Test' })
 vim.keymap.set('n', '<leader>Ts', '<cmd>lua require("neotest").run.stop()<CR>', { desc = '[T]est: [S]top' })
 
@@ -2099,18 +2099,17 @@ end
 
 -- document existing key chains
 require('which-key').register {
-  ['<leader>B'] = { name = '[B]ug', _ = 'which_key_ignore' },
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
   ['<leader>gd'] = { name = '[G]it [D]iff', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = '[H]unk Git', _ = 'which_key_ignore' },
   ['<leader>f'] = { name = '[F]ind', _ = 'which_key_ignore' },
   ['<leader>d'] = { name = '[D]iagnostics', _ = 'which_key_ignore' },
+  ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]ab', _ = 'which_key_ignore' },
   ['<leader>T'] = { name = '[T]est', _ = 'which_key_ignore' },
+  ['<leader>B'] = { name = '[B]ug', _ = 'which_key_ignore' },
   ['<leader>R'] = { name = '[R]un', _ = 'which_key_ignore' },
-  ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
   ['<leader>D'] = { name = '[D]atabase', _ = 'which_key_ignore' },
-  ['<leader>C'] = { name = '[C]-Sharp', _ = 'which_key_ignore' },
 }
 -- register which-key VISUAL mode
 -- required for visual <leader>hs (hunk stage) to work
