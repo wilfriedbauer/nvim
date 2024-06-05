@@ -787,12 +787,12 @@ require('lazy').setup({
       }
 
       -- Basic debugging keymaps, feel free to change to your liking!
-      vim.keymap.set('n', '<leader>Bc', dap.continue, { desc = '[B]ug: Start/[C]ontinue' })
-      vim.keymap.set('n', '<leader>Bi', dap.step_into, { desc = '[B]ug: Step [I]nto' })
-      vim.keymap.set('n', '<leader>Bo', dap.step_over, { desc = '[B]ug: Step [O]ver' })
-      vim.keymap.set('n', '<leader>Bu', dap.step_out, { desc = '[B]ug: Step O[u]t' })
-      vim.keymap.set('n', '<leader>Bp', dap.toggle_breakpoint, { desc = '[B]ug: Toggle [B]reakpoint' })
-      vim.keymap.set('n', '<leader>BP', function()
+      vim.keymap.set('n', '<leader>BC', dap.continue, { desc = '[B]ug: Start/[C]ontinue' })
+      vim.keymap.set('n', '<leader>BI', dap.step_into, { desc = '[B]ug: Step [I]nto' })
+      vim.keymap.set('n', '<leader>BO', dap.step_over, { desc = '[B]ug: Step [O]ver' })
+      vim.keymap.set('n', '<leader>BU', dap.step_out, { desc = '[B]ug: Step O[u]t' })
+      vim.keymap.set('n', '<leader>BP', dap.toggle_breakpoint, { desc = '[B]ug: Toggle [B]reakpoint' })
+      vim.keymap.set('n', '<leader>Bp', function()
         dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
       end, { desc = '[B]ug: Set [c]onditional Breakpoint' })
 
