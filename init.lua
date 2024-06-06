@@ -1230,6 +1230,24 @@ require('lazy').setup({
     end
   },
   -- { "jmederosalvarado/roslyn.nvim" },
+  {
+    "Hoffs/omnisharp-extended-lsp.nvim",
+    config = function()
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+        pattern = { "*.cs" },
+        callback = function()
+          vim.keymap.set("n", "gd", function() require("omnisharp_extended").telescope_lsp_definition() end,
+            { desc = '[LSP] Omnisharp go to Definition', buffer = true })
+          vim.keymap.set("n", "gD", function() require("omnisharp_extended").telescope_lsp_type_definition() end,
+            { desc = '[LSP] Omnisharp go to Type Definition', buffer = true })
+          vim.keymap.set("n", "gr", function() require("omnisharp_extended").telescope_lsp_references() end,
+            { desc = '[LSP] Omnisharp go to References', buffer = true })
+          vim.keymap.set("n", "gI", function() require("omnisharp_extended").telescope_lsp_implementation() end,
+            { desc = '[LSP] Omnisharp go to Implementation', buffer = true })
+        end,
+      })
+    end,
+  },
 }, {})
 
 -- [[Setup Custom Plugins ]]
