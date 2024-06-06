@@ -1229,7 +1229,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>$', '<Cmd>BufferLineGoToBuffer -1<CR>', { desc = 'Go to last Buffer' })
     end
   },
-  { "jmederosalvarado/roslyn.nvim" },
+  -- { "jmederosalvarado/roslyn.nvim" },
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -2139,6 +2139,10 @@ local servers = {
   -- tsserver = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
 
+  omnisharp = {
+    cmd = { "omnisharp", "--languageserver", "--hostPID", tostring(vim.fn.getpid()) }
+  },
+
   lua_ls = {
     Lua = {
       hint = { enable = true },
@@ -2164,12 +2168,12 @@ mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
   automatic_installation = true,
 }
-require("roslyn").setup({
-  dotnet_cmd = "dotnet",              -- this is the default
-  roslyn_version = "4.8.0-3.23475.7", -- this is the default
-  on_attach = on_attach,
-  capabilities = capabilities,
-})
+-- require("roslyn").setup({
+--   dotnet_cmd = "dotnet",              -- this is the default
+--   roslyn_version = "4.8.0-3.23475.7", -- this is the default
+--   on_attach = on_attach,
+--   capabilities = capabilities,
+-- })
 
 mason_lspconfig.setup_handlers {
   function(server_name)
@@ -2178,6 +2182,7 @@ mason_lspconfig.setup_handlers {
       on_attach = on_attach,
       settings = servers[server_name],
       filetypes = (servers[server_name] or {}).filetypes,
+      cmd = (servers[server_name] or {}).cmd,
     }
   end,
 }
