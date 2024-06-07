@@ -988,9 +988,7 @@ require('lazy').setup({
         segments = {
           {
             sign = {
-              name = {
-                "Diagnostic",
-              },
+              namespace = { "diagnostic/signs" },
               maxwidth = 1,
               colwidth = 1,
               auto = true,
@@ -1664,6 +1662,20 @@ vim.api.nvim_create_user_command('InlayHint',
     print("InlayHint Enabled: ")
     print(vim.lsp.inlay_hint.is_enabled())
   end, {})
+
+vim.g.diagnostics_visible = true
+function _G.toggle_diagnostics()
+  if vim.g.diagnostics_visible then
+    vim.g.diagnostics_visible = false
+    vim.diagnostic.enable(false)
+  else
+    vim.g.diagnostics_visible = true
+    vim.diagnostic.enable()
+  end
+end
+
+vim.api.nvim_set_keymap('n', '<leader>dh', ':call v:lua.toggle_diagnostics()<CR>',
+  { desc = '[D]iagnostics - Toggle [H]ide Virtual Text', noremap = true, silent = true })
 
 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>", { desc = "Symbols Outline (Code Aerial View)" })
