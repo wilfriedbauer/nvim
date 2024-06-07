@@ -1627,7 +1627,16 @@ require("nvim-tree").setup({
   },
 })
 
-require("autoclose").setup()
+require("autoclose").setup({
+  options = {
+    disabled_filetypes = { "text" },
+    disable_when_touch = true,
+    touch_regex = "[%w(%[{]",
+    pair_spaces = true,
+    auto_indent = true,
+    disable_command_mode = false,
+  }
+})
 
 require('matchparen').setup()
 
