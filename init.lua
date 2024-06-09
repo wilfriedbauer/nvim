@@ -1642,7 +1642,6 @@ require("mason-tool-installer").setup({
     "csharpier",
     "debugpy",
     "python-lsp-server",
-    "eslint",
     "lua-language-server",
     "lua_ls",
     "netcoredbg",
