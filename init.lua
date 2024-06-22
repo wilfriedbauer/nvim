@@ -1791,7 +1791,7 @@ vim.keymap.set(
   "n",
   "<leader>p",
   ":cd %:p:h<CR> :ProjectRoot<CR> :pwd<CR>",
-  { desc = " Find Project Root Automatically" }
+  { desc = "Find Project Root Automatically" }
 )
 vim.keymap.set(
   "n",
