@@ -1786,10 +1786,10 @@ vim.api.nvim_set_keymap(
 )
 
 vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>", { desc = "Symbols Outline (Code Aerial View)" })
-vim.keymap.set("n", "<leader>p", ":Telescope projects<CR>", { desc = "Projects" })
+vim.keymap.set("n", "<leader>P", ":Telescope projects<CR>", { desc = "Projects" })
 vim.keymap.set(
   "n",
-  "<leader>P",
+  "<leader>p",
   ":cd %:p:h<CR> :ProjectRoot<CR> :pwd<CR>",
   { desc = " Find Project Root Automatically" }
 )
