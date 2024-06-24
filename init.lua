@@ -1697,6 +1697,11 @@ require("nvim-tree").setup({
     side = "right",
     preserve_window_proportions = true,
   },
+  actions = {
+    open_file = {
+      resize_window = false,
+    },
+  },
   renderer = {
     group_empty = true,
   },
