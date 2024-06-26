@@ -2047,7 +2047,7 @@ pcall(require("telescope").load_extension, "fzf")
 -- Set telescope Highlights. Something like NVChad.
 local colors = require("catppuccin.palettes").get_palette()
 local TelescopeColor = {
-  TelescopeMatching = { fg = colors.blue },
+  TelescopeMatching = { fg = colors.red },
   TelescopeSelection = { fg = colors.text, bg = colors.surface0, bold = true },
 
   TelescopePromptPrefix = { bg = colors.surface0 },
@@ -2057,9 +2057,9 @@ local TelescopeColor = {
   TelescopePromptBorder = { bg = colors.surface0, fg = colors.surface0 },
   TelescopeResultsBorder = { bg = colors.mantle, fg = colors.mantle },
   TelescopePreviewBorder = { bg = colors.mantle, fg = colors.mantle },
-  TelescopePromptTitle = { bg = colors.blue, fg = colors.mantle },
+  TelescopePromptTitle = { bg = colors.red, fg = colors.mantle },
   TelescopeResultsTitle = { fg = colors.mantle },
-  TelescopePreviewTitle = { bg = colors.red, fg = colors.mantle },
+  TelescopePreviewTitle = { bg = colors.blue, fg = colors.mantle },
 }
 
 for hl, col in pairs(TelescopeColor) do
