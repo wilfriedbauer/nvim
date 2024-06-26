@@ -398,9 +398,11 @@ require("lazy").setup({
           ["<Tab>"] = cmp_next,
           ["<down>"] = cmp_next,
           ["<C-n>"] = cmp_next,
+          ["<C-j>"] = cmp_next,
           ["<S-Tab>"] = cmp_prev,
-          ["<C-p>"] = cmp_prev,
           ["<up>"] = cmp_prev,
+          ["<C-p>"] = cmp_prev,
+          ["<C-k>"] = cmp_prev,
         },
         sources = {
           { name = "nvim_lsp_signature_help", group_index = 1 },
@@ -539,7 +541,16 @@ require("lazy").setup({
     lazy = false,
     name = "catppuccin",
     priority = 1000,
-    opts = {},
+    config = function()
+      require("catppuccin").setup({
+        integrations = {
+          cmp = true,
+          gitsigns = true,
+          nvimtree = true,
+          treesitter = true,
+        },
+      })
+    end,
   },
   {
     "rebelot/kanagawa.nvim",
@@ -2021,6 +2032,8 @@ require("telescope").setup({
       n = {
         ["<C-j>"] = require("telescope.actions").move_selection_next,
         ["<C-k>"] = require("telescope.actions").move_selection_previous,
+        ["<C-n>"] = require("telescope.actions").cycle_history_next,
+        ["<C-p>"] = require("telescope.actions").cycle_history_prev,
         ["q"] = require("telescope.actions").close,
       },
     },
@@ -2030,6 +2043,28 @@ pcall(require("telescope").load_extension("luasnip"))
 
 -- Enable telescope fzf native, if installed
 pcall(require("telescope").load_extension, "fzf")
+
+-- Set telescope Highlights. Something like NVChad.
+local colors = require("catppuccin.palettes").get_palette()
+local TelescopeColor = {
+  TelescopeMatching = { fg = colors.blue },
+  TelescopeSelection = { fg = colors.text, bg = colors.surface0, bold = true },
+
+  TelescopePromptPrefix = { bg = colors.surface0 },
+  TelescopePromptNormal = { bg = colors.surface0 },
+  TelescopeResultsNormal = { bg = colors.mantle },
+  TelescopePreviewNormal = { bg = colors.mantle },
+  TelescopePromptBorder = { bg = colors.surface0, fg = colors.surface0 },
+  TelescopeResultsBorder = { bg = colors.mantle, fg = colors.mantle },
+  TelescopePreviewBorder = { bg = colors.mantle, fg = colors.mantle },
+  TelescopePromptTitle = { bg = colors.blue, fg = colors.mantle },
+  TelescopeResultsTitle = { fg = colors.mantle },
+  TelescopePreviewTitle = { bg = colors.red, fg = colors.mantle },
+}
+
+for hl, col in pairs(TelescopeColor) do
+  vim.api.nvim_set_hl(0, hl, col)
+end
 
 -- Telescope live_grep in git root
 -- Function to find the git root directory based on the current buffer's path
