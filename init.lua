@@ -1575,6 +1575,12 @@ require("neotest").setup({
   },
 })
 
+-- Fugitive GBrowse Setup:
+-- Using xdg-open as the external command will work with most Linux distributions. Mac OS users use open instead and Windows users would use explorer.exe to achieve the same.
+vim.api.nvim_create_user_command("Browse", function(opts)
+  vim.fn.system({ "explorer.exe", opts.fargs[1] })
+end, { nargs = 1 })
+
 -- colorscheme
 vim.cmd([[colorscheme catppuccin-mocha]])
 
