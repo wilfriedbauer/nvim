@@ -1364,6 +1364,16 @@ require("lazy").setup({
       },
     },
   },
+  {
+    "OXY2DEV/markview.nvim",
+    -- needs markdown and markdown_inline treesitter parsers.
+    dependencies = {
+      -- You may not need this if you don't lazy load
+      -- Or if the parsers are in your $RUNTIMEPATH
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-tree/nvim-web-devicons",
+    },
+  },
 }, {})
 
 -- [[Setup Custom Plugins ]]
@@ -2446,7 +2456,6 @@ If you don't know anything about Lua, I recommend taking some time to read throu
 a guide. One possible example:
 - https://learnxinyminutes.com/docs/lua/
 
-
 And then you can explore or search through `:help lua-guide`
 - https://neovim.io/doc/user/lua-guide.html
 
@@ -2462,5 +2471,4 @@ rd -r ~\AppData\Local\nvim-data
 --]]
 
 -- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
 -- vim: ts=2 sts=2 sw=2 et
