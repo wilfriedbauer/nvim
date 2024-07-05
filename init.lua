@@ -1239,6 +1239,7 @@ require("lazy").setup({
     "arsham/indent-tools.nvim",
     dependencies = {
       "arsham/arshlib.nvim",
+      "MunifTanjim/nui.nvim",
       "nvim-treesitter/nvim-treesitter-textobjects",
     },
     config = true,
