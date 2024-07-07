@@ -244,7 +244,18 @@ require("lazy").setup({
   -- NOTE: First, some plugins that don't require any configuration
 
   -- Git related plugins
-  "tpope/vim-fugitive",
+  {
+    "tpope/vim-fugitive",
+    config = function()
+      vim.api.nvim_create_user_command("Browse", function(args)
+        vim.ui.open(args.args)
+      end, {
+        desc = "Enables using GBrowse without netrw",
+        force = true,
+        nargs = 1,
+      })
+    end,
+  },
   "tpope/vim-rhubarb",
   "sindrets/diffview.nvim",
 
@@ -859,7 +870,7 @@ require("lazy").setup({
       })
 
       -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-      vim.keymap.set("n", "<leader>Bb", dapui.toggle, { desc = "De[b]ug: Toggle UI" })
+      vim.keymap.set("n", "<leader>BB", dapui.toggle, { desc = "De[b]ug: Toggle UI" })
 
       dap.listeners.after.event_initialized["dapui_config"] = dapui.open
       dap.listeners.before.event_terminated["dapui_config"] = dapui.close
@@ -1302,7 +1313,6 @@ require("lazy").setup({
       vim.keymap.set("n", "<leader>$", "<Cmd>BufferLineGoToBuffer -1<CR>", { desc = "Go to last Buffer" })
     end,
   },
-  -- { "jmederosalvarado/roslyn.nvim" },
   {
     "Hoffs/omnisharp-extended-lsp.nvim",
     config = function()
@@ -1595,12 +1605,6 @@ require("neotest").setup({
     }),
   },
 })
-
--- Fugitive GBrowse Setup:
--- Using xdg-open as the external command will work with most Linux distributions. Mac OS users use open instead and Windows users would use explorer.exe to achieve the same.
-vim.api.nvim_create_user_command("Browse", function(opts)
-  vim.fn.system({ "explorer.exe", opts.fargs[1] })
-end, { nargs = 1 })
 
 -- colorscheme
 vim.cmd([[colorscheme catppuccin-mocha]])
@@ -2425,12 +2429,6 @@ mason_lspconfig.setup({
   ensure_installed = vim.tbl_keys(servers),
   automatic_installation = true,
 })
--- require("roslyn").setup({
---   dotnet_cmd = "dotnet",              -- this is the default
---   roslyn_version = "4.8.0-3.23475.7", -- this is the default
---   on_attach = on_attach,
---   capabilities = capabilities,
--- })
 
 mason_lspconfig.setup_handlers({
   function(server_name)
