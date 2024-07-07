@@ -954,7 +954,17 @@ require("lazy").setup({
       { "<leader>DQ", "<cmd>DBUILastQueryInfo<cr>", desc = "Last Query Info" },
     },
   },
-  "simrat39/symbols-outline.nvim",
+  {
+    "hedyhli/outline.nvim",
+    config = function()
+      -- Example mapping to toggle outline
+      vim.keymap.set("n", "<leader>a", "<cmd>Outline<CR>", { desc = "Toggle Outline" })
+
+      require("outline").setup({
+        -- Your setup opts here (leave empty to use defaults)
+      })
+    end,
+  },
   {
     "altermo/ultimate-autopair.nvim",
     event = { "InsertEnter", "CmdlineEnter" },
@@ -1645,8 +1655,6 @@ require("nvim-dap-virtual-text").setup()
 
 require("hlargs").setup()
 
-require("symbols-outline").setup()
-
 require("nvim-treesitter.configs").setup({
   autotag = {
     enable = true,
@@ -1818,7 +1826,6 @@ vim.api.nvim_set_keymap(
   { desc = "[D]iagnostics - Toggle [H]ide Virtual Text", noremap = true, silent = true }
 )
 
-vim.keymap.set("n", "<leader>a", ":SymbolsOutline<CR>", { desc = "Symbols Outline (Code Aerial View)" })
 vim.keymap.set("n", "<leader>P", ":Telescope projects<CR>", { desc = "Projects" })
 vim.keymap.set(
   "n",
