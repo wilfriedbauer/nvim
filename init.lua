@@ -126,7 +126,6 @@ vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.opt.scrolloff = 2
 vim.opt.sidescrolloff = 5
 
--- enables colorcolumn plugin virt-column.nvim:
 vim.opt.colorcolumn = ""
 
 -- ufo.nvim
@@ -257,7 +256,29 @@ require("lazy").setup({
     end,
   },
   "tpope/vim-rhubarb",
-  "sindrets/diffview.nvim",
+  {
+    "sindrets/diffview.nvim",
+    keys = {
+      {
+        "<leader>gdd",
+        ":DiffviewOpen<cr>",
+        mode = "",
+        desc = "[G]it [D]iff View",
+      },
+      {
+        "<leader>gdo",
+        ":DiffviewOpen ",
+        mode = "",
+        desc = "[G]it [D]iff View [O]pen",
+      },
+      {
+        "<leader>gdc",
+        ":DiffviewClose<cr>",
+        mode = "",
+        desc = "[G]it [D]iff View [C]lose",
+      },
+    },
+  },
 
   -- Detect tabstop and shiftwidth automatically
   "tpope/vim-sleuth",
@@ -895,6 +916,45 @@ require("lazy").setup({
       -- or leave it empty to use the default settings
       -- refer to the configuration section below
     },
+    keys = {
+      {
+        "<leader>dt",
+        "<cmd>Trouble diagnostics toggle<cr>",
+        mode = "",
+        desc = "[T]rouble [T]oggle",
+      },
+      {
+        "<leader>ds",
+        "<cmd>Trouble symbols toggle focus=false<cr>",
+        mode = "",
+        desc = "[T]rouble [S]ymbols",
+      },
+      {
+        "<leader>dd",
+        "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
+        mode = "",
+        desc = "[T]rouble [D]ocument Diagnostics",
+      },
+      {
+        "<leader>dq",
+        "<cmd>Trouble qflist toggle<cr>",
+        mode = "",
+        desc = "[T]rouble [Q]uickfix",
+      },
+      {
+        "<leader>dl",
+        "<cmd>Trouble loclist toggle<cr>",
+        mode = "",
+        desc = "[T]rouble [L]ocation List",
+      },
+      {
+        "n",
+        "<leader>dr",
+        "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
+        mode = "",
+        desc = "[T]rouble LSP [R]eferences",
+      },
+    },
   },
   {
     "kylechui/nvim-surround",
@@ -920,11 +980,50 @@ require("lazy").setup({
     end,
   },
   "windwp/nvim-ts-autotag",
-  "monkoose/matchparen.nvim",
+  {
+    "monkoose/matchparen.nvim",
+    config = function()
+      require("matchparen").setup()
+    end,
+  },
   "RRethy/vim-illuminate",
-  "brenoprata10/nvim-highlight-colors",
-  "petertriho/nvim-scrollbar",
-  "mbbill/undotree",
+  {
+    "brenoprata10/nvim-highlight-colors",
+    config = function()
+      require("nvim-highlight-colors").setup()
+    end,
+  },
+  {
+    "petertriho/nvim-scrollbar",
+    config = function()
+      local colors = require("catppuccin.palettes").get_palette("mocha")
+
+      require("scrollbar").setup({
+        handle = {
+          color = colors.surface2,
+        },
+        marks = {
+          Search = { color = colors.green },
+          Error = { color = colors.red },
+          Warn = { color = colors.yellow },
+          Info = { color = colors.blue },
+          Hint = { color = colors.peach },
+          Misc = { color = colors.teal },
+        },
+      })
+    end,
+  },
+  {
+    "mbbill/undotree",
+    keys = {
+      {
+        "<leader>u",
+        vim.cmd.UndotreeToggle,
+        mode = "",
+        desc = "[U]ndotree Toggle",
+      },
+    },
+  },
   {
     "tpope/vim-dadbod",
     dependencies = {
@@ -999,8 +1098,68 @@ require("lazy").setup({
     dependencies = { "rafamadriz/friendly-snippets" },
   },
   "benfowler/telescope-luasnip.nvim",
-  "m-demare/hlargs.nvim",
-  "nvim-tree/nvim-tree.lua",
+  {
+    "m-demare/hlargs.nvim",
+    config = function()
+      require("hlargs").setup()
+    end,
+  },
+  {
+    "nvim-tree/nvim-tree.lua",
+    keys = {
+      {
+        "<leader>n",
+        ":NvimTreeToggle<cr>",
+        mode = "",
+        desc = "[N] Filetree Toggle",
+      },
+    },
+    config = function()
+      require("nvim-tree").setup({
+        sort = {
+          sorter = "case_sensitive",
+        },
+        view = {
+          side = "right",
+          preserve_window_proportions = true,
+        },
+        actions = {
+          open_file = {
+            resize_window = false,
+          },
+        },
+        renderer = {
+          group_empty = true,
+        },
+        diagnostics = {
+          enable = false,
+          show_on_dirs = false,
+          show_on_open_dirs = true,
+          debounce_delay = 50,
+          severity = {
+            min = vim.diagnostic.severity.HINT,
+            max = vim.diagnostic.severity.ERROR,
+          },
+          icons = {
+            hint = "",
+            info = "",
+            warning = "",
+            error = "",
+          },
+        },
+        filters = {
+          dotfiles = false,
+          git_ignored = false,
+        },
+        sync_root_with_cwd = true,
+        respect_buf_cwd = true,
+        update_focused_file = {
+          enable = true,
+          update_root = false,
+        },
+      })
+    end,
+  },
   "nvim-treesitter/nvim-treesitter-context",
   {
     "aznhe21/actions-preview.nvim",
@@ -1060,6 +1219,7 @@ require("lazy").setup({
         use_default_keymaps = false,
         max_join_length = 1000,
       })
+      vim.keymap.set("n", "<leader>j", require("treesj").toggle, { desc = "Toggle Join/Split of Code Block" })
     end,
   },
   {
@@ -1138,7 +1298,6 @@ require("lazy").setup({
       "Issafalcon/neotest-dotnet",
     },
   },
-  { "lukas-reineke/virt-column.nvim", opts = {} },
   { "Dynge/gitmoji.nvim", dependencies = { "hrsh7th/nvim-cmp" }, opts = {} },
   {
     "NeogitOrg/neogit",
@@ -1147,26 +1306,86 @@ require("lazy").setup({
       "sindrets/diffview.nvim", -- optional - Diff integration
       "nvim-telescope/telescope.nvim", -- optional
     },
-    config = true,
-  },
-  {
-    "Zeioth/compiler.nvim",
-    cmd = { "CompilerOpen", "CompilerToggleResults", "CompilerRedo" },
-    dependencies = { "stevearc/overseer.nvim" },
-    opts = {},
-  },
-  {
-    "stevearc/overseer.nvim",
-    commit = "400e762648b70397d0d315e5acaf0ff3597f2d8b",
-    cmd = { "CompilerOpen", "CompilerToggleResults", "CompilerRedo" },
-    opts = {
-      task_list = {
-        direction = "bottom",
-        min_height = 25,
-        max_height = 25,
-        default_detail = 1,
+    keys = {
+      {
+        "<leader>TS",
+        "<cmd>Neotest summary toggle<CR>",
+        mode = "",
+        desc = "[T]est: [S]ummary toggle",
+      },
+      {
+        "<leader>Tt",
+        "<cmd>Neotest output toggle<CR>",
+        mode = "",
+        desc = "[T]est: Output line toggle",
+      },
+      {
+        "<leader>TT",
+        "<cmd>Neotest output-panel toggle<CR>",
+        mode = "",
+        desc = "[T]est: Output panel toggle",
+      },
+      {
+        "<leader>TN",
+        '<cmd>lua require("neotest").run.run()<CR>',
+        mode = "",
+        desc = "[T]est: Run [N]earest Test",
+      },
+      {
+        "<leader>TF",
+        '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>',
+        mode = "",
+        desc = "[T]est: Run [F]ile",
+      },
+      {
+        "<leader>TA",
+        '<cmd>lua require("neotest").run.attach()<CR>',
+        mode = "",
+        desc = "[T]est: [A]ttach to nearest [T]est",
+      },
+      {
+        "<leader>TB",
+        '<cmd>lua require("neotest").run.run({strategy = "dap"})<CR>',
+        mode = "",
+        desc = "[T]est: De[b]ug nearest Test",
+      },
+      {
+        "<leader>Ts",
+        '<cmd>lua require("neotest").run.stop()<CR>',
+        mode = "",
+        desc = "[T]est: [S]top",
       },
     },
+    config = function()
+      require("neotest").setup({
+        adapters = {
+          require("neotest-dotnet")({
+            dap = {
+              -- Extra arguments for nvim-dap configuration
+              -- See https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings for values
+              args = { justMyCode = false },
+              -- Enter the name of your dap adapter, the default value is netcoredbg
+              adapter_name = "netcoredbg",
+            },
+            -- Let the test-discovery know about your custom attributes (otherwise tests will not be picked up)
+            -- Note: Only custom attributes for non-parameterized tests should be added here. See the support note about parameterized tests
+            custom_attributes = {
+              -- xunit = { "MyCustomFactAttribute" },
+              -- nunit = { "MyCustomTestAttribute" },
+              -- mstest = { "MyCustomTestMethodAttribute" }
+            },
+            -- Provide any additional "dotnet test" CLI commands here. These will be applied to ALL test runs performed via neotest. These need to be a table of strings, ideally with one key-value pair per item.
+            dotnet_additional_args = {
+              "--verbosity detailed",
+            },
+            -- Tell neotest-dotnet to use either solution (requires .sln file) or project (requires .csproj or .fsproj file) as project root
+            -- Note: If neovim is opened from the solution root, using the 'project' setting may sometimes find all nested projects, however,
+            --       to locate all test projects in the solution more reliably (if a .sln file is present) then 'solution' is better.
+            discovery_root = "project", -- Default
+          }),
+        },
+      })
+    end,
   },
   {
     "iamcco/markdown-preview.nvim",
@@ -1176,7 +1395,14 @@ require("lazy").setup({
       vim.fn["mkdp#util#install"]()
     end,
   },
-  "cshuaimin/ssr.nvim",
+  {
+    "cshuaimin/ssr.nvim",
+    config = function()
+      vim.keymap.set({ "n", "x" }, "<leader>s", function()
+        require("ssr").open()
+      end, { desc = "Structural Replace" })
+    end,
+  },
   {
     "ahmedkhalf/project.nvim",
     config = function()
@@ -1207,8 +1433,59 @@ require("lazy").setup({
       })
     end,
   },
-  { "ojroques/nvim-bufdel" },
-  { "IMOKURI/line-number-interval.nvim" },
+  {
+    "ojroques/nvim-bufdel",
+    config = function()
+      require("bufdel").setup({
+        next = "tabs",
+        quit = false, -- quit Neovim when last buffer is closed
+      })
+    end,
+  },
+  {
+    "IMOKURI/line-number-interval.nvim",
+    config = function()
+      -- Config for line-number-interval.nvim:
+      -- Enable line number interval at startup. (default: 0(disable))
+      vim.g.line_number_interval_enable_at_startup = 1
+
+      -- Set interval to highlight line number. (default: 10)
+      vim.g["line_number_interval"] = 999999999999999999
+
+      -- Enable to use custom interval. (default: 0(disable))
+      -- If this option is enabled, highlight for relative position of cursor position.
+      vim.g["line_number_interval#use_custom"] = 1
+
+      -- Set custom interval list.
+      -- (default: fibonacci sequence ([1, 2, 3, 5, 8, 13, 21, 34, 55, ...]))
+      -- Relative position to highlight.
+      vim.g["line_number_interval#custom_interval"] = { 5, 10, 15, 20, 25, 30, 35, 40, 45 }
+
+      -- Set color to highlight and dim.
+      -- (default: HighlightedLineNr use LineNr color,
+      --           DimLineNr use same as background color (it seems hide).)
+      vim.cmd("highlight HighlightedLineNr guifg=#a2a3ac ctermfg=7")
+      vim.cmd("highlight DimLineNr guifg=#4e455a ctermfg=5")
+
+      -- Tints of #4e455a for fade out effect on line number intervals:
+      -- #45475a #57596a #6a6b7a #7c7e8b #8f909c #a2a3ac #b4b5bd #c7c7cd #d9dade #ececee #ffffff
+
+      -- Additional highlight
+      -- Use those colors for Nth (1st ~ 9th) element of custom interval.
+      vim.cmd("highlight HighlightedLineNr1 guifg=#b4b5bd ctermfg=3")
+      vim.cmd("highlight HighlightedLineNr2 guifg=#a2a3ac ctermfg=3")
+      vim.cmd("highlight HighlightedLineNr3 guifg=#8f909c ctermfg=3")
+      vim.cmd("highlight HighlightedLineNr4 guifg=#7c7e8b ctermfg=5")
+      vim.cmd("highlight HighlightedLineNr5 guifg=#6a6b7a ctermfg=4")
+      vim.cmd("highlight HighlightedLineNr6 guifg=#6a6b7a ctermfg=6")
+      vim.cmd("highlight HighlightedLineNr7 guifg=#57596a ctermfg=2")
+      vim.cmd("highlight HighlightedLineNr8 guifg=#57596a ctermfg=3")
+      vim.cmd("highlight HighlightedLineNr9 guifg=#57596a ctermfg=3")
+
+      -- Enable line number interval.
+      vim.cmd("LineNumberIntervalEnable")
+    end,
+  },
   {
     "pteroctopus/faster.nvim",
     config = function()
@@ -1255,6 +1532,186 @@ require("lazy").setup({
     opts = {},
     -- Optional dependencies
     dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("oil").setup({
+        -- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
+        -- Set to false if you still want to use netrw.
+        default_file_explorer = false,
+        -- Id is automatically added at the beginning, and name at the end
+        -- See :help oil-columns
+        columns = {
+          "icon",
+          -- "permissions",
+          -- "size",
+          -- "mtime",
+        },
+        -- Buffer-local options to use for oil buffers
+        buf_options = {
+          buflisted = false,
+          bufhidden = "hide",
+        },
+        -- Window-local options to use for oil buffers
+        win_options = {
+          wrap = false,
+          signcolumn = "no",
+          cursorcolumn = false,
+          foldcolumn = "0",
+          spell = false,
+          list = false,
+          conceallevel = 3,
+          concealcursor = "nvic",
+        },
+        -- Send deleted files to the trash instead of permanently deleting them (:help oil-trash)
+        delete_to_trash = false,
+        -- Skip the confirmation popup for simple operations (:help oil.skip_confirm_for_simple_edits)
+        skip_confirm_for_simple_edits = false,
+        -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
+        -- (:help prompt_save_on_select_new_entry)
+        prompt_save_on_select_new_entry = true,
+        -- Oil will automatically delete hidden buffers after this delay
+        -- You can set the delay to false to disable cleanup entirely
+        -- Note that the cleanup process only starts when none of the oil buffers are currently displayed
+        cleanup_delay_ms = 2000,
+        lsp_file_methods = {
+          -- Time to wait for LSP file operations to complete before skipping
+          timeout_ms = 1000,
+          -- Set to true to autosave buffers that are updated with LSP willRenameFiles
+          -- Set to "unmodified" to only save unmodified buffers
+          autosave_changes = false,
+        },
+        -- Constrain the cursor to the editable parts of the oil buffer
+        -- Set to `false` to disable, or "name" to keep it on the file names
+        constrain_cursor = "editable",
+        -- Set to true to watch the filesystem for changes and reload oil
+        experimental_watch_for_changes = false,
+        -- Keymaps in oil buffer. Can be any value that `vim.keymap.set` accepts OR a table of keymap
+        -- options with a `callback` (e.g. { callback = function() ... end, desc = "", mode = "n" })
+        -- Additionally, if it is a string that matches "actions.<name>",
+        -- it will use the mapping at require("oil.actions").<name>
+        -- Set to `false` to remove a keymap
+        -- See :help oil-actions for a list of all available actions
+        keymaps = {
+          ["g?"] = "actions.show_help",
+          ["<CR>"] = "actions.select",
+          ["<C-s>"] = "actions.select_vsplit",
+          ["<C-h>"] = "actions.select_split",
+          ["<C-t>"] = "actions.select_tab",
+          ["<C-p>"] = "actions.preview",
+          ["<C-c>"] = "actions.close",
+          ["<C-l>"] = "actions.refresh",
+          ["-"] = "actions.parent",
+          ["_"] = "actions.open_cwd",
+          ["`"] = "actions.cd",
+          ["~"] = "actions.tcd",
+          ["gs"] = "actions.change_sort",
+          ["gx"] = "actions.open_external",
+          ["g."] = "actions.toggle_hidden",
+          ["g\\"] = "actions.toggle_trash",
+        },
+        -- Set to false to disable all of the above keymaps
+        use_default_keymaps = true,
+        view_options = {
+          -- Show files and directories that start with "."
+          show_hidden = true,
+          -- This function defines what is considered a "hidden" file
+          is_hidden_file = function(name, bufnr)
+            return vim.startswith(name, ".")
+          end,
+          -- This function defines what will never be shown, even when `show_hidden` is set
+          is_always_hidden = function(name, bufnr)
+            return false
+          end,
+          -- Sort file names in a more intuitive order for humans. Is less performant,
+          -- so you may want to set to false if you work with large directories.
+          natural_order = true,
+          sort = {
+            -- sort order can be "asc" or "desc"
+            -- see :help oil-columns to see which columns are sortable
+            { "type", "asc" },
+            { "name", "asc" },
+          },
+        },
+        -- Extra arguments to pass to SCP when moving/copying files over SSH
+        extra_scp_args = {},
+        -- EXPERIMENTAL support for performing file operations with git
+        git = {
+          -- Return true to automatically git add/mv/rm files
+          add = function(path)
+            return true
+          end,
+          mv = function(src_path, dest_path)
+            return true
+          end,
+          rm = function(path)
+            return true
+          end,
+        },
+        -- Configuration for the floating window in oil.open_float
+        float = {
+          -- Padding around the floating window
+          padding = 2,
+          max_width = 0,
+          max_height = 0,
+          border = "rounded",
+          win_options = {
+            winblend = 0,
+          },
+          -- This is the config that will be passed to nvim_open_win.
+          -- Change values here to customize the layout
+          override = function(conf)
+            return conf
+          end,
+        },
+        -- Configuration for the actions floating preview window
+        preview = {
+          -- Width dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
+          -- min_width and max_width can be a single value or a list of mixed integer/float types.
+          -- max_width = {100, 0.8} means "the lesser of 100 columns or 80% of total"
+          max_width = 0.9,
+          -- min_width = {40, 0.4} means "the greater of 40 columns or 40% of total"
+          min_width = { 40, 0.4 },
+          -- optionally define an integer/float for the exact width of the preview window
+          width = nil,
+          -- Height dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
+          -- min_height and max_height can be a single value or a list of mixed integer/float types.
+          -- max_height = {80, 0.9} means "the lesser of 80 columns or 90% of total"
+          max_height = 0.9,
+          -- min_height = {5, 0.1} means "the greater of 5 columns or 10% of total"
+          min_height = { 5, 0.1 },
+          -- optionally define an integer/float for the exact height of the preview window
+          height = nil,
+          border = "rounded",
+          win_options = {
+            winblend = 0,
+          },
+          -- Whether the preview window is automatically updated when the cursor is moved
+          update_on_cursor_moved = true,
+        },
+        -- Configuration for the floating progress window
+        progress = {
+          max_width = 0.9,
+          min_width = { 40, 0.4 },
+          width = nil,
+          max_height = { 10, 0.9 },
+          min_height = { 5, 0.1 },
+          height = nil,
+          border = "rounded",
+          minimized_border = "none",
+          win_options = {
+            winblend = 0,
+          },
+        },
+        -- Configuration for the floating SSH window
+        ssh = {
+          border = "rounded",
+        },
+        -- Configuration for the floating keymaps help window
+        keymaps_help = {
+          border = "rounded",
+        },
+      })
+      vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "[E]dit Filetree with vim keymaps" })
+    end,
   },
   {
     "arsham/indent-tools.nvim",
@@ -1385,289 +1842,19 @@ require("lazy").setup({
       },
     },
   },
-  {
-    "OXY2DEV/markview.nvim",
-    -- needs markdown and markdown_inline treesitter parsers.
-    dependencies = {
-      -- You may not need this if you don't lazy load
-      -- Or if the parsers are in your $RUNTIMEPATH
-      "nvim-treesitter/nvim-treesitter",
-      "nvim-tree/nvim-web-devicons",
-    },
-  },
 }, {})
-
--- [[Setup Custom Plugins ]]
-
-require("oil").setup({
-  -- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
-  -- Set to false if you still want to use netrw.
-  default_file_explorer = false,
-  -- Id is automatically added at the beginning, and name at the end
-  -- See :help oil-columns
-  columns = {
-    "icon",
-    -- "permissions",
-    -- "size",
-    -- "mtime",
-  },
-  -- Buffer-local options to use for oil buffers
-  buf_options = {
-    buflisted = false,
-    bufhidden = "hide",
-  },
-  -- Window-local options to use for oil buffers
-  win_options = {
-    wrap = false,
-    signcolumn = "no",
-    cursorcolumn = false,
-    foldcolumn = "0",
-    spell = false,
-    list = false,
-    conceallevel = 3,
-    concealcursor = "nvic",
-  },
-  -- Send deleted files to the trash instead of permanently deleting them (:help oil-trash)
-  delete_to_trash = false,
-  -- Skip the confirmation popup for simple operations (:help oil.skip_confirm_for_simple_edits)
-  skip_confirm_for_simple_edits = false,
-  -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
-  -- (:help prompt_save_on_select_new_entry)
-  prompt_save_on_select_new_entry = true,
-  -- Oil will automatically delete hidden buffers after this delay
-  -- You can set the delay to false to disable cleanup entirely
-  -- Note that the cleanup process only starts when none of the oil buffers are currently displayed
-  cleanup_delay_ms = 2000,
-  lsp_file_methods = {
-    -- Time to wait for LSP file operations to complete before skipping
-    timeout_ms = 1000,
-    -- Set to true to autosave buffers that are updated with LSP willRenameFiles
-    -- Set to "unmodified" to only save unmodified buffers
-    autosave_changes = false,
-  },
-  -- Constrain the cursor to the editable parts of the oil buffer
-  -- Set to `false` to disable, or "name" to keep it on the file names
-  constrain_cursor = "editable",
-  -- Set to true to watch the filesystem for changes and reload oil
-  experimental_watch_for_changes = false,
-  -- Keymaps in oil buffer. Can be any value that `vim.keymap.set` accepts OR a table of keymap
-  -- options with a `callback` (e.g. { callback = function() ... end, desc = "", mode = "n" })
-  -- Additionally, if it is a string that matches "actions.<name>",
-  -- it will use the mapping at require("oil.actions").<name>
-  -- Set to `false` to remove a keymap
-  -- See :help oil-actions for a list of all available actions
-  keymaps = {
-    ["g?"] = "actions.show_help",
-    ["<CR>"] = "actions.select",
-    ["<C-s>"] = "actions.select_vsplit",
-    ["<C-h>"] = "actions.select_split",
-    ["<C-t>"] = "actions.select_tab",
-    ["<C-p>"] = "actions.preview",
-    ["<C-c>"] = "actions.close",
-    ["<C-l>"] = "actions.refresh",
-    ["-"] = "actions.parent",
-    ["_"] = "actions.open_cwd",
-    ["`"] = "actions.cd",
-    ["~"] = "actions.tcd",
-    ["gs"] = "actions.change_sort",
-    ["gx"] = "actions.open_external",
-    ["g."] = "actions.toggle_hidden",
-    ["g\\"] = "actions.toggle_trash",
-  },
-  -- Set to false to disable all of the above keymaps
-  use_default_keymaps = true,
-  view_options = {
-    -- Show files and directories that start with "."
-    show_hidden = true,
-    -- This function defines what is considered a "hidden" file
-    is_hidden_file = function(name, bufnr)
-      return vim.startswith(name, ".")
-    end,
-    -- This function defines what will never be shown, even when `show_hidden` is set
-    is_always_hidden = function(name, bufnr)
-      return false
-    end,
-    -- Sort file names in a more intuitive order for humans. Is less performant,
-    -- so you may want to set to false if you work with large directories.
-    natural_order = true,
-    sort = {
-      -- sort order can be "asc" or "desc"
-      -- see :help oil-columns to see which columns are sortable
-      { "type", "asc" },
-      { "name", "asc" },
-    },
-  },
-  -- Extra arguments to pass to SCP when moving/copying files over SSH
-  extra_scp_args = {},
-  -- EXPERIMENTAL support for performing file operations with git
-  git = {
-    -- Return true to automatically git add/mv/rm files
-    add = function(path)
-      return true
-    end,
-    mv = function(src_path, dest_path)
-      return true
-    end,
-    rm = function(path)
-      return true
-    end,
-  },
-  -- Configuration for the floating window in oil.open_float
-  float = {
-    -- Padding around the floating window
-    padding = 2,
-    max_width = 0,
-    max_height = 0,
-    border = "rounded",
-    win_options = {
-      winblend = 0,
-    },
-    -- This is the config that will be passed to nvim_open_win.
-    -- Change values here to customize the layout
-    override = function(conf)
-      return conf
-    end,
-  },
-  -- Configuration for the actions floating preview window
-  preview = {
-    -- Width dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
-    -- min_width and max_width can be a single value or a list of mixed integer/float types.
-    -- max_width = {100, 0.8} means "the lesser of 100 columns or 80% of total"
-    max_width = 0.9,
-    -- min_width = {40, 0.4} means "the greater of 40 columns or 40% of total"
-    min_width = { 40, 0.4 },
-    -- optionally define an integer/float for the exact width of the preview window
-    width = nil,
-    -- Height dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
-    -- min_height and max_height can be a single value or a list of mixed integer/float types.
-    -- max_height = {80, 0.9} means "the lesser of 80 columns or 90% of total"
-    max_height = 0.9,
-    -- min_height = {5, 0.1} means "the greater of 5 columns or 10% of total"
-    min_height = { 5, 0.1 },
-    -- optionally define an integer/float for the exact height of the preview window
-    height = nil,
-    border = "rounded",
-    win_options = {
-      winblend = 0,
-    },
-    -- Whether the preview window is automatically updated when the cursor is moved
-    update_on_cursor_moved = true,
-  },
-  -- Configuration for the floating progress window
-  progress = {
-    max_width = 0.9,
-    min_width = { 40, 0.4 },
-    width = nil,
-    max_height = { 10, 0.9 },
-    min_height = { 5, 0.1 },
-    height = nil,
-    border = "rounded",
-    minimized_border = "none",
-    win_options = {
-      winblend = 0,
-    },
-  },
-  -- Configuration for the floating SSH window
-  ssh = {
-    border = "rounded",
-  },
-  -- Configuration for the floating keymaps help window
-  keymaps_help = {
-    border = "rounded",
-  },
-})
-
-require("neotest").setup({
-  adapters = {
-    require("neotest-dotnet")({
-      dap = {
-        -- Extra arguments for nvim-dap configuration
-        -- See https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings for values
-        args = { justMyCode = false },
-        -- Enter the name of your dap adapter, the default value is netcoredbg
-        adapter_name = "netcoredbg",
-      },
-      -- Let the test-discovery know about your custom attributes (otherwise tests will not be picked up)
-      -- Note: Only custom attributes for non-parameterized tests should be added here. See the support note about parameterized tests
-      custom_attributes = {
-        -- xunit = { "MyCustomFactAttribute" },
-        -- nunit = { "MyCustomTestAttribute" },
-        -- mstest = { "MyCustomTestMethodAttribute" }
-      },
-      -- Provide any additional "dotnet test" CLI commands here. These will be applied to ALL test runs performed via neotest. These need to be a table of strings, ideally with one key-value pair per item.
-      dotnet_additional_args = {
-        "--verbosity detailed",
-      },
-      -- Tell neotest-dotnet to use either solution (requires .sln file) or project (requires .csproj or .fsproj file) as project root
-      -- Note: If neovim is opened from the solution root, using the 'project' setting may sometimes find all nested projects, however,
-      --       to locate all test projects in the solution more reliably (if a .sln file is present) then 'solution' is better.
-      discovery_root = "project", -- Default
-    }),
-  },
-})
 
 -- colorscheme
 vim.cmd([[colorscheme catppuccin-mocha]])
-
--- Config for line-number-interval.nvim:
--- Enable line number interval at startup. (default: 0(disable))
-vim.g.line_number_interval_enable_at_startup = 1
-
--- Set interval to highlight line number. (default: 10)
-vim.g["line_number_interval"] = 999999999999999999
-
--- Enable to use custom interval. (default: 0(disable))
--- If this option is enabled, highlight for relative position of cursor position.
-vim.g["line_number_interval#use_custom"] = 1
-
--- Set custom interval list.
--- (default: fibonacci sequence ([1, 2, 3, 5, 8, 13, 21, 34, 55, ...]))
--- Relative position to highlight.
-vim.g["line_number_interval#custom_interval"] = { 5, 10, 15, 20, 25, 30, 35, 40, 45 }
-
--- Set color to highlight and dim.
--- (default: HighlightedLineNr use LineNr color,
---           DimLineNr use same as background color (it seems hide).)
-vim.cmd("highlight HighlightedLineNr guifg=#a2a3ac ctermfg=7")
-vim.cmd("highlight DimLineNr guifg=#4e455a ctermfg=5")
-
--- Tints of #4e455a for fade out effect on line number intervals:
--- #45475a #57596a #6a6b7a #7c7e8b #8f909c #a2a3ac #b4b5bd #c7c7cd #d9dade #ececee #ffffff
-
--- Additional highlight
--- Use those colors for Nth (1st ~ 9th) element of custom interval.
-vim.cmd("highlight HighlightedLineNr1 guifg=#b4b5bd ctermfg=3")
-vim.cmd("highlight HighlightedLineNr2 guifg=#a2a3ac ctermfg=3")
-vim.cmd("highlight HighlightedLineNr3 guifg=#8f909c ctermfg=3")
-vim.cmd("highlight HighlightedLineNr4 guifg=#7c7e8b ctermfg=5")
-vim.cmd("highlight HighlightedLineNr5 guifg=#6a6b7a ctermfg=4")
-vim.cmd("highlight HighlightedLineNr6 guifg=#6a6b7a ctermfg=6")
-vim.cmd("highlight HighlightedLineNr7 guifg=#57596a ctermfg=2")
-vim.cmd("highlight HighlightedLineNr8 guifg=#57596a ctermfg=3")
-vim.cmd("highlight HighlightedLineNr9 guifg=#57596a ctermfg=3")
-
--- Enable line number interval.
-vim.cmd("LineNumberIntervalEnable")
-
-require("virt-column").setup()
-
-require("nvim-highlight-colors").setup()
 
 require("luasnip.loaders.from_vscode").lazy_load()
 
 require("nvim-dap-virtual-text").setup()
 
-require("hlargs").setup()
-
 require("nvim-treesitter.configs").setup({
   autotag = {
     enable = true,
   },
-})
-
-require("bufdel").setup({
-  next = "tabs",
-  quit = false, -- quit Neovim when last buffer is closed
 })
 
 require("mason-tool-installer").setup({
@@ -1729,76 +1916,6 @@ require("mason-tool-installer").setup({
   debounce_hours = nil, -- at least 5 hours between attempts to install/update
 })
 
-require("nvim-tree").setup({
-  sort = {
-    sorter = "case_sensitive",
-  },
-  view = {
-    side = "right",
-    preserve_window_proportions = true,
-  },
-  actions = {
-    open_file = {
-      resize_window = false,
-    },
-  },
-  renderer = {
-    group_empty = true,
-  },
-  diagnostics = {
-    enable = false,
-    show_on_dirs = false,
-    show_on_open_dirs = true,
-    debounce_delay = 50,
-    severity = {
-      min = vim.diagnostic.severity.HINT,
-      max = vim.diagnostic.severity.ERROR,
-    },
-    icons = {
-      hint = "",
-      info = "",
-      warning = "",
-      error = "",
-    },
-  },
-  filters = {
-    dotfiles = false,
-    git_ignored = false,
-  },
-  sync_root_with_cwd = true,
-  respect_buf_cwd = true,
-  update_focused_file = {
-    enable = true,
-    update_root = false,
-  },
-})
-
-require("matchparen").setup()
-
-local colors = require("catppuccin.palettes").get_palette("mocha")
-
-require("scrollbar").setup({
-  handle = {
-    color = colors.surface2,
-  },
-  marks = {
-    Search = { color = colors.green },
-    Error = { color = colors.red },
-    Warn = { color = colors.yellow },
-    Info = { color = colors.blue },
-    Hint = { color = colors.peach },
-    Misc = { color = colors.teal },
-  },
-})
-
--- [[ Setting Custom Plugins Keymaps ]]
-vim.keymap.set({ "n", "x" }, "<leader>s", function()
-  require("ssr").open()
-end, { desc = "Structural Replace" })
-
-vim.keymap.set("n", "<c-p>", "<cmd>bp<cr>", { desc = "Previous Buffer" })
-vim.keymap.set("n", "<c-n>", "<cmd>bn<cr>", { desc = "Next Buffer" })
-
 vim.keymap.set("n", "<leader>i", function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = "Inlay Hints Toggle" })
@@ -1823,32 +1940,7 @@ function _G.toggle_diagnostics()
   end
 end
 
-vim.api.nvim_set_keymap(
-  "n",
-  "<leader>dh",
-  ":call v:lua.toggle_diagnostics()<CR>",
-  { desc = "[D]iagnostics - Toggle [H]ide Virtual Text", noremap = true, silent = true }
-)
-
-vim.keymap.set("n", "<leader>P", ":Telescope projects<CR>", { desc = "Projects" })
-vim.keymap.set(
-  "n",
-  "<leader>p",
-  ":cd %:p:h<CR> :ProjectRoot<CR> :pwd<CR>",
-  { desc = "Find Project Root Automatically" }
-)
-vim.keymap.set(
-  "n",
-  "<leader>S",
-  require("auto-session.session-lens").search_session,
-  { noremap = true, desc = "Sessions" }
-)
-
--- create new lines in Normal mode
-vim.keymap.set("n", "<leader>o", "o<Esc>^Da<Esc>k", { desc = "Newline Below", silent = true })
-vim.keymap.set("n", "<leader>O", "O<Esc>^Da<Esc>j", { desc = "Newline Above", silent = true })
-
--- Terminal:
+-- [[ Terminal ]]:
 local te_buf = nil
 local te_win_id = nil
 
@@ -1903,9 +1995,30 @@ end
 
 vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
 
-vim.keymap.set("n", "<leader>RR", "<cmd>CompilerOpen<cr>")
-vim.keymap.set("n", "<leader>RS", "<cmd>CompilerStop<cr>")
-vim.keymap.set("n", "<leader>RT", "<cmd>CompilerToggleResults<cr>")
+vim.api.nvim_set_keymap(
+  "n",
+  "<leader>dh",
+  ":call v:lua.toggle_diagnostics()<CR>",
+  { desc = "[D]iagnostics - Toggle [H]ide Virtual Text", noremap = true, silent = true }
+)
+
+vim.keymap.set("n", "<leader>P", ":Telescope projects<CR>", { desc = "Projects" })
+vim.keymap.set(
+  "n",
+  "<leader>p",
+  ":cd %:p:h<CR> :ProjectRoot<CR> :pwd<CR>",
+  { desc = "Find Project Root Automatically" }
+)
+vim.keymap.set(
+  "n",
+  "<leader>S",
+  require("auto-session.session-lens").search_session,
+  { noremap = true, desc = "Sessions" }
+)
+
+-- create new lines in Normal mode
+vim.keymap.set("n", "<leader>o", "o<Esc>^Da<Esc>k", { desc = "Newline Below", silent = true })
+vim.keymap.set("n", "<leader>O", "O<Esc>^Da<Esc>j", { desc = "Newline Above", silent = true })
 
 vim.keymap.set("n", "zh", "zH", { desc = "Scroll right" })
 vim.keymap.set("n", "zl", "zL", { desc = "Scroll left" })
@@ -1920,44 +2033,13 @@ vim.keymap.set("n", "<C-j>", "<C-w>j")
 vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
 
-vim.keymap.set("n", "<leader>j", require("treesj").toggle, { desc = "Toggle Join/Split of Code Block" })
-
-vim.keymap.set("n", "<leader>TS", "<cmd>Neotest summary toggle<CR>", { desc = "[T]est: [S]ummary toggle" })
-vim.keymap.set("n", "<leader>Tt", "<cmd>Neotest output toggle<CR>", { desc = "[T]est: Output line toggle" })
-vim.keymap.set("n", "<leader>TT", "<cmd>Neotest output-panel toggle<CR>", { desc = "[T]est: Output panel toggle" })
-vim.keymap.set("n", "<leader>TN", '<cmd>lua require("neotest").run.run()<CR>', { desc = "[T]est: Run [N]earest Test" })
-vim.keymap.set(
-  "n",
-  "<leader>TF",
-  '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>',
-  { desc = "[T]est: Run [F]ile" }
-)
-vim.keymap.set(
-  "n",
-  "<leader>TA",
-  '<cmd>lua require("neotest").run.attach()<CR>',
-  { desc = "[T]est: [A]ttach to nearest [T]est" }
-)
-vim.keymap.set(
-  "n",
-  "<leader>TB",
-  '<cmd>lua require("neotest").run.run({strategy = "dap"})<CR>',
-  { desc = "[T]est: De[b]ug nearest Test" }
-)
-vim.keymap.set("n", "<leader>Ts", '<cmd>lua require("neotest").run.stop()<CR>', { desc = "[T]est: [S]top" })
-
-vim.keymap.set("n", "<leader>gdd", ":DiffviewOpen<cr>", { desc = "[G]it [D]iff View" })
-vim.keymap.set("n", "<leader>gdo", ":DiffviewOpen ", { desc = "[G]it [D]iff View [O]pen" })
-vim.keymap.set("n", "<leader>gdc", ":DiffviewClose<cr>", { desc = "[G]it [D]iff View [C]lose" })
 vim.keymap.set("n", "<leader>gg", ":Neogit<cr>", { desc = "Neo [G]it" })
 vim.keymap.set("n", "<leader>gs", ":G status<cr>", { desc = "[G]it [S]tatus" })
 vim.keymap.set("n", "<leader>gl", ":Gclog<cr>", { desc = "[G]it [L]og" })
 vim.keymap.set("n", "<leader>gf", ":Flog<CR>", { desc = "[G]it [F]log" })
 
-vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "[E]dit Filetree with vim keymaps" })
-vim.keymap.set("n", "<leader>n", ":NvimTreeToggle<cr>", { desc = "[N] Filetree Toggle" })
-
-vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "[U]ndotree Toggle" })
+vim.keymap.set("n", "<c-p>", "<cmd>bp<cr>", { desc = "Previous Buffer" })
+vim.keymap.set("n", "<c-n>", "<cmd>bn<cr>", { desc = "Next Buffer" })
 
 vim.keymap.set("n", "<leader>Q", ":BufDel<CR>", { desc = "Close Buffer (smart)" })
 vim.keymap.set("n", "<leader>q", ":q<CR>", { desc = "Close Buffer (:q)" })
@@ -1970,24 +2052,6 @@ vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous dia
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
 vim.keymap.set("n", "<leader>k", vim.diagnostic.open_float, { desc = "Show diagnostic Error messages" })
 vim.keymap.set("n", "<leader>K", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
-
--- Trouble keymaps
-vim.keymap.set("n", "<leader>dt", "<cmd>Trouble diagnostics toggle<cr>", { desc = "[T]rouble [T]oggle" })
-vim.keymap.set("n", "<leader>ds", "<cmd>Trouble symbols toggle focus=false<cr>", { desc = "[T]rouble [S]ymbols" })
-vim.keymap.set(
-  "n",
-  "<leader>dd",
-  "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-  { desc = "[T]rouble [D]ocument Diagnostics" }
-)
-vim.keymap.set("n", "<leader>dq", "<cmd>Trouble qflist toggle<cr>", { desc = "[T]rouble [Q]uickfix" })
-vim.keymap.set("n", "<leader>dl", "<cmd>Trouble loclist toggle<cr>", { desc = "[T]rouble [L]ocation List" })
-vim.keymap.set(
-  "n",
-  "<leader>dr",
-  "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
-  { desc = "[T]rouble LSP [R]eferences" }
-)
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -2451,7 +2515,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
     -- vim.api.nvim_command [[aunmenu PopUp.-1-]] -- You can remode a separator like this.
     vim.api.nvim_command([[menu PopUp.Toggle\ \Breakpoint <cmd>:lua require('dap').toggle_breakpoint()<CR>]])
     vim.api.nvim_command([[menu PopUp.-2- <Nop>]])
-    vim.api.nvim_command([[menu PopUp.Start\ \Compiler <cmd>:CompilerOpen<CR>]])
     vim.api.nvim_command([[menu PopUp.Start\ \Debugger <cmd>:DapContinue<CR>]])
     vim.api.nvim_command([[menu PopUp.Run\ \Test <cmd>:Neotest run<CR>]])
   end,
