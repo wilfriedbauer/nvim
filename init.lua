@@ -128,15 +128,8 @@ vim.opt.sidescrolloff = 5
 
 vim.opt.colorcolumn = ""
 
--- ufo.nvim
-vim.o.foldcolumn = "1" -- '0' is not bad
-vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
-vim.o.foldlevelstart = 99
-vim.o.foldenable = true
-vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
-
 -- auto-session.nvim
-vim.o.sessionoptions = "blank,buffers,tabpages,globals,curdir,folds,help,winsize,winpos,terminal,localoptions"
+vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,winsize,winpos,terminal"
 
 -- change diagnostic signs and display the most severe one in the sign gutter on the left.
 vim.diagnostic.config({
@@ -562,13 +555,6 @@ require("lazy").setup({
     end,
   },
   {
-    "folke/tokyonight.nvim",
-    lazy = false,
-    name = "tokyonight",
-    priority = 1000,
-    opts = {},
-  },
-  {
     "catppuccin/nvim",
     lazy = false,
     name = "catppuccin",
@@ -582,13 +568,19 @@ require("lazy").setup({
           treesitter = true,
         },
       })
+      vim.cmd([[colorscheme catppuccin-mocha]])
     end,
   },
   {
     "rebelot/kanagawa.nvim",
-    lazy = false,
+    lazy = true,
     name = "kanagawa",
-    priority = 1000,
+    opts = {},
+  },
+  {
+    "folke/tokyonight.nvim",
+    lazy = true,
+    name = "tokyonight",
     opts = {},
   },
   {
@@ -722,7 +714,7 @@ require("lazy").setup({
 
           if client.server_capabilities.inlayHintProvider then
             vim.g.inlay_hints_visible = true
-            vim.lsp.inlay_hint.enable(true)
+            vim.lsp.inlay_hint.enable(false)
           end
 
           -- Only attach to clients that support document formatting
@@ -948,7 +940,6 @@ require("lazy").setup({
         desc = "[T]rouble [L]ocation List",
       },
       {
-        "n",
         "<leader>dr",
         "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
         mode = "",
@@ -1273,19 +1264,51 @@ require("lazy").setup({
       "kevinhwang91/promise-async",
       "luukvbaal/statuscol.nvim",
     },
-    opts = {
-      provider_selector = function()
-        return { "treesitter", "indent" }
-      end,
-    },
+    config = function()
+      local handler = function(virtText, lnum, endLnum, width, truncate)
+        local newVirtText = {}
+        local suffix = (" 󰁂 %d "):format(endLnum - lnum)
+        local sufWidth = vim.fn.strdisplaywidth(suffix)
+        local targetWidth = width - sufWidth
+        local curWidth = 0
+        for _, chunk in ipairs(virtText) do
+          local chunkText = chunk[1]
+          local chunkWidth = vim.fn.strdisplaywidth(chunkText)
+          if targetWidth > curWidth + chunkWidth then
+            table.insert(newVirtText, chunk)
+          else
+            chunkText = truncate(chunkText, targetWidth - curWidth)
+            local hlGroup = chunk[2]
+            table.insert(newVirtText, { chunkText, hlGroup })
+            chunkWidth = vim.fn.strdisplaywidth(chunkText)
+            -- str width returned from truncate() may less than 2nd argument, need padding
+            if curWidth + chunkWidth < targetWidth then
+              suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
+            end
+            break
+          end
+          curWidth = curWidth + chunkWidth
+        end
+        table.insert(newVirtText, { suffix, "MoreMsg" })
+        return newVirtText
+      end
 
-    init = function()
-      vim.keymap.set("n", "zO", function()
-        require("ufo").openAllFolds()
-      end)
-      vim.keymap.set("n", "zC", function()
-        require("ufo").closeAllFolds()
-      end)
+      require("ufo").setup({
+        fold_virt_text_handler = handler,
+        provider_selector = function()
+          return { "treesitter", "indent" }
+        end,
+      })
+      vim.keymap.set("n", "zR", require("ufo").openAllFolds)
+      vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
+      vim.keymap.set("n", "zr", require("ufo").openFoldsExceptKinds)
+      vim.keymap.set("n", "zm", require("ufo").closeFoldsWith)
+      -- ufo.nvim
+      vim.o.foldcolumn = "1" -- '0' is not bad
+      vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+      vim.o.foldlevelstart = 99
+      vim.o.foldenable = true
+      vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
     end,
   },
   {
@@ -1296,15 +1319,6 @@ require("lazy").setup({
       "antoinemadec/FixCursorHold.nvim",
       "nvim-treesitter/nvim-treesitter",
       "Issafalcon/neotest-dotnet",
-    },
-  },
-  { "Dynge/gitmoji.nvim", dependencies = { "hrsh7th/nvim-cmp" }, opts = {} },
-  {
-    "NeogitOrg/neogit",
-    dependencies = {
-      "nvim-lua/plenary.nvim", -- required
-      "sindrets/diffview.nvim", -- optional - Diff integration
-      "nvim-telescope/telescope.nvim", -- optional
     },
     keys = {
       {
@@ -1387,6 +1401,18 @@ require("lazy").setup({
       })
     end,
   },
+  { "Dynge/gitmoji.nvim", dependencies = { "hrsh7th/nvim-cmp" }, opts = {} },
+  {
+    "NeogitOrg/neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim", -- required
+      "sindrets/diffview.nvim", -- optional - Diff integration
+      "nvim-telescope/telescope.nvim", -- optional
+    },
+    config = function()
+      require("neogit").setup()
+    end,
+  },
   {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
@@ -1440,50 +1466,6 @@ require("lazy").setup({
         next = "tabs",
         quit = false, -- quit Neovim when last buffer is closed
       })
-    end,
-  },
-  {
-    "IMOKURI/line-number-interval.nvim",
-    config = function()
-      -- Config for line-number-interval.nvim:
-      -- Enable line number interval at startup. (default: 0(disable))
-      vim.g.line_number_interval_enable_at_startup = 1
-
-      -- Set interval to highlight line number. (default: 10)
-      vim.g["line_number_interval"] = 999999999999999999
-
-      -- Enable to use custom interval. (default: 0(disable))
-      -- If this option is enabled, highlight for relative position of cursor position.
-      vim.g["line_number_interval#use_custom"] = 1
-
-      -- Set custom interval list.
-      -- (default: fibonacci sequence ([1, 2, 3, 5, 8, 13, 21, 34, 55, ...]))
-      -- Relative position to highlight.
-      vim.g["line_number_interval#custom_interval"] = { 5, 10, 15, 20, 25, 30, 35, 40, 45 }
-
-      -- Set color to highlight and dim.
-      -- (default: HighlightedLineNr use LineNr color,
-      --           DimLineNr use same as background color (it seems hide).)
-      vim.cmd("highlight HighlightedLineNr guifg=#a2a3ac ctermfg=7")
-      vim.cmd("highlight DimLineNr guifg=#4e455a ctermfg=5")
-
-      -- Tints of #4e455a for fade out effect on line number intervals:
-      -- #45475a #57596a #6a6b7a #7c7e8b #8f909c #a2a3ac #b4b5bd #c7c7cd #d9dade #ececee #ffffff
-
-      -- Additional highlight
-      -- Use those colors for Nth (1st ~ 9th) element of custom interval.
-      vim.cmd("highlight HighlightedLineNr1 guifg=#b4b5bd ctermfg=3")
-      vim.cmd("highlight HighlightedLineNr2 guifg=#a2a3ac ctermfg=3")
-      vim.cmd("highlight HighlightedLineNr3 guifg=#8f909c ctermfg=3")
-      vim.cmd("highlight HighlightedLineNr4 guifg=#7c7e8b ctermfg=5")
-      vim.cmd("highlight HighlightedLineNr5 guifg=#6a6b7a ctermfg=4")
-      vim.cmd("highlight HighlightedLineNr6 guifg=#6a6b7a ctermfg=6")
-      vim.cmd("highlight HighlightedLineNr7 guifg=#57596a ctermfg=2")
-      vim.cmd("highlight HighlightedLineNr8 guifg=#57596a ctermfg=3")
-      vim.cmd("highlight HighlightedLineNr9 guifg=#57596a ctermfg=3")
-
-      -- Enable line number interval.
-      vim.cmd("LineNumberIntervalEnable")
     end,
   },
   {
