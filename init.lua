@@ -2341,26 +2341,33 @@ local on_attach = function(_, bufnr)
   end, { desc = "Format current buffer with LSP" })
 end
 
--- document existing key chains
-require("which-key").register({
-  ["<leader>g"] = { name = "[G]it", _ = "which_key_ignore" },
-  ["<leader>gd"] = { name = "[G]it [D]iff", _ = "which_key_ignore" },
-  ["<leader>h"] = { name = "[H]unk Git", _ = "which_key_ignore" },
-  ["<leader>f"] = { name = "[F]ind", _ = "which_key_ignore" },
-  ["<leader>d"] = { name = "[D]iagnostics", _ = "which_key_ignore" },
-  ["<leader>w"] = { name = "[W]orkspace", _ = "which_key_ignore" },
-  ["<leader>t"] = { name = "[T]ab", _ = "which_key_ignore" },
-  ["<leader>T"] = { name = "[T]est", _ = "which_key_ignore" },
-  ["<leader>B"] = { name = "[B]ug", _ = "which_key_ignore" },
-  ["<leader>R"] = { name = "[R]un", _ = "which_key_ignore" },
-  ["<leader>D"] = { name = "[D]atabase", _ = "which_key_ignore" },
+require("which-key").add({
+  { "<leader>B", group = "[B]ug" },
+  { "<leader>B_", hidden = true },
+  { "<leader>D", group = "[D]atabase" },
+  { "<leader>D_", hidden = true },
+  { "<leader>R", group = "[R]un" },
+  { "<leader>R_", hidden = true },
+  { "<leader>T", group = "[T]est" },
+  { "<leader>T_", hidden = true },
+  { "<leader>d", group = "[D]iagnostics" },
+  { "<leader>d_", hidden = true },
+  { "<leader>f", group = "[F]ind" },
+  { "<leader>f_", hidden = true },
+  { "<leader>g", group = "[G]it" },
+  { "<leader>g_", hidden = true },
+  { "<leader>gd", group = "[G]it [D]iff" },
+  { "<leader>gd_", hidden = true },
+  { "<leader>h", group = "[H]unk Git" },
+  { "<leader>h_", hidden = true },
+  { "<leader>t", group = "[T]ab" },
+  { "<leader>t_", hidden = true },
+  { "<leader>w", group = "[W]orkspace" },
+  { "<leader>w_", hidden = true },
+}, {
+  { "<leader>", group = "VISUAL <leader>", mode = "v" },
+  { "<leader>h", desc = "Git [H]unk", mode = "v" },
 })
--- register which-key VISUAL mode
--- required for visual <leader>hs (hunk stage) to work
-require("which-key").register({
-  ["<leader>"] = { name = "VISUAL <leader>" },
-  ["<leader>h"] = { "Git [H]unk" },
-}, { mode = "v" })
 
 -- mason-lspconfig requires that these setup functions are called in this order
 -- before setting up the servers.
