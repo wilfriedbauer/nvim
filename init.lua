@@ -4,32 +4,10 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
---settings:
-vim.opt.guicursor = ""
-
--- make y behave like d or c. shift-y copy whole line
-vim.keymap.set("n", "Y", "y$")
-
--- move visual selection up or down a line with <s-j> and <s-k>
-vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
-vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
-
--- INFO:
--- Instead of pressing ^ you can press _(underscore) to jump to the first non-whitespace character on the same line the cursor is on.
---
--- + and - jump to the first non-whitespace character on the next / previous line.
---
--- (These commands only work in normal mode, not in insert mode.)
-
--- INFO:
--- In visual mode press 'o' to switch the side of the selection the cursor is on.
-
--- paste without overwriting paste register while in visual mode
-vim.keymap.set("v", "p", '"_dP')
-
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
+vim.opt.guicursor = ""
 
 -- Make line numbers default
 vim.wo.number = true
@@ -41,12 +19,6 @@ vim.o.mouse = "a"
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
 vim.o.clipboard = "unnamedplus"
-
--- Enable break indent
-vim.o.breakindent = true
-
--- Save undo history
-vim.o.undofile = true
 
 -- Case-insensitive searching UNLESS \C or capital in search
 vim.o.ignorecase = true
@@ -64,17 +36,6 @@ vim.o.completeopt = "menuone,noselect"
 
 -- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
-
--- [[ Basic Keymaps ]]
-
--- Keymaps for better default experience
--- See `:help vim.keymap.set()`
-vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
-vim.opt.nu = true
-
--- Remap for dealing with word wrap
-vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- enable relative line numbers next to absolute line numbers.
 -- vim.opt.relativenumber = true
@@ -209,9 +170,32 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- [[ Basic Keymaps ]]
+-- Keymaps for better default experience
+-- See `:help vim.keymap.set()`
+vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
+
+-- move visual selection up or down a line with <s-j> and <s-k>
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
+
+-- INFO:
+-- Instead of pressing ^ you can press _(underscore) to jump to the first non-whitespace character on the same line the cursor is on.
+-- + and - jump to the first non-whitespace character on the next / previous line.
+-- (These commands only work in normal mode, not in insert mode.)
+--
+-- In visual mode press 'o' to switch the side of the selection the cursor is on.
+
+-- paste without overwriting paste register while in visual mode
+vim.keymap.set("v", "p", '"_dP')
+
+-- Remap for dealing with word wrap
+vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+
 -- [[ Install `lazy.nvim` plugin manager ]]
---    https://github.com/folke/lazy.nvim
---    `:help lazy.nvim.txt` for more info
+-- https://github.com/folke/lazy.nvim
+-- `:help lazy.nvim.txt` for more info
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -228,10 +212,10 @@ print(lazypath)
 
 -- [[ Configure plugins ]]
 -- NOTE: Here is where you install your plugins.
---  You can configure plugins using the `config` key.
+-- You can configure plugins using the `config` key.
 --
---  You can also configure plugins after the setup call,
---    as they will be available in your neovim runtime.
+-- You can also configure plugins after the setup call,
+-- as they will be available in your neovim runtime.
 require("lazy").setup({
   -- NOTE: First, some plugins that don't require any configuration
 
@@ -381,17 +365,17 @@ require("lazy").setup({
           winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None",
           col_offset = -3,
           side_padding = 0,
-          -- completion = cmp.config.window.bordered({
-          --   winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
-          -- }),
-          -- documentation = cmp.config.window.bordered({
-          --   winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
-          -- }),
+          completion = cmp.config.window.bordered({
+            winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
+          }),
+          documentation = cmp.config.window.bordered({
+            winhighlight = "Normal:Normal,FloatBorder:LspBorderBG,CursorLine:PmenuSel,Search:None",
+          }),
         },
-        --@diagnostic disable-next-line
-        -- view = {
-        --   entries = "bordered",
-        -- },
+        ---@diagnostic disable-next-line
+        view = {
+          entries = "bordered",
+        },
         formatting = {
           fields = { "kind", "abbr", "menu" },
           format = function(entry, vim_item)
@@ -472,10 +456,8 @@ require("lazy").setup({
       cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
     end,
   },
-
   -- Useful plugin to show you pending keybinds.
   { "folke/which-key.nvim", opts = {} },
-
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     "lewis6991/gitsigns.nvim",
@@ -636,7 +618,6 @@ require("lazy").setup({
       -- }
     },
   },
-
   {
     -- Add indentation guides even on blank lines
     "lukas-reineke/indent-blankline.nvim",
@@ -645,7 +626,6 @@ require("lazy").setup({
     main = "ibl",
     opts = {},
   },
-
   -- Fuzzy Finder (files, lsp, etc)
   {
     "nvim-telescope/telescope.nvim",
@@ -657,7 +637,7 @@ require("lazy").setup({
       {
         "nvim-telescope/telescope-fzf-native.nvim",
         -- NOTE: If you are having trouble with this installation,
-        --       refer to the README for telescope-fzf-native for more instructions.
+        -- refer to the README for telescope-fzf-native for more instructions.
         build = "make",
         cond = function()
           return vim.fn.executable("make") == 1
@@ -665,7 +645,6 @@ require("lazy").setup({
       },
     },
   },
-
   {
     -- Highlight, edit, and navigate code
     "nvim-treesitter/nvim-treesitter",
@@ -680,7 +659,7 @@ require("lazy").setup({
     "neovim/nvim-lspconfig",
     config = function()
       -- Switch for controlling whether you want autoformatting.
-      --  Use :FormatToggle to toggle autoformatting on or off
+      -- Use :FormatToggle to toggle autoformatting on or off
       local format_is_enabled = true
       vim.api.nvim_create_user_command("FormatToggle", function()
         format_is_enabled = not format_is_enabled
@@ -688,8 +667,8 @@ require("lazy").setup({
       end, {})
 
       -- Create an augroup that is used for managing our formatting autocmds.
-      --      We need one augroup per client to make sure that multiple clients
-      --      can attach to the same buffer without interfering with each other.
+      -- We need one augroup per client to make sure that multiple clients
+      -- can attach to the same buffer without interfering with each other.
       local _augroups = {}
       local get_augroup = function(client)
         if not _augroups[client.id] then
@@ -702,7 +681,6 @@ require("lazy").setup({
       end
 
       -- Whenever an LSP attaches to a buffer, we will run this function.
-      --
       -- See `:help LspAttach` for more information about this autocmd event.
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("kickstart-lsp-attach-format", { clear = true }),
@@ -723,7 +701,7 @@ require("lazy").setup({
           end
 
           -- Create an autocmd that will run *before* we save the buffer.
-          --  Run the formatting command for the LSP that has just attached.
+          -- Run the formatting command for the LSP that has just attached.
           vim.api.nvim_create_autocmd("BufWritePre", {
             group = get_augroup(client),
             buffer = bufnr,
@@ -888,8 +866,6 @@ require("lazy").setup({
       dap.listeners.after.event_initialized["dapui_config"] = dapui.open
       dap.listeners.before.event_terminated["dapui_config"] = dapui.close
       dap.listeners.before.event_exited["dapui_config"] = dapui.close
-
-      -- Install golang specific config
     end,
   },
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
@@ -1826,9 +1802,6 @@ require("lazy").setup({
   },
 }, {})
 
--- colorscheme
-vim.cmd([[colorscheme catppuccin-mocha]])
-
 require("luasnip.loaders.from_vscode").lazy_load()
 
 require("nvim-dap-virtual-text").setup()
@@ -1911,17 +1884,6 @@ vim.api.nvim_create_user_command("InlayHint", function()
   print(vim.lsp.inlay_hint.is_enabled())
 end, {})
 
-vim.g.diagnostics_visible = true
-function _G.toggle_diagnostics()
-  if vim.g.diagnostics_visible then
-    vim.g.diagnostics_visible = false
-    vim.diagnostic.enable(false)
-  else
-    vim.g.diagnostics_visible = true
-    vim.diagnostic.enable()
-  end
-end
-
 -- [[ Terminal ]]:
 local te_buf = nil
 local te_win_id = nil
@@ -1976,6 +1938,17 @@ function _G.set_terminal_keymaps()
 end
 
 vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
+
+vim.g.diagnostics_visible = true
+function _G.toggle_diagnostics()
+  if vim.g.diagnostics_visible then
+    vim.g.diagnostics_visible = false
+    vim.diagnostic.enable(false)
+  else
+    vim.g.diagnostics_visible = true
+    vim.diagnostic.enable()
+  end
+end
 
 vim.api.nvim_set_keymap(
   "n",
