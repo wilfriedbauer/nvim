@@ -327,7 +327,16 @@ require("lazy").setup({
       "hrsh7th/cmp-cmdline",
       "saadparwaiz1/cmp_luasnip",
       "hrsh7th/cmp-nvim-lua",
-      "windwp/nvim-autopairs",
+      {
+        "windwp/nvim-autopairs",
+        event = "InsertEnter",
+        config = true,
+        opts = {
+          fast_wrap = {
+            map = "<C-e>",
+          },
+        },
+      },
       "onsails/lspkind-nvim",
       { "roobert/tailwindcss-colorizer-cmp.nvim", config = true },
     },
@@ -1051,20 +1060,6 @@ require("lazy").setup({
         -- Your setup opts here (leave empty to use defaults)
       })
     end,
-  },
-  {
-    "altermo/ultimate-autopair.nvim",
-    event = { "InsertEnter", "CmdlineEnter" },
-    branch = "v0.6", --recommended as each new version will have breaking changes
-    opts = {
-      --Config goes here
-      fastwarp = {
-        map = "<C-e>", --string or table
-        rmap = "<C-a>", --string or table
-        cmap = "<C-e>", --string or table
-        rcmap = "<C-a>", --string or table
-      },
-    },
   },
   {
     "L3MON4D3/LuaSnip",
