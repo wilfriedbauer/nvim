@@ -695,6 +695,16 @@ require("lazy").setup({
             vim.lsp.inlay_hint.enable(false)
           end
 
+          if client.server_capabilities.codeLensProvider then
+            vim.lsp.codelens.display(vim.lsp.codelens.get(0), 0, client_id)
+            vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+              buffer = bufnr,
+              callback = function()
+                vim.lsp.codelens.refresh({ buffer = bufnr, client = client })
+              end,
+            })
+          end
+
           -- Only attach to clients that support document formatting
           if not client.server_capabilities.documentFormattingProvider then
             return
@@ -1871,18 +1881,20 @@ require("mason-tool-installer").setup({
   debounce_hours = nil, -- at least 5 hours between attempts to install/update
 })
 
+vim.keymap.set("n", "<leader>l", function()
+  vim.o.relativenumber = not vim.o.relativenumber
+  print("Relative Numbers Enabled: ", vim.o.relativenumber)
+end, { desc = "Toggle Relative Line Numbers" })
+
 vim.keymap.set("n", "<leader>i", function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+  print("InlayHint Enabled: ", vim.lsp.inlay_hint.is_enabled())
 end, { desc = "Inlay Hints Toggle" })
-vim.keymap.set("n", "<leader>l", function()
+
+vim.keymap.set("n", "<leader>L", function()
   vim.lsp.codelens.refresh()
   vim.lsp.codelens.run()
 end, { desc = "Codelens Toggle" })
-
-vim.api.nvim_create_user_command("InlayHint", function()
-  print("InlayHint Enabled: ")
-  print(vim.lsp.inlay_hint.is_enabled())
-end, {})
 
 -- [[ Terminal ]]:
 local te_buf = nil
