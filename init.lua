@@ -1959,8 +1959,26 @@ end
 
 vim.api.nvim_set_keymap(
   "n",
-  "<leader>dh",
+  "<leader>dH",
   ":call v:lua.toggle_diagnostics()<CR>",
+  { desc = "[D]iagnostics - Toggle [H]ide all Diagnostics", noremap = true, silent = true }
+)
+
+vim.g.virtual_text_visible = true
+function _G.toggle_virtual_text()
+  if vim.g.virtual_text_visible then
+    vim.g.virtual_text_visible = false
+    vim.diagnostic.config({ virtual_text = false })
+  else
+    vim.g.virtual_text_visible = true
+    vim.diagnostic.config({ virtual_text = true })
+  end
+end
+
+vim.api.nvim_set_keymap(
+  "n",
+  "<leader>dh",
+  ":call v:lua.toggle_virtual_text()<CR>",
   { desc = "[D]iagnostics - Toggle [H]ide Virtual Text", noremap = true, silent = true }
 )
 
