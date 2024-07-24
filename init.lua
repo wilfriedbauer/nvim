@@ -1140,24 +1140,18 @@ require("lazy").setup({
   },
   "nvim-treesitter/nvim-treesitter-context",
   {
-    "aznhe21/actions-preview.nvim",
+    "rachartier/tiny-code-action.nvim",
+    dependencies = {
+      { "nvim-lua/plenary.nvim" },
+      { "nvim-telescope/telescope.nvim" },
+    },
+    event = "LspAttach",
     config = function()
-      require("actions-preview").setup({
-        diff = {
-          algorithm = "patience",
-          ignore_whitespace = true,
-        },
-        telescope = {
-          sorting_strategy = "ascending",
-          layout_strategy = "horizontal",
-        },
-        vim.keymap.set(
-          { "v", "n" },
-          "<leader>C",
-          require("actions-preview").code_actions,
-          { desc = "Code Action (Preview)" }
-        ),
-      })
+      require("tiny-code-action").setup()
+
+      vim.keymap.set("n", "<leader>c", function()
+        require("tiny-code-action").code_action()
+      end, { desc = "LSP: Code Action (Preview)", noremap = true, silent = true })
     end,
   },
   {
@@ -2289,7 +2283,7 @@ local on_attach = function(_, bufnr)
 
   nmap("<leader>r", vim.lsp.buf.rename, "[R]ename")
 
-  nmap("<leader>c", vim.lsp.buf.code_action, "Code Action (Builtin LSP)")
+  nmap("<leader>C", vim.lsp.buf.code_action, "Code Action (Builtin LSP)")
 
   -- Jump to the definition of the word under your cursor.
   --  This is where a variable was first declared, or where a function is defined, etc.
