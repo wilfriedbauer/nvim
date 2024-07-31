@@ -2062,6 +2062,7 @@ require("telescope").setup({
     mappings = {
       -- for input mode
       i = {
+        ["<c-f>"] = require("telescope.actions").to_fuzzy_refine,
         ["<C-j>"] = require("telescope.actions").move_selection_next,
         ["<C-k>"] = require("telescope.actions").move_selection_previous,
         ["<C-n>"] = require("telescope.actions").cycle_history_next,
@@ -2069,6 +2070,7 @@ require("telescope").setup({
       },
       -- for normal mode
       n = {
+        ["<c-f>"] = require("telescope.actions").to_fuzzy_refine,
         ["<C-j>"] = require("telescope.actions").move_selection_next,
         ["<C-k>"] = require("telescope.actions").move_selection_previous,
         ["<C-n>"] = require("telescope.actions").cycle_history_next,
@@ -2217,9 +2219,9 @@ vim.defer_fn(function()
     incremental_selection = {
       enable = true,
       keymaps = {
-        init_selection = "<c-space>",
-        node_incremental = "<c-space>",
-        scope_incremental = "<M-space>",
+        init_selection = "<leader>v",
+        node_incremental = "<leader>v",
+        scope_incremental = "<leader>V",
         node_decremental = "<backspace>",
       },
     },
