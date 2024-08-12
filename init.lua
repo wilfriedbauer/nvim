@@ -710,15 +710,15 @@ require("lazy").setup({
             vim.lsp.inlay_hint.enable(false)
           end
 
-          if client.server_capabilities.codeLensProvider then
-            vim.lsp.codelens.display(vim.lsp.codelens.get(0), 0, client_id)
-            vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
-              buffer = bufnr,
-              callback = function()
-                vim.lsp.codelens.refresh({ buffer = bufnr, client = client })
-              end,
-            })
-          end
+          -- if client.server_capabilities.codeLensProvider then
+          --   vim.lsp.codelens.display(vim.lsp.codelens.get(0), 0, client_id)
+          --   vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
+          --     buffer = bufnr,
+          --     callback = function()
+          --       vim.lsp.codelens.refresh({ buffer = bufnr, client = client })
+          --     end,
+          --   })
+          -- end
 
           -- Only attach to clients that support document formatting
           if not client.server_capabilities.documentFormattingProvider then
@@ -1163,11 +1163,38 @@ require("lazy").setup({
     end,
   },
   {
-    "rbong/vim-flog",
-    lazy = true,
-    cmd = { "Flog", "Flogsplit", "Floggit" },
-    dependencies = {
-      "tpope/vim-fugitive",
+    "isakbm/gitgraph.nvim",
+    ---@type I.GGConfig
+    opts = {
+      symbols = {
+        merge_commit = "M",
+        commit = "*",
+      },
+      format = {
+        timestamp = "%H:%M:%S %d-%m-%Y",
+        fields = { "hash", "timestamp", "author", "branch_name", "tag" },
+      },
+      hooks = {
+        -- Check diff of a commit
+        on_select_commit = function(commit)
+          vim.notify("DiffviewOpen " .. commit.hash .. "^!")
+          vim.cmd(":DiffviewOpen " .. commit.hash .. "^!")
+        end,
+        -- Check diff from commit a -> commit b
+        on_select_range_commit = function(from, to)
+          vim.notify("DiffviewOpen " .. from.hash .. "~1.." .. to.hash)
+          vim.cmd(":DiffviewOpen " .. from.hash .. "~1.." .. to.hash)
+        end,
+      },
+    },
+    keys = {
+      {
+        "<leader>gg",
+        function()
+          require("gitgraph").draw({}, { all = true, max_count = 5000 })
+        end,
+        desc = "GitGraph - Draw",
+      },
     },
   },
   {
@@ -1383,17 +1410,6 @@ require("lazy").setup({
     end,
   },
   { "Dynge/gitmoji.nvim", dependencies = { "hrsh7th/nvim-cmp" }, opts = {} },
-  {
-    "NeogitOrg/neogit",
-    dependencies = {
-      "nvim-lua/plenary.nvim", -- required
-      "sindrets/diffview.nvim", -- optional - Diff integration
-      "nvim-telescope/telescope.nvim", -- optional
-    },
-    config = function()
-      require("neogit").setup()
-    end,
-  },
   {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
@@ -1980,10 +1996,8 @@ vim.keymap.set("n", "<C-j>", "<C-w>j")
 vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
 
-vim.keymap.set("n", "<leader>gg", ":Neogit<cr>", { desc = "Neo [G]it" })
 vim.keymap.set("n", "<leader>gs", ":G status<cr>", { desc = "[G]it [S]tatus" })
 vim.keymap.set("n", "<leader>gl", ":Gclog<cr>", { desc = "[G]it [L]og" })
-vim.keymap.set("n", "<leader>gf", ":Flog<CR>", { desc = "[G]it [F]log" })
 
 vim.keymap.set("n", "<c-p>", "<cmd>bp<cr>", { desc = "Previous Buffer" })
 vim.keymap.set("n", "<c-n>", "<cmd>bn<cr>", { desc = "Next Buffer" })
