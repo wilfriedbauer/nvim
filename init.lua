@@ -12,6 +12,9 @@ vim.opt.guicursor = ""
 -- Make line numbers default
 vim.wo.number = true
 
+-- Set powershell 7 as default shell, if possible.
+vim.opt.shell = "pwsh.exe"
+
 -- Enable mouse mode
 vim.o.mouse = "a"
 
