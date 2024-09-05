@@ -15,6 +15,9 @@ vim.wo.number = true
 -- Set powershell 7 as default shell, if possible.
 vim.opt.shell = "pwsh.exe"
 
+-- Set FC as windows diff equivalent
+vim.g.undotree_DiffCommand = "FC"
+
 -- Enable mouse mode
 vim.o.mouse = "a"
 
