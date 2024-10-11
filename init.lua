@@ -758,6 +758,7 @@ require("lazy").setup({
   },
   {
     "mfussenegger/nvim-dap",
+    event = "VeryLazy",
     -- NOTE: And you can specify dependencies as well
     dependencies = {
       -- Creates a beautiful debugger UI
@@ -1024,6 +1025,7 @@ require("lazy").setup({
   },
   {
     "tpope/vim-dadbod",
+    event = "VeryLazy",
     dependencies = {
       "kristijanhusak/vim-dadbod-ui",
       "kristijanhusak/vim-dadbod-completion",
@@ -1064,6 +1066,7 @@ require("lazy").setup({
   },
   {
     "hedyhli/outline.nvim",
+    event = "VeryLazy",
     config = function()
       -- Example mapping to toggle outline
       vim.keymap.set("n", "<leader>a", "<cmd>Outline<CR>", { desc = "Toggle Outline" })
@@ -1162,6 +1165,7 @@ require("lazy").setup({
   },
   {
     "zegervdv/nrpattern.nvim",
+    event = "VeryLazy",
     config = function()
       -- Basic setup
       -- See below for more options
@@ -1171,6 +1175,7 @@ require("lazy").setup({
   {
     "isakbm/gitgraph.nvim",
     ---@type I.GGConfig
+    event = "VeryLazy",
     opts = {
       symbols = {
         merge_commit = "M",
@@ -1426,6 +1431,7 @@ require("lazy").setup({
   },
   {
     "cshuaimin/ssr.nvim",
+    event = "VeryLazy",
     config = function()
       vim.keymap.set({ "n", "x" }, "<leader>s", function()
         require("ssr").open()
@@ -1434,6 +1440,7 @@ require("lazy").setup({
   },
   {
     "ahmedkhalf/project.nvim",
+    event = "VeryLazy",
     config = function()
       require("project_nvim").setup({
         manual_mode = true,
@@ -1464,6 +1471,7 @@ require("lazy").setup({
   },
   {
     "ojroques/nvim-bufdel",
+    event = "VeryLazy",
     config = function()
       require("bufdel").setup({
         next = "tabs",
@@ -1473,6 +1481,7 @@ require("lazy").setup({
   },
   {
     "pteroctopus/faster.nvim",
+    event = "VeryLazy",
     config = function()
       require("faster").setup()
     end,
@@ -1481,6 +1490,7 @@ require("lazy").setup({
   { "HiPhish/rainbow-delimiters.nvim" },
   {
     "stevearc/oil.nvim",
+    event = "VeryLazy",
     opts = {},
     -- Optional dependencies
     dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -1744,7 +1754,11 @@ require("lazy").setup({
       })
     end,
   },
-  { "numToStr/Comment.nvim", opts = {} },
+  {
+    "numToStr/Comment.nvim",
+    event = "VeryLazy",
+    opts = {},
+  },
   { -- Autoformat
     "stevearc/conform.nvim",
     lazy = false,
@@ -2282,10 +2296,10 @@ vim.defer_fn(function()
       swap = {
         enable = true,
         swap_next = {
-          ["<leader>x"] = "@parameter.inner",
+          ["<leader>>"] = "@parameter.inner",
         },
         swap_previous = {
-          ["<leader>z"] = "@parameter.inner",
+          ["<leader><lt>"] = "@parameter.inner",
         },
       },
     },
