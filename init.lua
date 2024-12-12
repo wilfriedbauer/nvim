@@ -14,15 +14,17 @@ vim.wo.number = true
 
 if vim.fn.has("unix") then
 -- Unix-specific configurations
-elseif vim.fn.has("win32") or vim.fn.has("win64") then
-  -- Windows-specific configurations
+end
 
-  -- Set powershell 7 as default shell, if possible.
-  vim.opt.shell = "pwsh.exe"
+if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then
+  -- Windows-specific configurations
+  vim.o.shell = "pwsh.exe"
 
   -- Set FC as windows diff equivalent
   vim.g.undotree_DiffCommand = "FC"
-elseif vim.fn.has("mac") then
+end
+
+if vim.fn.has("mac") then
   -- macOS-specific configurations
 end
 
