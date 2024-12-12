@@ -12,11 +12,19 @@ vim.opt.guicursor = ""
 -- Make line numbers default
 vim.wo.number = true
 
--- Set powershell 7 as default shell, if possible.
-vim.opt.shell = "pwsh.exe"
+if vim.fn.has("unix") then
+-- Unix-specific configurations
+elseif vim.fn.has("win32") or vim.fn.has("win64") then
+  -- Windows-specific configurations
 
--- Set FC as windows diff equivalent
-vim.g.undotree_DiffCommand = "FC"
+  -- Set powershell 7 as default shell, if possible.
+  vim.opt.shell = "pwsh.exe"
+
+  -- Set FC as windows diff equivalent
+  vim.g.undotree_DiffCommand = "FC"
+elseif vim.fn.has("mac") then
+  -- macOS-specific configurations
+end
 
 -- Enable mouse mode
 vim.o.mouse = "a"
