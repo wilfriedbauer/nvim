@@ -13,7 +13,7 @@ vim.opt.guicursor = ""
 vim.wo.number = true
 
 if vim.fn.has("unix") then
--- Unix-specific configurations
+  -- Unix-specific configurations
 end
 
 if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then
@@ -224,7 +224,6 @@ if not vim.loop.fs_stat(lazypath) then
   })
 end
 vim.opt.rtp:prepend(lazypath)
-print(lazypath)
 
 -- [[ Configure plugins ]]
 -- NOTE: Here is where you install your plugins.
@@ -238,6 +237,7 @@ require("lazy").setup({
   -- Git related plugins
   {
     "tpope/vim-fugitive",
+    event = "VeryLazy",
     config = function()
       vim.api.nvim_create_user_command("Browse", function(args)
         vim.ui.open(args.args)
@@ -248,7 +248,10 @@ require("lazy").setup({
       })
     end,
   },
-  "tpope/vim-rhubarb",
+  {
+    "tpope/vim-rhubarb",
+    event = "VeryLazy",
+  },
   {
     "sindrets/diffview.nvim",
     keys = {
@@ -281,6 +284,7 @@ require("lazy").setup({
   {
     -- LSP Configuration & Plugins
     "neovim/nvim-lspconfig",
+    event = "VeryLazy",
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
       "williamboman/mason.nvim",
@@ -290,6 +294,7 @@ require("lazy").setup({
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
       {
         "j-hui/fidget.nvim",
+        event = "VeryLazy",
         opts = {
           -- display = {
           --   render_limit = 5, -- How many LSP messages to show at once
@@ -484,6 +489,7 @@ require("lazy").setup({
   -- Useful plugin to show you pending keybinds.
   {
     "folke/which-key.nvim",
+    event = "VeryLazy",
     opts = {
       -- false | "classic" | "modern" | "helix"
       preset = "modern",
@@ -492,6 +498,7 @@ require("lazy").setup({
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     "lewis6991/gitsigns.nvim",
+    event = "VeryLazy",
     opts = {
       -- See `:help gitsigns.txt`
       signs = {
@@ -679,6 +686,7 @@ require("lazy").setup({
   {
     -- Highlight, edit, and navigate code
     "nvim-treesitter/nvim-treesitter",
+    event = "VeryLazy",
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
     },
@@ -688,6 +696,7 @@ require("lazy").setup({
     -- Use your language server to automatically format your code on save.
     -- Adds additional commands as well to manage the behavior
     "neovim/nvim-lspconfig",
+    event = "VeryLazy",
     config = function()
       -- Switch for controlling whether you want autoformatting.
       -- Use :FormatToggle to toggle autoformatting on or off
@@ -875,10 +884,10 @@ require("lazy").setup({
       vim.keymap.set("n", "<leader>BI", dap.step_into, { desc = "[B]ug: Step [I]nto" })
       vim.keymap.set("n", "<leader>BO", dap.step_over, { desc = "[B]ug: Step [O]ver" })
       vim.keymap.set("n", "<leader>BU", dap.step_out, { desc = "[B]ug: Step O[u]t" })
-      vim.keymap.set("n", "<leader>BP", dap.toggle_breakpoint, { desc = "[B]ug: Toggle [B]reakpoint" })
+      vim.keymap.set("n", "<leader>BP", dap.toggle_breakpoint, { desc = "[B]ug: Toggle Break[P]oint" })
       vim.keymap.set("n", "<leader>Bp", function()
         dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
-      end, { desc = "[B]ug: Set [c]onditional Breakpoint" })
+      end, { desc = "[B]ug: Set conditional Break[p]oint" })
 
       -- Dap UI setup
       -- For more information, see |:help nvim-dap-ui|
@@ -988,21 +997,30 @@ require("lazy").setup({
       })
     end,
   },
-  "windwp/nvim-ts-autotag",
+  {
+    "windwp/nvim-ts-autotag",
+    event = "VeryLazy",
+  },
   {
     "monkoose/matchparen.nvim",
+    event = "VeryLazy",
     config = function()
       require("matchparen").setup()
     end,
   },
-  "RRethy/vim-illuminate",
+  {
+    "RRethy/vim-illuminate",
+    event = "VeryLazy",
+  },
   {
     "brenoprata10/nvim-highlight-colors",
+    event = "VeryLazy",
     config = function()
       require("nvim-highlight-colors").setup()
     end,
   },
   {
+    -- check if you need this, or can find something better?
     "petertriho/nvim-scrollbar",
     config = function()
       local colors = require("catppuccin.palettes").get_palette("mocha")
@@ -1088,21 +1106,27 @@ require("lazy").setup({
   },
   {
     "L3MON4D3/LuaSnip",
+    event = "VeryLazy",
     -- follow latest release.
     version = "*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
     -- install jsregexp (optional!).
     build = "make install_jsregexp",
     dependencies = { "rafamadriz/friendly-snippets" },
   },
-  "benfowler/telescope-luasnip.nvim",
+  {
+    "benfowler/telescope-luasnip.nvim",
+    event = "VeryLazy",
+  },
   {
     "m-demare/hlargs.nvim",
+    event = "VeryLazy",
     config = function()
       require("hlargs").setup()
     end,
   },
   {
     "nvim-tree/nvim-tree.lua",
+    event = "VeryLazy",
     keys = {
       {
         "<leader>n",
@@ -1157,7 +1181,10 @@ require("lazy").setup({
       })
     end,
   },
-  "nvim-treesitter/nvim-treesitter-context",
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    event = "VeryLazy",
+  },
   {
     "rachartier/tiny-code-action.nvim",
     dependencies = {
@@ -1220,6 +1247,7 @@ require("lazy").setup({
   },
   {
     "utilyre/barbecue.nvim",
+    event = "VeryLazy",
     name = "barbecue",
     version = "*",
     dependencies = {
@@ -1232,6 +1260,7 @@ require("lazy").setup({
   },
   {
     "Wansmer/treesj",
+    event = "VeryLazy",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("treesj").setup({
@@ -1342,6 +1371,7 @@ require("lazy").setup({
   },
   {
     "nvim-neotest/neotest",
+    event = "VeryLazy",
     dependencies = {
       "nvim-neotest/nvim-nio",
       "nvim-lua/plenary.nvim",
@@ -1430,9 +1460,15 @@ require("lazy").setup({
       })
     end,
   },
-  { "Dynge/gitmoji.nvim", dependencies = { "hrsh7th/nvim-cmp" }, opts = {} },
+  {
+    "Dynge/gitmoji.nvim",
+    event = "VeryLazy",
+    dependencies = { "hrsh7th/nvim-cmp" },
+    opts = {},
+  },
   {
     "iamcco/markdown-preview.nvim",
+    event = "VeryLazy",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
     ft = { "markdown" },
     build = function()
@@ -1687,6 +1723,7 @@ require("lazy").setup({
   },
   {
     "arsham/indent-tools.nvim",
+    event = "VeryLazy",
     dependencies = {
       "arsham/arshlib.nvim",
       "MunifTanjim/nui.nvim",
@@ -1744,6 +1781,7 @@ require("lazy").setup({
   },
   {
     "Hoffs/omnisharp-extended-lsp.nvim",
+    event = "VeryLazy",
     config = function()
       vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
         pattern = { "*.cs" },
@@ -1771,7 +1809,7 @@ require("lazy").setup({
   },
   { -- Autoformat
     "stevearc/conform.nvim",
-    lazy = false,
+    event = "VeryLazy",
     keys = {
       {
         "<leader>F",
