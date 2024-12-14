@@ -254,6 +254,7 @@ require("lazy").setup({
   },
   {
     "sindrets/diffview.nvim",
+    cmd = { "DiffviewOpen", "DiffviewClose" },
     keys = {
       {
         "<leader>gdd",
@@ -1020,7 +1021,6 @@ require("lazy").setup({
     end,
   },
   {
-    -- check if you need this, or can find something better?
     "petertriho/nvim-scrollbar",
     config = function()
       local colors = require("catppuccin.palettes").get_palette("mocha")
