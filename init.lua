@@ -278,7 +278,10 @@ require("lazy").setup({
   },
 
   -- Detect tabstop and shiftwidth automatically
-  "tpope/vim-sleuth",
+  {
+    "tpope/vim-sleuth",
+    event = "VeryLazy",
+  },
 
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
@@ -608,6 +611,7 @@ require("lazy").setup({
     -- Set lualine as statusline
     "nvim-lualine/lualine.nvim",
     -- See `:help lualine.txt`
+    event = "VeryLazy",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
       "meuter/lualine-so-fancy.nvim",
@@ -660,6 +664,7 @@ require("lazy").setup({
   {
     -- Add indentation guides even on blank lines
     "lukas-reineke/indent-blankline.nvim",
+    event = "VeryLazy",
     -- Enable `lukas-reineke/indent-blankline.nvim`
     -- See `:help ibl`
     main = "ibl",
@@ -668,6 +673,7 @@ require("lazy").setup({
   -- Fuzzy Finder (files, lsp, etc)
   {
     "nvim-telescope/telescope.nvim",
+    event = "VeryLazy",
     dependencies = {
       "nvim-lua/plenary.nvim",
       -- Fuzzy Finder Algorithm which requires local dependencies to be built.
@@ -920,14 +926,10 @@ require("lazy").setup({
       dap.listeners.before.event_exited["dapui_config"] = dapui.close
     end,
   },
-  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-  --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
-  --    up-to-date with whatever is in the kickstart repo.
-  --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  --
-  --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-  -- { import = 'custom.plugins' },
-  "ryanoasis/vim-devicons",
+  {
+    "ryanoasis/vim-devicons",
+    event = "VeryLazy",
+  },
   {
     "folke/trouble.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -1022,6 +1024,7 @@ require("lazy").setup({
   },
   {
     "petertriho/nvim-scrollbar",
+    event = "VeryLazy",
     config = function()
       local colors = require("catppuccin.palettes").get_palette("mocha")
 
@@ -1106,7 +1109,7 @@ require("lazy").setup({
   },
   {
     "L3MON4D3/LuaSnip",
-    event = "VeryLazy",
+    event = "InsertEnter",
     -- follow latest release.
     version = "*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
     -- install jsregexp (optional!).
@@ -1211,8 +1214,8 @@ require("lazy").setup({
   },
   {
     "isakbm/gitgraph.nvim",
-    ---@type I.GGConfig
     event = "VeryLazy",
+    ---@type I.GGConfig
     opts = {
       symbols = {
         merge_commit = "M",
@@ -1273,6 +1276,7 @@ require("lazy").setup({
   },
   {
     "luukvbaal/statuscol.nvim",
+    event = "VeryLazy",
     config = function()
       local builtin = require("statuscol.builtin")
       require("statuscol").setup({
@@ -1318,6 +1322,7 @@ require("lazy").setup({
   },
   {
     "kevinhwang91/nvim-ufo",
+    event = "VeryLazy",
     dependencies = {
       "kevinhwang91/promise-async",
       "luukvbaal/statuscol.nvim",
@@ -1498,6 +1503,7 @@ require("lazy").setup({
   },
   {
     "rmagatti/auto-session",
+    event = "VeryLazy",
     config = function()
       local function change_nvim_tree_dir()
         local nvim_tree = require("nvim-tree")
@@ -1532,8 +1538,14 @@ require("lazy").setup({
       require("faster").setup()
     end,
   },
-  { "WhoIsSethDaniel/mason-tool-installer.nvim" },
-  { "HiPhish/rainbow-delimiters.nvim" },
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    event = "VeryLazy",
+  },
+  {
+    "HiPhish/rainbow-delimiters.nvim",
+    event = "VeryLazy",
+  },
   {
     "stevearc/oil.nvim",
     event = "VeryLazy",
@@ -1733,6 +1745,7 @@ require("lazy").setup({
   },
   {
     "akinsho/bufferline.nvim",
+    event = "VeryLazy",
     version = "*",
     dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
@@ -1879,7 +1892,6 @@ require("mason-tool-installer").setup({
 
     -- you can turn off/on auto_update per tool
     -- { 'bash-language-server', auto_update = true },
-    "csharpier",
     "debugpy",
     "python-lsp-server",
     "lua-language-server",
