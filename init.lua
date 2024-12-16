@@ -452,7 +452,6 @@ require("lazy").setup({
           { name = "luasnip", group_index = 1, max_item_count = 5 },
           { name = "nvim_lsp", group_index = 1, max_item_count = 20 },
           { name = "nvim_lua", group_index = 1 },
-          { name = "vim-dadbod-completion", group_index = 1 },
           { name = "path", group_index = 1 },
           { name = "buffer", group_index = 1, max_item_count = 5, keyword_length = 2 },
           { name = "calc", group_index = 1, max_item_count = 5 },
@@ -1052,47 +1051,6 @@ require("lazy").setup({
         mode = "",
         desc = "[U]ndotree Toggle",
       },
-    },
-  },
-  {
-    "tpope/vim-dadbod",
-    event = "VeryLazy",
-    dependencies = {
-      "kristijanhusak/vim-dadbod-ui",
-      "kristijanhusak/vim-dadbod-completion",
-    },
-    opts = {
-      db_competion = function()
-        ---@diagnostic disable-next-line
-        require("cmp").setup.buffer({ sources = { { name = "vim-dadbod-completion" } } })
-      end,
-    },
-    config = function(_, opts)
-      vim.g.db_ui_save_location = vim.fn.stdpath("config") .. require("plenary.path").path.sep .. "db_ui"
-
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-          "sql",
-        },
-        command = [[setlocal omnifunc=vim_dadbod_completion#omni]],
-      })
-
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-          "sql",
-          "mysql",
-          "plsql",
-        },
-        callback = function()
-          vim.schedule(opts.db_completion)
-        end,
-      })
-    end,
-    keys = {
-      { "<leader>DD", "<cmd>DBUIToggle<cr>", desc = "Toggle UI" },
-      { "<leader>DF", "<cmd>DBUIFindBuffer<cr>", desc = "Find Buffer" },
-      { "<leader>DR", "<cmd>DBUIRenameBuffer<cr>", desc = "Rename Buffer" },
-      { "<leader>DQ", "<cmd>DBUILastQueryInfo<cr>", desc = "Last Query Info" },
     },
   },
   {
@@ -2431,8 +2389,6 @@ end
 require("which-key").add({
   { "<leader>B", group = "[B]ug" },
   { "<leader>B_", hidden = true },
-  { "<leader>D", group = "[D]atabase" },
-  { "<leader>D_", hidden = true },
   { "<leader>R", group = "[R]un" },
   { "<leader>R_", hidden = true },
   { "<leader>T", group = "[T]est" },
