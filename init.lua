@@ -2051,6 +2051,41 @@ vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnos
 vim.keymap.set("n", "<leader>k", vim.diagnostic.open_float, { desc = "Show diagnostic Error messages" })
 vim.keymap.set("n", "<leader>K", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
+--- IDE Jump Keymaps for Neovim
+
+-- Function to get the current buffer's file path and line number
+local function get_current_file_info()
+  local file_path = vim.fn.expand("%:p")
+  local line_number = vim.fn.line(".")
+  return file_path, line_number
+end
+
+-- Jump to VSCode at the same file and line
+function JumpToVSCode()
+  local file_path, line_number = get_current_file_info()
+  local command = string.format('code --goto "%s":%d', file_path, line_number)
+  os.execute(command)
+end
+
+-- Jump to Visual Studio at the same file and line
+function JumpToVisualStudio()
+  local file_path, line_number = get_current_file_info()
+  local command = string.format('devenv "%s" /edit /line %d', file_path, line_number)
+  os.execute(command)
+end
+
+-- Keymaps
+-- Use <leader>vsc to jump to VSCode
+vim.keymap.set("n", "<leader>x", JumpToVSCode, { noremap = true, silent = true, desc = "Open current file in VSCode" })
+
+-- Use <leader>vs to jump to Visual Studio
+vim.keymap.set(
+  "n",
+  "<leader>X",
+  JumpToVisualStudio,
+  { noremap = true, silent = true, desc = "Open current file in Visual Studio" }
+)
+
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup("YankHighlight", { clear = true })
