@@ -2070,15 +2070,35 @@ end
 -- Jump to Visual Studio at the same file and line
 function JumpToVisualStudio()
   local file_path, line_number = get_current_file_info()
-  local command = string.format('devenv "%s" /edit /line %d', file_path, line_number)
-  os.execute(command)
+
+  -- Try different Visual Studio executables
+  local vs_paths = {
+    -- Visual Studio 2022
+    '"C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\Common7\\IDE\\devenv.exe"',
+    '"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\devenv.exe"',
+    -- Visual Studio 2019
+    '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Professional\\Common7\\IDE\\devenv.exe"',
+    '"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\IDE\\devenv.exe"',
+    -- Fallback to system path
+    "devenv",
+  }
+
+  -- Try each path until one works
+  for _, vs_path in ipairs(vs_paths) do
+    local command = string.format('%s "%s" /edit /line %d', vs_path, file_path, line_number)
+    local result = os.execute(command)
+    if result then
+      return
+    end
+  end
+
+  -- If no method works, show an error
+  vim.notify("Could not open file in Visual Studio", vim.log.levels.ERROR)
 end
 
 -- Keymaps
--- Use <leader>vsc to jump to VSCode
 vim.keymap.set("n", "<leader>x", JumpToVSCode, { noremap = true, silent = true, desc = "Open current file in VSCode" })
 
--- Use <leader>vs to jump to Visual Studio
 vim.keymap.set(
   "n",
   "<leader>X",
