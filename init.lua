@@ -4,6 +4,8 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+vim.g.loaded_node_provider = 0
+
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
@@ -106,7 +108,7 @@ vim.opt.sidescrolloff = 5
 vim.opt.colorcolumn = ""
 
 -- auto-session.nvim
-vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,winsize,winpos,terminal"
+vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,winpos,terminal"
 
 -- change diagnostic signs and display the most severe one in the sign gutter on the left.
 vim.diagnostic.config({
@@ -1461,7 +1463,7 @@ require("lazy").setup({
   },
   {
     "rmagatti/auto-session",
-    event = "VeryLazy",
+    lazy = false,
     config = function()
       local function change_nvim_tree_dir()
         local nvim_tree = require("nvim-tree")
@@ -1470,7 +1472,7 @@ require("lazy").setup({
 
       require("auto-session").setup({
         log_level = "error",
-        auto_session_enable_last_session = vim.loop.cwd() == vim.loop.os_homedir(),
+        auto_restore_last_session = true,
         post_restore_cmds = {
           change_nvim_tree_dir,
           -- "ProjectRoot",
