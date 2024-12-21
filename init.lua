@@ -1124,6 +1124,19 @@ require("lazy").setup({
     end,
   },
   {
+    "windwp/nvim-ts-autotag",
+    config = function()
+      require("nvim-ts-autotag").setup({
+        opts = {
+          -- Defaults
+          enable_close = true, -- Auto close tags
+          enable_rename = true, -- Auto rename pairs of tags
+          enable_close_on_slash = false, -- Auto close on trailing </
+        },
+      })
+    end,
+  },
+  {
     "rachartier/tiny-code-action.nvim",
     dependencies = {
       { "nvim-lua/plenary.nvim" },
@@ -1810,12 +1823,6 @@ require("luasnip.loaders.from_vscode").lazy_load()
 
 require("nvim-dap-virtual-text").setup()
 
-require("nvim-treesitter.configs").setup({
-  autotag = {
-    enable = true,
-  },
-})
-
 require("mason-tool-installer").setup({
 
   -- a list of all tools you want to ensure are installed upon
@@ -2413,6 +2420,15 @@ require("which-key").add({
   { "<leader>t_", hidden = true },
   { "<leader>w", group = "[W]orkspace" },
   { "<leader>w_", hidden = true },
+  { "<leader>1", hidden = true },
+  { "<leader>2", hidden = true },
+  { "<leader>3", hidden = true },
+  { "<leader>4", hidden = true },
+  { "<leader>5", hidden = true },
+  { "<leader>6", hidden = true },
+  { "<leader>7", hidden = true },
+  { "<leader>8", hidden = true },
+  { "<leader>9", hidden = true },
 }, {
   { "<leader>", group = "VISUAL <leader>", mode = "v" },
   { "<leader>h", desc = "Git [H]unk", mode = "v" },
@@ -2522,10 +2538,13 @@ vim.api.nvim_create_autocmd("VimEnter", {
   desc = "Disable right contextual menu warning message",
   callback = function()
     -- Disable right click message
-    vim.api.nvim_command([[aunmenu PopUp.How-to\ disable\ mouse]])
-    -- vim.api.nvim_command [[aunmenu PopUp.-1-]] -- You can remode a separator like this.
+    vim.api.nvim_command([[aunmenu PopUp]])
+    vim.api.nvim_command([[menu PopUp.Definition <cmd>lua vim.lsp.buf.definition()<CR>]])
+    vim.api.nvim_command([[menu PopUp.References <cmd>Telescope lsp_references<CR>]])
+    vim.api.nvim_command([[menu PopUp.Back <C-t>]])
+    vim.api.nvim_command([[menu PopUp.URL gx]])
+    vim.api.nvim_command([[menu PopUp.-2- <NOP>]])
     vim.api.nvim_command([[menu PopUp.Toggle\ \Breakpoint <cmd>:lua require('dap').toggle_breakpoint()<CR>]])
-    vim.api.nvim_command([[menu PopUp.-2- <Nop>]])
     vim.api.nvim_command([[menu PopUp.Start\ \Debugger <cmd>:DapContinue<CR>]])
     vim.api.nvim_command([[menu PopUp.Run\ \Test <cmd>:Neotest run<CR>]])
   end,
