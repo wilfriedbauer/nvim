@@ -612,7 +612,7 @@ require("lazy").setup({
     -- Set lualine as statusline
     "nvim-lualine/lualine.nvim",
     -- See `:help lualine.txt`
-    event = "VeryLazy",
+    lazy = false,
     dependencies = {
       "nvim-tree/nvim-web-devicons",
       "meuter/lualine-so-fancy.nvim",
@@ -665,7 +665,7 @@ require("lazy").setup({
   {
     -- Add indentation guides even on blank lines
     "lukas-reineke/indent-blankline.nvim",
-    event = "VeryLazy",
+    lazy = false,
     -- Enable `lukas-reineke/indent-blankline.nvim`
     -- See `:help ibl`
     main = "ibl",
@@ -1211,7 +1211,7 @@ require("lazy").setup({
   },
   {
     "luukvbaal/statuscol.nvim",
-    event = "VeryLazy",
+    lazy = false,
     config = function()
       local builtin = require("statuscol.builtin")
       require("statuscol").setup({
@@ -1680,7 +1680,7 @@ require("lazy").setup({
   },
   {
     "akinsho/bufferline.nvim",
-    event = "VeryLazy",
+    lazy = false,
     version = "*",
     dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
