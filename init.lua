@@ -677,18 +677,6 @@ require("lazy").setup({
     event = "VeryLazy",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      -- Fuzzy Finder Algorithm which requires local dependencies to be built.
-      -- Only load if `make` is available. Make sure you have the system
-      -- requirements installed.
-      {
-        "nvim-telescope/telescope-fzf-native.nvim",
-        -- NOTE: If you are having trouble with this installation,
-        -- refer to the README for telescope-fzf-native for more instructions.
-        build = "make",
-        cond = function()
-          return vim.fn.executable("make") == 1
-        end,
-      },
     },
   },
   {
@@ -1002,10 +990,6 @@ require("lazy").setup({
     end,
   },
   {
-    "windwp/nvim-ts-autotag",
-    event = "VeryLazy",
-  },
-  {
     "monkoose/matchparen.nvim",
     event = "VeryLazy",
     config = function()
@@ -1054,18 +1038,6 @@ require("lazy").setup({
         desc = "[U]ndotree Toggle",
       },
     },
-  },
-  {
-    "hedyhli/outline.nvim",
-    event = "VeryLazy",
-    config = function()
-      -- Example mapping to toggle outline
-      vim.keymap.set("n", "<leader>a", "<cmd>Outline<CR>", { desc = "Toggle Outline" })
-
-      require("outline").setup({
-        -- Your setup opts here (leave empty to use defaults)
-      })
-    end,
   },
   {
     "L3MON4D3/LuaSnip",
@@ -1147,6 +1119,9 @@ require("lazy").setup({
   {
     "nvim-treesitter/nvim-treesitter-context",
     event = "VeryLazy",
+    config = function()
+      vim.cmd("TSContextDisable")
+    end,
   },
   {
     "rachartier/tiny-code-action.nvim",
@@ -2054,7 +2029,6 @@ vim.keymap.set("n", "<leader>k", vim.diagnostic.open_float, { desc = "Show diagn
 vim.keymap.set("n", "<leader>K", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
 --- IDE Jump Keymaps for Neovim
-
 -- Function to get the current buffer's file path and line number
 local function get_current_file_info()
   local file_path = vim.fn.expand("%:p")
@@ -2167,9 +2141,6 @@ require("telescope").setup({
   },
 })
 pcall(require("telescope").load_extension("luasnip"))
-
--- Enable telescope fzf native, if installed
-pcall(require("telescope").load_extension, "fzf")
 
 -- Set telescope Highlights. Something like NVChad.
 local colors = require("catppuccin.palettes").get_palette()
