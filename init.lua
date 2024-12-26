@@ -1692,6 +1692,19 @@ require("lazy").setup({
     config = true,
   },
   {
+    "aaronik/treewalker.nvim",
+    config = function()
+      require("treewalker").setup({
+        highlight = true, -- Whether to briefly highlight the node after jumping to it
+        highlight_duration = 250, -- How long should above highlight last (in ms)
+      })
+      vim.api.nvim_set_keymap("n", "<a-j>", "<cmd>Treewalker Down<CR>", { noremap = true })
+      vim.api.nvim_set_keymap("n", "<a-k>", "<cmd>Treewalker Up<CR>", { noremap = true })
+      vim.api.nvim_set_keymap("n", "<a-h>", "<cmd>Treewalker Left<CR>", { noremap = true })
+      vim.api.nvim_set_keymap("n", "<a-l>", "<cmd>Treewalker Right<CR>", { noremap = true })
+    end,
+  },
+  {
     "akinsho/bufferline.nvim",
     lazy = false,
     version = "*",
@@ -2001,33 +2014,33 @@ vim.keymap.set(
 )
 
 -- create new lines in Normal mode
-vim.keymap.set("n", "<leader>o", "o<Esc>^Da<Esc>k", { desc = "Newline Below", silent = true })
-vim.keymap.set("n", "<leader>O", "O<Esc>^Da<Esc>j", { desc = "Newline Above", silent = true })
+vim.keymap.set("n", "<leader>o", "m`o<Esc>^Da<Esc>``", { desc = "Newline Below", silent = true })
+vim.keymap.set("n", "<leader>O", "m`O<Esc>^Da<Esc>``", { desc = "Newline Above", silent = true })
 
 vim.keymap.set("n", "zh", "zH", { desc = "Scroll right" })
 vim.keymap.set("n", "zl", "zL", { desc = "Scroll left" })
 
-vim.keymap.set("n", "<Up>", ":resize -5<CR>", { desc = "Resize Down" })
-vim.keymap.set("n", "<Down>", ":resize +5<CR>", { desc = "Resize Up" })
-vim.keymap.set("n", "<Left>", ":vertical resize +5<CR>", { desc = "Resize Left" })
-vim.keymap.set("n", "<Right>", ":vertical resize -5<CR>", { desc = "Resize Right" })
+vim.keymap.set("n", "<Up>", "<cmd>resize -5<CR>", { desc = "Resize Down" })
+vim.keymap.set("n", "<Down>", "<cmd>resize +5<CR>", { desc = "Resize Up" })
+vim.keymap.set("n", "<Left>", "<cmd>vertical resize +5<CR>", { desc = "Resize Left" })
+vim.keymap.set("n", "<Right>", "<cmd>vertical resize -5<CR>", { desc = "Resize Right" })
 
 vim.keymap.set("n", "<C-h>", "<C-w>h")
 vim.keymap.set("n", "<C-j>", "<C-w>j")
 vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
 
-vim.keymap.set("n", "<leader>gs", ":G status<cr>", { desc = "[G]it [S]tatus" })
-vim.keymap.set("n", "<leader>gl", ":Gclog<cr>", { desc = "[G]it [L]og" })
+vim.keymap.set("n", "<leader>gs", "<cmd>G status<cr>", { desc = "[G]it [S]tatus" })
+vim.keymap.set("n", "<leader>gl", "<cmd>Gclog<cr>", { desc = "[G]it [L]og" })
 
 vim.keymap.set("n", "<c-p>", "<cmd>bp<cr>", { desc = "Previous Buffer" })
 vim.keymap.set("n", "<c-n>", "<cmd>bn<cr>", { desc = "Next Buffer" })
 
-vim.keymap.set("n", "<leader>Q", ":BufDel<CR>", { desc = "Close Buffer (smart)" })
-vim.keymap.set("n", "<leader>q", ":q<CR>", { desc = "Close Buffer (:q)" })
+vim.keymap.set("n", "<leader>Q", "<cmd>BufDel<CR>", { desc = "Close Buffer (smart)" })
+vim.keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Close Buffer (:q)" })
 
-vim.keymap.set("n", "<leader>tt", ":tabnew<CR>", { desc = "Open new tab" })
-vim.keymap.set("n", "<leader>tq", ":tabclose<CR>", { desc = "Close tab" })
+vim.keymap.set("n", "<leader>tt", "<cmd>tabnew<CR>", { desc = "Open new tab" })
+vim.keymap.set("n", "<leader>tq", "<cmd>tabclose<CR>", { desc = "Close tab" })
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
