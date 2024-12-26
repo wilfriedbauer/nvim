@@ -2563,6 +2563,34 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 
+-- This module contains a number of default definitions
+local rainbow_delimiters = require("rainbow-delimiters")
+
+---@type rainbow_delimiters.config
+vim.g.rainbow_delimiters = {
+  strategy = {
+    [""] = rainbow_delimiters.strategy["global"],
+    -- vim = rainbow_delimiters.strategy["local"],
+  },
+  query = {
+    [""] = "rainbow-delimiters",
+    -- lua = "rainbow-delimiters",
+  },
+  priority = {
+    [""] = 110,
+    -- lua = 110,
+  },
+  highlight = {
+    "RainbowDelimiterRed",
+    "RainbowDelimiterYellow",
+    "RainbowDelimiterBlue",
+    "RainbowDelimiterOrange",
+    "RainbowDelimiterGreen",
+    "RainbowDelimiterViolet",
+    "RainbowDelimiterCyan",
+  },
+}
+
 --[[
 If you don't know anything about Lua, I recommend taking some time to read through
 a guide. One possible example:
