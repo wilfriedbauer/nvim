@@ -1851,6 +1851,8 @@ require("mason-tool-installer").setup({
     "python-lsp-server",
     "lua-language-server",
     "lua_ls",
+    "csharpier",
+    "omnisharp",
     "netcoredbg",
     "clangd",
     "selene",
@@ -1890,7 +1892,7 @@ require("mason-tool-installer").setup({
   -- This is only relevant when you are using 'run_on_start'. It has no
   -- effect when running manually via ':MasonToolsInstall' etc....
   -- Default: nil
-  debounce_hours = nil, -- at least 5 hours between attempts to install/update
+  debounce_hours = 5, -- at least 5 hours between attempts to install/update
 })
 
 vim.keymap.set("n", "<leader>l", function()
