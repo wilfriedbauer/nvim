@@ -14,21 +14,21 @@ vim.opt.guicursor = ""
 -- Make line numbers default
 vim.wo.number = true
 
-if vim.fn.has("unix") then
-  -- Unix-specific configurations
-end
-
+-- Windows-specific configurations
 if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then
-  -- Windows-specific configurations
   vim.o.shell = "pwsh.exe"
 
   -- Set FC as windows diff equivalent
   vim.g.undotree_DiffCommand = "FC"
 end
 
-if vim.fn.has("mac") then
-  -- macOS-specific configurations
-end
+-- Unix-specific configurations
+-- if vim.fn.has("unix") then
+-- end
+
+-- macOS-specific configurations
+-- if vim.fn.has("mac") then
+-- end
 
 -- Enable mouse mode
 vim.o.mouse = "a"
@@ -239,7 +239,7 @@ require("lazy").setup({
   -- Git related plugins
   {
     "tpope/vim-fugitive",
-    event = "VeryLazy",
+    event = "BufEnter",
     config = function()
       vim.api.nvim_create_user_command("Browse", function(args)
         vim.ui.open(args.args)
@@ -252,7 +252,7 @@ require("lazy").setup({
   },
   {
     "tpope/vim-rhubarb",
-    event = "VeryLazy",
+    event = "BufEnter",
   },
   {
     "sindrets/diffview.nvim",
@@ -282,7 +282,7 @@ require("lazy").setup({
   -- Detect tabstop and shiftwidth automatically
   {
     "tpope/vim-sleuth",
-    event = "VeryLazy",
+    event = "BufEnter",
   },
 
   -- NOTE: This is where your plugins related to LSP can be installed.
@@ -290,7 +290,7 @@ require("lazy").setup({
   {
     -- LSP Configuration & Plugins
     "neovim/nvim-lspconfig",
-    event = "VeryLazy",
+    event = "BufEnter",
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
       "williamboman/mason.nvim",
@@ -300,7 +300,7 @@ require("lazy").setup({
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
       {
         "j-hui/fidget.nvim",
-        event = "VeryLazy",
+        event = "UIEnter",
         opts = {
           -- display = {
           --   render_limit = 5, -- How many LSP messages to show at once
@@ -354,6 +354,7 @@ require("lazy").setup({
       "hrsh7th/cmp-cmdline",
       "saadparwaiz1/cmp_luasnip",
       "hrsh7th/cmp-nvim-lua",
+      "xzbdmw/colorful-menu.nvim",
       {
         "windwp/nvim-autopairs",
         event = "InsertEnter",
@@ -415,13 +416,22 @@ require("lazy").setup({
         formatting = {
           fields = { "kind", "abbr", "menu" },
           format = function(entry, vim_item)
+            local highlights_info = require("colorful-menu").cmp_highlights(entry)
+
+            -- if highlight_info==nil, which means missing ts parser, let's fallback to use default `vim_item.abbr`.
+            -- What this plugin offers is two fields: `vim_item.abbr_hl_group` and `vim_item.abbr`.
+            if highlights_info ~= nil then
+              vim_item.abbr_hl_group = highlights_info.highlights
+              vim_item.abbr = highlights_info.text
+            end
+
             local kind = require("lspkind").cmp_format({
               mode = "symbol_text",
               maxwidth = 50,
             })(entry, vim_item)
             local strings = vim.split(kind.kind, "%s", { trimempty = true })
             kind.kind = " " .. (strings[1] or "") .. " "
-            kind.menu = "    (" .. (strings[2] or "") .. ")"
+            kind.menu = "" --[[ "    (" .. (strings[2] or "") .. ")" ]]
 
             return kind
           end,
@@ -450,14 +460,13 @@ require("lazy").setup({
           ["<C-k>"] = cmp_prev,
         },
         sources = {
-          { name = "nvim_lsp_signature_help", group_index = 1 },
+          { name = "nvim_lsp_signature_help", group_index = 1, max_item_count = 5 },
           { name = "luasnip", group_index = 1, max_item_count = 5 },
           { name = "nvim_lsp", group_index = 1, max_item_count = 20 },
           { name = "nvim_lua", group_index = 1 },
           { name = "path", group_index = 1 },
           { name = "buffer", group_index = 1, max_item_count = 5, keyword_length = 2 },
           { name = "calc", group_index = 1, max_item_count = 5 },
-          { name = "gitmoji", group_index = 1, max_item_count = 5 },
           { name = "emoji", group_index = 1, max_item_count = 5 },
           { name = "nerdfont", group_index = 1, max_item_count = 5 },
           { name = "greek", group_index = 1, max_item_count = 5 },
@@ -494,16 +503,30 @@ require("lazy").setup({
   -- Useful plugin to show you pending keybinds.
   {
     "folke/which-key.nvim",
-    event = "VeryLazy",
+    event = "UIEnter",
     opts = {
       -- false | "classic" | "modern" | "helix"
       preset = "modern",
+      --- Mappings are sorted using configured sorters and natural sort of the keys
+      --- Available sorters:
+      --- * local: buffer-local mappings first
+      --- * order: order of the items (Used by plugins like marks / registers)
+      --- * group: groups last
+      --- * alphanum: alpha-numerical first
+      --- * mod: special modifier keys last
+      --- * manual: the order the mappings were added
+      --- * case: lower-case first
+      sort = {
+        "group",
+        "alphanum",
+        "mod",
+      },
     },
   },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     "lewis6991/gitsigns.nvim",
-    event = "VeryLazy",
+    event = "BufEnter",
     opts = {
       -- See `:help gitsigns.txt`
       signs = {
@@ -591,22 +614,17 @@ require("lazy").setup({
           gitsigns = true,
           nvimtree = true,
           treesitter = true,
+          diffview = true,
+          fidget = true,
+          mason = true,
+          neotest = true,
+          nvim_surround = true,
+          lsp_trouble = true,
+          which_key = true,
         },
       })
       vim.cmd([[colorscheme catppuccin-mocha]])
     end,
-  },
-  {
-    "rebelot/kanagawa.nvim",
-    lazy = true,
-    name = "kanagawa",
-    opts = {},
-  },
-  {
-    "folke/tokyonight.nvim",
-    lazy = true,
-    name = "tokyonight",
-    opts = {},
   },
   {
     -- Set lualine as statusline
@@ -674,7 +692,7 @@ require("lazy").setup({
   -- Fuzzy Finder (files, lsp, etc)
   {
     "nvim-telescope/telescope.nvim",
-    event = "VeryLazy",
+    event = "UIEnter",
     dependencies = {
       "nvim-lua/plenary.nvim",
     },
@@ -682,7 +700,7 @@ require("lazy").setup({
   {
     -- Highlight, edit, and navigate code
     "nvim-treesitter/nvim-treesitter",
-    event = "VeryLazy",
+    event = "UIEnter",
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
     },
@@ -692,7 +710,7 @@ require("lazy").setup({
     -- Use your language server to automatically format your code on save.
     -- Adds additional commands as well to manage the behavior
     "neovim/nvim-lspconfig",
-    event = "VeryLazy",
+    event = "BufEnter",
     config = function()
       -- Switch for controlling whether you want autoformatting.
       -- Use :FormatToggle to toggle autoformatting on or off
@@ -773,7 +791,6 @@ require("lazy").setup({
   },
   {
     "mfussenegger/nvim-dap",
-    event = "VeryLazy",
     -- NOTE: And you can specify dependencies as well
     dependencies = {
       -- Creates a beautiful debugger UI
@@ -917,7 +934,7 @@ require("lazy").setup({
   },
   {
     "ryanoasis/vim-devicons",
-    event = "VeryLazy",
+    event = "UIEnter",
   },
   {
     "folke/trouble.nvim",
@@ -929,37 +946,37 @@ require("lazy").setup({
     },
     keys = {
       {
-        "<leader>dt",
+        "<leader>tt",
         "<cmd>Trouble diagnostics toggle<cr>",
         mode = "",
         desc = "[T]rouble [T]oggle",
       },
       {
-        "<leader>ds",
+        "<leader>ts",
         "<cmd>Trouble symbols toggle focus=false<cr>",
         mode = "",
         desc = "[T]rouble [S]ymbols",
       },
       {
-        "<leader>dd",
+        "<leader>td",
         "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
         mode = "",
         desc = "[T]rouble [D]ocument Diagnostics",
       },
       {
-        "<leader>dq",
+        "<leader>tq",
         "<cmd>Trouble qflist toggle<cr>",
         mode = "",
         desc = "[T]rouble [Q]uickfix",
       },
       {
-        "<leader>dl",
+        "<leader>tl",
         "<cmd>Trouble loclist toggle<cr>",
         mode = "",
         desc = "[T]rouble [L]ocation List",
       },
       {
-        "<leader>dr",
+        "<leader>tr",
         "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
         mode = "",
         desc = "[T]rouble LSP [R]eferences",
@@ -969,7 +986,7 @@ require("lazy").setup({
   {
     "kylechui/nvim-surround",
     version = "*", -- Use for stability; omit to use `main` branch for the latest features
-    event = "VeryLazy",
+    event = "BufEnter",
     config = function()
       require("nvim-surround").setup({
         -- Configuration here, or leave empty to use defaults
@@ -990,26 +1007,26 @@ require("lazy").setup({
     end,
   },
   {
-    "monkoose/matchparen.nvim",
-    event = "VeryLazy",
+    "andymass/vim-matchup",
+    lazy = false,
     config = function()
-      require("matchparen").setup()
+      vim.g.loaded_matchit = 1
     end,
   },
   {
     "RRethy/vim-illuminate",
-    event = "VeryLazy",
+    event = "BufEnter",
   },
   {
     "brenoprata10/nvim-highlight-colors",
-    event = "VeryLazy",
+    event = "BufEnter",
     config = function()
       require("nvim-highlight-colors").setup()
     end,
   },
   {
     "petertriho/nvim-scrollbar",
-    event = "VeryLazy",
+    event = "UIEnter",
     config = function()
       local colors = require("catppuccin.palettes").get_palette("mocha")
 
@@ -1050,18 +1067,17 @@ require("lazy").setup({
   },
   {
     "benfowler/telescope-luasnip.nvim",
-    event = "VeryLazy",
+    event = "BufEnter",
   },
   {
     "m-demare/hlargs.nvim",
-    event = "VeryLazy",
+    event = "BufEnter",
     config = function()
       require("hlargs").setup()
     end,
   },
   {
     "nvim-tree/nvim-tree.lua",
-    event = "VeryLazy",
     keys = {
       {
         "<leader>n",
@@ -1118,13 +1134,14 @@ require("lazy").setup({
   },
   {
     "nvim-treesitter/nvim-treesitter-context",
-    event = "VeryLazy",
+    event = "BufEnter",
     config = function()
       vim.cmd("TSContextDisable")
     end,
   },
   {
     "windwp/nvim-ts-autotag",
+    event = "BufEnter",
     config = function()
       require("nvim-ts-autotag").setup({
         opts = {
@@ -1138,11 +1155,11 @@ require("lazy").setup({
   },
   {
     "rachartier/tiny-code-action.nvim",
+    event = "LspAttach",
     dependencies = {
       { "nvim-lua/plenary.nvim" },
       { "nvim-telescope/telescope.nvim" },
     },
-    event = "LspAttach",
     config = function()
       require("tiny-code-action").setup()
 
@@ -1153,7 +1170,7 @@ require("lazy").setup({
   },
   {
     "zegervdv/nrpattern.nvim",
-    event = "VeryLazy",
+    event = "BufEnter",
     config = function()
       -- Basic setup
       -- See below for more options
@@ -1162,7 +1179,6 @@ require("lazy").setup({
   },
   {
     "isakbm/gitgraph.nvim",
-    event = "VeryLazy",
     ---@type I.GGConfig
     opts = {
       symbols = {
@@ -1197,21 +1213,20 @@ require("lazy").setup({
     },
   },
   {
-    "utilyre/barbecue.nvim",
-    event = "VeryLazy",
-    name = "barbecue",
-    version = "*",
+    "Bekaboo/dropbar.nvim",
     dependencies = {
-      "SmiteshP/nvim-navic",
-      "nvim-tree/nvim-web-devicons", -- optional dependency
+      "nvim-treesitter/nvim-treesitter",
     },
-    opts = {
-      -- configurations go here
-    },
+    config = function()
+      local dropbar_api = require("dropbar.api")
+      vim.keymap.set("n", "<Leader>;", dropbar_api.pick, { desc = "Pick symbols in winbar" })
+      vim.keymap.set("n", "[;", dropbar_api.goto_context_start, { desc = "Go to start of current context" })
+      vim.keymap.set("n", "];", dropbar_api.select_next_context, { desc = "Select next context" })
+    end,
   },
   {
     "Wansmer/treesj",
-    event = "VeryLazy",
+    event = "BufEnter",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     config = function()
       require("treesj").setup({
@@ -1270,7 +1285,7 @@ require("lazy").setup({
   },
   {
     "kevinhwang91/nvim-ufo",
-    event = "VeryLazy",
+    event = "UIEnter",
     dependencies = {
       "kevinhwang91/promise-async",
       "luukvbaal/statuscol.nvim",
@@ -1324,7 +1339,6 @@ require("lazy").setup({
   },
   {
     "nvim-neotest/neotest",
-    event = "VeryLazy",
     dependencies = {
       "nvim-neotest/nvim-nio",
       "nvim-lua/plenary.nvim",
@@ -1414,14 +1428,8 @@ require("lazy").setup({
     end,
   },
   {
-    "Dynge/gitmoji.nvim",
-    event = "VeryLazy",
-    dependencies = { "hrsh7th/nvim-cmp" },
-    opts = {},
-  },
-  {
     "iamcco/markdown-preview.nvim",
-    event = "VeryLazy",
+    event = "BufEnter",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
     ft = { "markdown" },
     build = function()
@@ -1430,7 +1438,7 @@ require("lazy").setup({
   },
   {
     "cshuaimin/ssr.nvim",
-    event = "VeryLazy",
+    event = "BufEnter",
     config = function()
       vim.keymap.set({ "n", "x" }, "<leader>s", function()
         require("ssr").open()
@@ -1439,7 +1447,7 @@ require("lazy").setup({
   },
   {
     "ahmedkhalf/project.nvim",
-    event = "VeryLazy",
+    event = "UIEnter",
     config = function()
       require("project_nvim").setup({
         manual_mode = true,
@@ -1471,7 +1479,7 @@ require("lazy").setup({
   },
   {
     "ojroques/nvim-bufdel",
-    event = "VeryLazy",
+    event = "UIEnter",
     config = function()
       require("bufdel").setup({
         next = "tabs",
@@ -1481,22 +1489,81 @@ require("lazy").setup({
   },
   {
     "pteroctopus/faster.nvim",
-    event = "VeryLazy",
+    event = "UIEnter",
     config = function()
       require("faster").setup()
     end,
   },
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    event = "VeryLazy",
+    config = function()
+      require("mason-tool-installer").setup({
+
+        -- a list of all tools you want to ensure are installed upon
+        -- start
+        ensure_installed = {
+
+          -- you can pin a tool to a particular version
+          -- { 'golangci-lint', version = 'v1.47.0' },
+
+          -- you can turn off/on auto_update per tool
+          -- { 'bash-language-server', auto_update = true },
+          "debugpy",
+          "python-lsp-server",
+          "lua-language-server",
+          "lua_ls",
+          "csharpier",
+          "omnisharp",
+          "netcoredbg",
+          "clangd",
+          "selene",
+          "typescript-language-server",
+          "bash-language-server",
+          "lua-language-server",
+          "vim-language-server",
+          "stylua",
+          "isort",
+          "black",
+          "prettierd",
+          "prettier",
+          "shfmt",
+        },
+
+        -- if set to true this will check each tool for updates. If updates
+        -- are available the tool will be updated. This setting does not
+        -- affect :MasonToolsUpdate or :MasonToolsInstall.
+        -- Default: false
+        auto_update = true,
+
+        -- automatically install / update on startup. If set to false nothing
+        -- will happen on startup. You can use :MasonToolsInstall or
+        -- :MasonToolsUpdate to install tools and check for updates.
+        -- Default: true
+        run_on_start = true,
+
+        -- set a delay (in ms) before the installation starts. This is only
+        -- effective if run_on_start is set to true.
+        -- e.g.: 5000 = 5 second delay, 10000 = 10 second delay, etc...
+        -- Default: 0
+        start_delay = 3000, -- 3 second delay
+
+        -- Only attempt to install if 'debounce_hours' number of hours has
+        -- elapsed since the last time Neovim was started. This stores a
+        -- timestamp in a file named stdpath('data')/mason-tool-installer-debounce.
+        -- This is only relevant when you are using 'run_on_start'. It has no
+        -- effect when running manually via ':MasonToolsInstall' etc....
+        -- Default: nil
+        debounce_hours = 5, -- at least 5 hours between attempts to install/update
+      })
+    end,
   },
   {
     "HiPhish/rainbow-delimiters.nvim",
-    event = "VeryLazy",
+    event = "BufEnter",
   },
   {
     "stevearc/oil.nvim",
-    event = "VeryLazy",
+    event = "UIEnter",
     opts = {},
     -- Optional dependencies
     dependencies = { "nvim-tree/nvim-web-devicons" },
@@ -1604,13 +1671,13 @@ require("lazy").setup({
         -- EXPERIMENTAL support for performing file operations with git
         git = {
           -- Return true to automatically git add/mv/rm files
-          add = function(path)
+          add = function()
             return true
           end,
-          mv = function(src_path, dest_path)
+          mv = function()
             return true
           end,
-          rm = function(path)
+          rm = function()
             return true
           end,
         },
@@ -1683,7 +1750,7 @@ require("lazy").setup({
   },
   {
     "arsham/indent-tools.nvim",
-    event = "VeryLazy",
+    event = "UIEnter",
     dependencies = {
       "arsham/arshlib.nvim",
       "MunifTanjim/nui.nvim",
@@ -1692,25 +1759,16 @@ require("lazy").setup({
     config = true,
   },
   {
-    "aaronik/treewalker.nvim",
-    config = function()
-      require("treewalker").setup({
-        highlight = true, -- Whether to briefly highlight the node after jumping to it
-        highlight_duration = 250, -- How long should above highlight last (in ms)
-      })
-      vim.api.nvim_set_keymap("n", "<a-j>", "<cmd>Treewalker Down<CR>", { noremap = true })
-      vim.api.nvim_set_keymap("n", "<a-k>", "<cmd>Treewalker Up<CR>", { noremap = true })
-      vim.api.nvim_set_keymap("n", "<a-h>", "<cmd>Treewalker Left<CR>", { noremap = true })
-      vim.api.nvim_set_keymap("n", "<a-l>", "<cmd>Treewalker Right<CR>", { noremap = true })
-    end,
-  },
-  {
     "akinsho/bufferline.nvim",
     lazy = false,
     version = "*",
-    dependencies = "nvim-tree/nvim-web-devicons",
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+      "catppuccin",
+    },
     config = function()
       require("bufferline").setup({
+        highlights = require("catppuccin.groups.integrations.bufferline").get(),
         options = {
           themable = false,
           indicator = {
@@ -1750,12 +1808,17 @@ require("lazy").setup({
       vim.keymap.set("n", "<leader>7", "<Cmd>BufferLineGoToBuffer 7<CR>", { desc = "Go to Buffer 7" })
       vim.keymap.set("n", "<leader>8", "<Cmd>BufferLineGoToBuffer 8<CR>", { desc = "Go to Buffer 8" })
       vim.keymap.set("n", "<leader>9", "<Cmd>BufferLineGoToBuffer 9<CR>", { desc = "Go to Buffer 9" })
-      vim.keymap.set("n", "<leader>$", "<Cmd>BufferLineGoToBuffer -1<CR>", { desc = "Go to last Buffer" })
+      vim.keymap.set(
+        "n",
+        "<leader>$",
+        "<Cmd>BufferLineGoToBuffer -1<CR>",
+        { desc = "Go to last Buffer (<leader>number -> switch to buffer)" }
+      )
     end,
   },
   {
     "Hoffs/omnisharp-extended-lsp.nvim",
-    event = "VeryLazy",
+    event = "UIEnter",
     config = function()
       vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
         pattern = { "*.cs" },
@@ -1778,12 +1841,12 @@ require("lazy").setup({
   },
   {
     "numToStr/Comment.nvim",
-    event = "VeryLazy",
+    event = "BufEnter",
     opts = {},
   },
   { -- Autoformat
     "stevearc/conform.nvim",
-    event = "VeryLazy",
+    event = "BufEnter",
     keys = {
       {
         "<leader>F",
@@ -1835,65 +1898,6 @@ require("lazy").setup({
 require("luasnip.loaders.from_vscode").lazy_load()
 
 require("nvim-dap-virtual-text").setup()
-
-require("mason-tool-installer").setup({
-
-  -- a list of all tools you want to ensure are installed upon
-  -- start
-  ensure_installed = {
-
-    -- you can pin a tool to a particular version
-    -- { 'golangci-lint', version = 'v1.47.0' },
-
-    -- you can turn off/on auto_update per tool
-    -- { 'bash-language-server', auto_update = true },
-    "debugpy",
-    "python-lsp-server",
-    "lua-language-server",
-    "lua_ls",
-    "csharpier",
-    "omnisharp",
-    "netcoredbg",
-    "clangd",
-    "selene",
-    "typescript-language-server",
-    "bash-language-server",
-    "lua-language-server",
-    "vim-language-server",
-    "stylua",
-    "isort",
-    "black",
-    "prettierd",
-    "prettier",
-    "shfmt",
-  },
-
-  -- if set to true this will check each tool for updates. If updates
-  -- are available the tool will be updated. This setting does not
-  -- affect :MasonToolsUpdate or :MasonToolsInstall.
-  -- Default: false
-  auto_update = true,
-
-  -- automatically install / update on startup. If set to false nothing
-  -- will happen on startup. You can use :MasonToolsInstall or
-  -- :MasonToolsUpdate to install tools and check for updates.
-  -- Default: true
-  run_on_start = true,
-
-  -- set a delay (in ms) before the installation starts. This is only
-  -- effective if run_on_start is set to true.
-  -- e.g.: 5000 = 5 second delay, 10000 = 10 second delay, etc...
-  -- Default: 0
-  start_delay = 3000, -- 3 second delay
-
-  -- Only attempt to install if 'debounce_hours' number of hours has
-  -- elapsed since the last time Neovim was started. This stores a
-  -- timestamp in a file named stdpath('data')/mason-tool-installer-debounce.
-  -- This is only relevant when you are using 'run_on_start'. It has no
-  -- effect when running manually via ':MasonToolsInstall' etc....
-  -- Default: nil
-  debounce_hours = 5, -- at least 5 hours between attempts to install/update
-})
 
 vim.keymap.set("n", "<leader>l", function()
   vim.o.relativenumber = not vim.o.relativenumber
@@ -2040,9 +2044,6 @@ vim.keymap.set("n", "<c-n>", "<cmd>bn<cr>", { desc = "Next Buffer" })
 
 vim.keymap.set("n", "<leader>Q", "<cmd>BufDel<CR>", { desc = "Close Buffer (smart)" })
 vim.keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Close Buffer (:q)" })
-
-vim.keymap.set("n", "<leader>tt", "<cmd>tabnew<CR>", { desc = "Open new tab" })
-vim.keymap.set("n", "<leader>tq", "<cmd>tabclose<CR>", { desc = "Close tab" })
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
@@ -2293,6 +2294,10 @@ vim.defer_fn(function()
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = true,
 
+    matchup = {
+      enable = true, -- mandatory, false will disable the whole extension
+    },
+
     highlight = { enable = true },
     indent = { enable = true },
     incremental_selection = {
@@ -2322,19 +2327,19 @@ vim.defer_fn(function()
         enable = true,
         set_jumps = true, -- whether to set jumps in the jumplist
         goto_next_start = {
-          ["]["] = "@function.outer",
+          ["]f"] = "@function.outer",
           ["]{"] = "@class.outer",
         },
         goto_next_end = {
-          ["]]"] = "@function.outer",
+          ["]F"] = "@function.outer",
           ["]}"] = "@class.outer",
         },
         goto_previous_start = {
-          ["[["] = "@function.outer",
+          ["[f"] = "@function.outer",
           ["[{"] = "@class.outer",
         },
         goto_previous_end = {
-          ["[]"] = "@function.outer",
+          ["[F"] = "@function.outer",
           ["[}"] = "@class.outer",
         },
       },
@@ -2431,7 +2436,7 @@ require("which-key").add({
   { "<leader>gd_", hidden = true },
   { "<leader>h", group = "[H]unk Git" },
   { "<leader>h_", hidden = true },
-  { "<leader>t", group = "[T]ab" },
+  { "<leader>t", group = "[T]rouble" },
   { "<leader>t_", hidden = true },
   { "<leader>w", group = "[W]orkspace" },
   { "<leader>w_", hidden = true },
