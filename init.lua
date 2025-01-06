@@ -341,7 +341,7 @@ require("lazy").setup({
   -- See `:help cmp`
   {
     "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
+    event = "UIEnter",
     dependencies = {
       "hrsh7th/cmp-nvim-lsp-signature-help",
       "hrsh7th/cmp-nvim-lsp",
@@ -460,7 +460,7 @@ require("lazy").setup({
           ["<C-k>"] = cmp_prev,
         },
         sources = {
-          { name = "nvim_lsp_signature_help", group_index = 1, max_item_count = 5 },
+          { name = "nvim_lsp_signature_help", group_index = 1 },
           { name = "luasnip", group_index = 1, max_item_count = 5 },
           { name = "nvim_lsp", group_index = 1, max_item_count = 20 },
           { name = "nvim_lua", group_index = 1 },
@@ -1511,12 +1511,10 @@ require("lazy").setup({
           "debugpy",
           "python-lsp-server",
           "lua-language-server",
-          "lua_ls",
           "csharpier",
           "omnisharp",
           "netcoredbg",
           "clangd",
-          "selene",
           "typescript-language-server",
           "bash-language-server",
           "lua-language-server",
@@ -1860,7 +1858,7 @@ require("lazy").setup({
     },
     opts = {
       notify_on_error = false,
-
+      stop_after_first = true,
       format_on_save = nil,
       -- format_on_save = function(bufnr)
       --   -- Disable "format_on_save lsp_fallback" for languages that don't
@@ -1882,13 +1880,13 @@ require("lazy").setup({
 
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
-        javascript = { { "prettierd", "prettier" } },
-        javascriptreact = { { "prettierd", "prettier" } },
-        typescriptreact = { { "prettierd", "prettier" } },
-        typescript = { { "prettierd", "prettier" } },
-        graphql = { { "prettierd", "prettier" } },
-        json = { { "prettierd", "prettier" } },
-        css = { { "prettierd", "prettier" } },
+        javascript = { "prettierd", "prettier" },
+        javascriptreact = { "prettierd", "prettier" },
+        typescriptreact = { "prettierd", "prettier" },
+        typescript = { "prettierd", "prettier" },
+        graphql = { "prettierd", "prettier" },
+        json = { "prettierd", "prettier" },
+        css = { "prettierd", "prettier" },
         sh = { "shfmt" },
       },
     },
