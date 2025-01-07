@@ -100,7 +100,10 @@ vim.opt.undofile = true
 
 vim.opt.incsearch = true
 vim.opt.hlsearch = true
+
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+vim.keymap.set({ "n", "x", "o" }, "H", "^")
+vim.keymap.set({ "n", "x", "o" }, "L", "$")
 
 vim.opt.scrolloff = 2
 vim.opt.sidescrolloff = 5
