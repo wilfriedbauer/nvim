@@ -1471,7 +1471,7 @@ require("lazy").setup({
 
       require("auto-session").setup({
         log_level = "error",
-        auto_restore_last_session = true,
+        auto_restore = true,
         post_restore_cmds = {
           change_nvim_tree_dir,
           -- "ProjectRoot",
