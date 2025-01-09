@@ -16,10 +16,14 @@ vim.wo.number = true
 
 -- Windows-specific configurations
 if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then
-  vim.o.shell = "pwsh.exe"
-
-  -- Set FC as windows diff equivalent
-  vim.g.undotree_DiffCommand = "FC"
+  vim.o.shell = vim.fn.executable("pwsh") == 1 and "pwsh" or "powershell"
+  vim.o.shellxquote = ""
+  vim.o.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command "
+  vim.o.shellquote = ""
+  vim.o.shellpipe = "| Out-File -Encoding UTF8 %s"
+  vim.o.shellredir = "| Out-File -Encoding UTF8 %s"
+  -- Set FC as windows diff equivalent to fix undotree, if its broken.
+  -- vim.g.undotree_DiffCommand = "FC"
 end
 
 -- Unix-specific configurations
@@ -376,7 +380,7 @@ require("lazy").setup({
       local lsp_kind = require("lspkind")
       local cmp_next = function(fallback)
         if cmp.visible() then
-          cmp.select_next_item()
+          cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
         elseif require("luasnip").expand_or_jumpable() then
           vim.fn.feedkeys(
             vim.api.nvim_replace_termcodes("<Plug>luasnip-expand-or-jump", true, true, true),
@@ -388,7 +392,7 @@ require("lazy").setup({
       end
       local cmp_prev = function(fallback)
         if cmp.visible() then
-          cmp.select_prev_item()
+          cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
         elseif require("luasnip").jumpable(-1) then
           vim.fn.feedkeys(vim.api.nvim_replace_termcodes("<Plug>luasnip-jump-prev", true, true, true), "")
         else
@@ -464,15 +468,15 @@ require("lazy").setup({
         },
         sources = {
           { name = "nvim_lsp_signature_help", group_index = 1 },
-          { name = "luasnip", group_index = 1, max_item_count = 5 },
-          { name = "nvim_lsp", group_index = 1, max_item_count = 20 },
-          { name = "nvim_lua", group_index = 1 },
-          { name = "path", group_index = 1 },
-          { name = "buffer", group_index = 1, max_item_count = 5, keyword_length = 2 },
-          { name = "calc", group_index = 1, max_item_count = 5 },
-          { name = "emoji", group_index = 1, max_item_count = 5 },
-          { name = "nerdfont", group_index = 1, max_item_count = 5 },
-          { name = "greek", group_index = 1, max_item_count = 5 },
+          { name = "luasnip", group_index = 3 },
+          { name = "nvim_lsp", group_index = 1 },
+          { name = "nvim_lua", group_index = 2 },
+          { name = "path", group_index = 2 },
+          { name = "buffer", group_index = 2, keyword_length = 2 },
+          { name = "calc", group_index = 2, max_item_count = 5 },
+          { name = "emoji", group_index = 2, max_item_count = 5 },
+          { name = "nerdfont", group_index = 2, max_item_count = 5 },
+          { name = "greek", group_index = 2, max_item_count = 5 },
         },
       })
       -- `/` cmdline setup.
@@ -1107,8 +1111,8 @@ require("lazy").setup({
           group_empty = true,
         },
         diagnostics = {
-          enable = false,
-          show_on_dirs = false,
+          enable = true,
+          show_on_dirs = true,
           show_on_open_dirs = true,
           debounce_delay = 50,
           severity = {
