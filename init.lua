@@ -806,9 +806,65 @@ require("lazy").setup({
       -- Installs the debug adapters for you
       "williamboman/mason.nvim",
       "jay-babu/mason-nvim-dap.nvim",
-      "theHamsta/nvim-dap-virtual-text",
+      {
+        "theHamsta/nvim-dap-virtual-text",
+        config = function()
+          require("nvim-dap-virtual-text").setup()
+        end,
+      },
 
       -- Add your own debuggers here
+    },
+    keys = {
+      {
+        "<leader>BC",
+        function()
+          require("dap").continue()
+        end,
+        desc = "Debug: Start/Continue",
+      },
+      {
+        "<leader>BI",
+        function()
+          require("dap").step_into()
+        end,
+        desc = "Debug: Step Into",
+      },
+      {
+        "<leader>BO",
+        function()
+          require("dap").step_over()
+        end,
+        desc = "Debug: Step Over",
+      },
+      {
+        "<leader>BU",
+        function()
+          require("dap").step_out()
+        end,
+        desc = "Debug: Step Out",
+      },
+      {
+        "<leader>BP",
+        function()
+          require("dap").toggle_breakpoint()
+        end,
+        desc = "Code Debug: Toggle Breakpoint",
+      },
+      {
+        "<leader>Bp",
+        function()
+          require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: "))
+        end,
+        desc = "Code Debug: Set conditional Breakpoint",
+      },
+      {
+        "<leader>BB",
+        function()
+          require("dapui").toggle()
+        end,
+        desc = "Debug: See last session result.",
+      },
     },
     config = function()
       vim.api.nvim_create_autocmd("ColorScheme", {
@@ -899,15 +955,15 @@ require("lazy").setup({
         },
       }
 
-      -- Basic debugging keymaps, feel free to change to your liking!
-      vim.keymap.set("n", "<leader>BC", dap.continue, { desc = "[B]ug: Start/[C]ontinue" })
-      vim.keymap.set("n", "<leader>BI", dap.step_into, { desc = "[B]ug: Step [I]nto" })
-      vim.keymap.set("n", "<leader>BO", dap.step_over, { desc = "[B]ug: Step [O]ver" })
-      vim.keymap.set("n", "<leader>BU", dap.step_out, { desc = "[B]ug: Step O[u]t" })
-      vim.keymap.set("n", "<leader>BP", dap.toggle_breakpoint, { desc = "[B]ug: Toggle Break[P]oint" })
-      vim.keymap.set("n", "<leader>Bp", function()
-        dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
-      end, { desc = "[B]ug: Set conditional Break[p]oint" })
+      -- -- Basic debugging keymaps, feel free to change to your liking!
+      -- vim.keymap.set("n", "<leader>BC", dap.continue, { desc = "[B]ug: Start/[C]ontinue" })
+      -- vim.keymap.set("n", "<leader>BI", dap.step_into, { desc = "[B]ug: Step [I]nto" })
+      -- vim.keymap.set("n", "<leader>BO", dap.step_over, { desc = "[B]ug: Step [O]ver" })
+      -- vim.keymap.set("n", "<leader>BU", dap.step_out, { desc = "[B]ug: Step O[u]t" })
+      -- vim.keymap.set("n", "<leader>BP", dap.toggle_breakpoint, { desc = "[B]ug: Toggle Break[P]oint" })
+      -- vim.keymap.set("n", "<leader>Bp", function()
+      --   dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
+      -- end, { desc = "[B]ug: Set conditional Break[p]oint" })
 
       -- Dap UI setup
       -- For more information, see |:help nvim-dap-ui|
@@ -932,7 +988,7 @@ require("lazy").setup({
       })
 
       -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-      vim.keymap.set("n", "<leader>BB", dapui.toggle, { desc = "De[b]ug: Toggle UI" })
+      -- vim.keymap.set("n", "<leader>BB", dapui.toggle, { desc = "De[b]ug: Toggle UI" })
 
       dap.listeners.after.event_initialized["dapui_config"] = dapui.open
       dap.listeners.before.event_terminated["dapui_config"] = dapui.close
@@ -1094,6 +1150,8 @@ require("lazy").setup({
       },
     },
     config = function()
+      -- vim.g.loaded_netrw = 1
+      -- vim.g.loaded_netrwPlugin = 1
       require("nvim-tree").setup({
         sort = {
           sorter = "case_sensitive",
@@ -1901,8 +1959,6 @@ require("lazy").setup({
 }, {})
 
 require("luasnip.loaders.from_vscode").lazy_load()
-
-require("nvim-dap-virtual-text").setup()
 
 vim.keymap.set("n", "<leader>l", function()
   vim.o.relativenumber = not vim.o.relativenumber
