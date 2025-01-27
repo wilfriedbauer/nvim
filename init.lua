@@ -1,71 +1,28 @@
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-
-vim.g.loaded_node_provider = 0
-
--- [[ Setting options ]]
--- See `:help vim.o`
--- NOTE: You can change these options as you wish!
+vim.g.loaded_node_provider = 0 -- :checkhealth hangs without this sometimes.
 vim.opt.guicursor = ""
-
--- Make line numbers default
 vim.wo.number = true
-
--- Windows-specific configurations
-if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then
+if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then -- Windows-specific configurations.  vim.fn.has("unix") vim.fn.has("mac")
   vim.o.shell = vim.fn.executable("pwsh") == 1 and "pwsh" or "powershell"
   vim.o.shellxquote = ""
   vim.o.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command "
   vim.o.shellquote = ""
   vim.o.shellpipe = "| Out-File -Encoding UTF8 %s"
   vim.o.shellredir = "| Out-File -Encoding UTF8 %s"
-  -- Set FC as windows diff equivalent to fix undotree, if its broken.
-  -- vim.g.undotree_DiffCommand = "FC"
+  -- vim.g.undotree_DiffCommand = "FC" -- Set FC as windows diff equivalent to fix undotree, if its broken.
 end
-
--- Unix-specific configurations
--- if vim.fn.has("unix") then
--- end
-
--- macOS-specific configurations
--- if vim.fn.has("mac") then
--- end
-
--- Enable mouse mode
 vim.o.mouse = "a"
-
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
 vim.o.clipboard = "unnamedplus"
-
--- Case-insensitive searching UNLESS \C or capital in search
 vim.o.ignorecase = true
 vim.o.smartcase = true
-
--- Keep signcolumn on by default
 vim.wo.signcolumn = "yes"
-
--- Decrease update time
 vim.o.updatetime = 50
 vim.o.timeoutlen = 500
-
--- Set completeopt to have a better completion experience
 vim.o.completeopt = "menuone,noselect"
-
--- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
-
--- enable relative line numbers next to absolute line numbers.
--- vim.opt.relativenumber = true
--- vim.o.statuscolumn = "%s %l %=%r "
-
--- -- Sets how neovim will display certain whitespace characters in the editor.
---  See `:help 'list'`
---  and `:help 'listchars'`
+-- vim.opt.relativenumber = true  -- enable relative line numbers next to absolute line numbers.
+-- vim.o.statuscolumn = "%s %l %=%r "  -- enable relative line numbers next to absolute line numbers.
 vim.opt.list = true
 vim.opt.listchars = {
   tab = "» ",
@@ -73,49 +30,36 @@ vim.opt.listchars = {
   nbsp = "␣",
   -- eol = '↵',
 }
-
--- Show which line your cursor is on
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "number"
 vim.opt.cursorcolumn = false
-
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
-
 vim.opt.inccommand = "split"
 vim.opt.splitbelow = true
 vim.opt.splitright = true
-
 vim.opt.textwidth = 0
 vim.opt.wrapmargin = 0
 vim.opt.breakindent = true
 vim.opt.showbreak = string.rep(" ", 2) .. "↪  " -- Make it so that long lines wrap smartly
 vim.opt.linebreak = true
 vim.opt.wrap = true
-
 vim.opt.smartindent = true
 vim.opt.jumpoptions = "stack,view"
-
 vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.undofile = true
-
 vim.opt.incsearch = true
 vim.opt.hlsearch = true
-
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.keymap.set({ "n", "x", "o" }, "H", "^")
 vim.keymap.set({ "n", "x", "o" }, "L", "$")
-
 vim.opt.scrolloff = 2
 vim.opt.sidescrolloff = 5
-
 vim.opt.colorcolumn = ""
-
--- auto-session.nvim
-vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,winpos,terminal"
+vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,winpos,terminal"  -- auto-session.nvim
 
 -- change diagnostic signs and display the most severe one in the sign gutter on the left.
 vim.diagnostic.config({
@@ -194,34 +138,20 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.keymap.set("n", "q", vim.cmd.close, { desc = "Close the current buffer", buffer = true })
   end,
 })
-
--- [[ Basic Keymaps ]]
--- Keymaps for better default experience
--- See `:help vim.keymap.set()`
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
-
--- move visual selection up or down a line with <s-j> and <s-k>
-vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
-vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
-
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv") -- move visual selection up a line with <s-j>
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- move visual selection down a line with <s-k>
 -- INFO:
 -- Instead of pressing ^ you can press _(underscore) to jump to the first non-whitespace character on the same line the cursor is on.
 -- + and - jump to the first non-whitespace character on the next / previous line.
 -- (These commands only work in normal mode, not in insert mode.)
 --
 -- In visual mode press 'o' to switch the side of the selection the cursor is on.
+vim.keymap.set("v", "p", '"_dP') -- paste without overwriting paste register while in visual mode
+vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true }) -- Remap for dealing with word wrap
+vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true }) -- Remap for dealing with word wrap
 
--- paste without overwriting paste register while in visual mode
-vim.keymap.set("v", "p", '"_dP')
-
--- Remap for dealing with word wrap
-vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-
--- [[ Install `lazy.nvim` plugin manager ]]
--- https://github.com/folke/lazy.nvim
--- `:help lazy.nvim.txt` for more info
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"  -- Install `lazy.nvim` plugin manager https://github.com/folke/lazy.nvim `:help lazy.nvim.txt` for more info
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
     "git",
@@ -233,18 +163,8 @@ if not vim.loop.fs_stat(lazypath) then
   })
 end
 vim.opt.rtp:prepend(lazypath)
-
--- [[ Configure plugins ]]
--- NOTE: Here is where you install your plugins.
--- You can configure plugins using the `config` key.
---
--- You can also configure plugins after the setup call,
--- as they will be available in your neovim runtime.
 require("lazy").setup({
-  -- NOTE: First, some plugins that don't require any configuration
-
-  -- Git related plugins
-  {
+  {  -- Git related plugins
     "tpope/vim-fugitive",
     event = "BufEnter",
     config = function()
@@ -285,15 +205,10 @@ require("lazy").setup({
       },
     },
   },
-
-  -- Detect tabstop and shiftwidth automatically
-  {
+  { -- Detect tabstop and shiftwidth automatically
     "tpope/vim-sleuth",
     event = "BufEnter",
   },
-
-  -- NOTE: This is where your plugins related to LSP can be installed.
-  --  The configuration is done below. Search for lspconfig to find it below.
   {
     -- LSP Configuration & Plugins
     "neovim/nvim-lspconfig",
@@ -343,9 +258,6 @@ require("lazy").setup({
       "folke/neodev.nvim",
     },
   },
-
-  -- [[ Configure nvim-cmp ]]
-  -- See `:help cmp`
   {
     "hrsh7th/nvim-cmp",
     event = "UIEnter",
@@ -507,7 +419,6 @@ require("lazy").setup({
       cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
     end,
   },
-  -- Useful plugin to show you pending keybinds.
   {
     "folke/which-key.nvim",
     event = "UIEnter",
@@ -531,11 +442,9 @@ require("lazy").setup({
     },
   },
   {
-    -- Adds git related signs to the gutter, as well as utilities for managing changes
     "lewis6991/gitsigns.nvim",
     event = "BufEnter",
     opts = {
-      -- See `:help gitsigns.txt`
       signs = {
         add = { text = "+" },
         change = { text = "~" },
@@ -633,10 +542,8 @@ require("lazy").setup({
       vim.cmd([[colorscheme catppuccin-mocha]])
     end,
   },
-  {
-    -- Set lualine as statusline
-    "nvim-lualine/lualine.nvim",
-    -- See `:help lualine.txt`
+  { -- Set lualine as statusline
+    "nvim-lualine/lualine.nvim",-- See `:help lualine.txt`
     lazy = false,
     dependencies = {
       "nvim-tree/nvim-web-devicons",
@@ -688,16 +595,12 @@ require("lazy").setup({
     },
   },
   {
-    -- Add indentation guides even on blank lines
-    "lukas-reineke/indent-blankline.nvim",
+    "lukas-reineke/indent-blankline.nvim",-- Add indentation guides even on blank lines
     lazy = false,
-    -- Enable `lukas-reineke/indent-blankline.nvim`
-    -- See `:help ibl`
     main = "ibl",
     opts = {},
   },
-  -- Fuzzy Finder (files, lsp, etc)
-  {
+  { -- Fuzzy Finder (files, lsp, etc)
     "nvim-telescope/telescope.nvim",
     event = "UIEnter",
     dependencies = {
@@ -714,8 +617,6 @@ require("lazy").setup({
     build = ":TSUpdate",
   },
   {
-    -- Use your language server to automatically format your code on save.
-    -- Adds additional commands as well to manage the behavior
     "neovim/nvim-lspconfig",
     event = "BufEnter",
     config = function()
@@ -798,12 +699,8 @@ require("lazy").setup({
   },
   {
     "mfussenegger/nvim-dap",
-    -- NOTE: And you can specify dependencies as well
     dependencies = {
-      -- Creates a beautiful debugger UI
       "rcarriga/nvim-dap-ui",
-
-      -- Installs the debug adapters for you
       "williamboman/mason.nvim",
       "jay-babu/mason-nvim-dap.nvim",
       {
@@ -812,8 +709,6 @@ require("lazy").setup({
           require("nvim-dap-virtual-text").setup()
         end,
       },
-
-      -- Add your own debuggers here
     },
     keys = {
       {
@@ -916,20 +811,10 @@ require("lazy").setup({
 
       require("mason").setup()
       require("mason-nvim-dap").setup({
-        -- Makes a best effort to setup the various debuggers with
-        -- reasonable debug configurations
         automatic_setup = true,
-
-        -- You can provide additional configuration to the handlers,
-        -- see mason-nvim-dap README for more information
         handlers = {},
-
-        -- You'll need to check that you have the required things installed
-        -- online, please don't ask me how to install them :)
         ensure_installed = {
           "netcoredbg",
-          -- Update this to ensure that you have the debuggers for the langs you want
-          --'delve',
         },
       })
       dap.adapters.coreclr = {
@@ -954,8 +839,6 @@ require("lazy").setup({
           end,
         },
       }
-
-      -- -- Basic debugging keymaps, feel free to change to your liking!
       -- vim.keymap.set("n", "<leader>BC", dap.continue, { desc = "[B]ug: Start/[C]ontinue" })
       -- vim.keymap.set("n", "<leader>BI", dap.step_into, { desc = "[B]ug: Step [I]nto" })
       -- vim.keymap.set("n", "<leader>BO", dap.step_over, { desc = "[B]ug: Step [O]ver" })
@@ -969,8 +852,6 @@ require("lazy").setup({
       -- For more information, see |:help nvim-dap-ui|
       dapui.setup({
         -- Set icons to characters that are more likely to work in every terminal.
-        --    Feel free to remove or use ones that you like more! :)
-        --    Don't feel like these are good choices.
         icons = { expanded = "▾", collapsed = "▸", current_frame = "*" },
         controls = {
           icons = {
@@ -1003,9 +884,6 @@ require("lazy").setup({
     "folke/trouble.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-      -- refer to the configuration section below
     },
     keys = {
       {
@@ -1052,7 +930,6 @@ require("lazy").setup({
     event = "BufEnter",
     config = function()
       require("nvim-surround").setup({
-        -- Configuration here, or leave empty to use defaults
         keymaps = {
           insert = "<c-g>s",
           insert_line = "<c-g>S",
@@ -1088,7 +965,6 @@ require("lazy").setup({
     event = "UIEnter",
     config = function()
       local colors = require("catppuccin.palettes").get_palette("mocha")
-
       require("scrollbar").setup({
         handle = {
           color = colors.surface2,
@@ -1104,17 +980,7 @@ require("lazy").setup({
       })
     end,
   },
-  {
-    "mbbill/undotree",
-    keys = {
-      {
-        "<leader>u",
-        vim.cmd.UndotreeToggle,
-        mode = "",
-        desc = "[U]ndotree Toggle",
-      },
-    },
-  },
+  { "mbbill/undotree", keys = { { "<leader>u", vim.cmd.UndotreeToggle, mode = "", desc = "[U]ndotree Toggle" } } },
   {
     "L3MON4D3/LuaSnip",
     event = "InsertEnter",
@@ -1124,27 +990,15 @@ require("lazy").setup({
     build = "make install_jsregexp",
     dependencies = { "rafamadriz/friendly-snippets" },
   },
-  {
-    "benfowler/telescope-luasnip.nvim",
-    event = "BufEnter",
-  },
+  { "benfowler/telescope-luasnip.nvim", event = "BufEnter" },
   {
     "nvim-tree/nvim-tree.lua",
-    keys = {
-      {
-        "<leader>n",
-        ":NvimTreeToggle<cr>",
-        mode = "",
-        desc = "[N] Filetree Toggle",
-      },
-    },
+    keys = { { "<leader>n", ":NvimTreeToggle<cr>", mode = "", desc = "[N] Filetree Toggle" } },
     config = function()
       local function my_on_attach(bufnr)
         local api = require("nvim-tree.api")
-
         local function edit_or_open()
           local node = api.tree.get_node_under_cursor()
-
           if node.nodes ~= nil then
             -- expand or collapse folder
             api.node.open.edit()
@@ -1155,11 +1009,9 @@ require("lazy").setup({
             api.tree.close()
           end
         end
-
         -- open as vsplit on current node
         local function vsplit_preview()
           local node = api.tree.get_node_under_cursor()
-
           if node.nodes ~= nil then
             -- expand or collapse folder
             api.node.open.edit()
@@ -1167,25 +1019,20 @@ require("lazy").setup({
             -- open file as vsplit
             api.node.open.vertical()
           end
-
           -- Finally refocus on tree if it was lost
           api.tree.focus()
         end
-
         local function opts(desc)
           return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
         end
-
         -- default mappings
         api.config.mappings.default_on_attach(bufnr)
-
         -- on_attach
         vim.keymap.set("n", "l", edit_or_open, opts("Edit Or Open"))
         vim.keymap.set("n", "L", vsplit_preview, opts("Vsplit Preview"))
         vim.keymap.set("n", "h", api.tree.close, opts("Close"))
         vim.keymap.set("n", "H", api.tree.collapse_all, opts("Collapse All"))
       end
-
       -- vim.g.loaded_netrw = 1
       -- vim.g.loaded_netrwPlugin = 1
       require("nvim-tree").setup({
@@ -1234,20 +1081,13 @@ require("lazy").setup({
       })
     end,
   },
-  {
-    "nvim-treesitter/nvim-treesitter-context",
-    event = "BufEnter",
-    config = function()
-      vim.cmd("TSContextDisable")
-    end,
-  },
+  { "nvim-treesitter/nvim-treesitter-context", event = "BufEnter", config = function() vim.cmd("TSContextDisable") end },
   {
     "windwp/nvim-ts-autotag",
     event = "BufEnter",
     config = function()
       require("nvim-ts-autotag").setup({
         opts = {
-          -- Defaults
           enable_close = true, -- Auto close tags
           enable_rename = true, -- Auto rename pairs of tags
           enable_close_on_slash = true, -- Auto close on trailing </
@@ -1264,7 +1104,6 @@ require("lazy").setup({
     },
     config = function()
       require("tiny-code-action").setup()
-
       vim.keymap.set("n", "<leader>c", function()
         require("tiny-code-action").code_action()
       end, { desc = "LSP: Code Action (Preview)", noremap = true, silent = true })
@@ -1449,54 +1288,14 @@ require("lazy").setup({
       "Issafalcon/neotest-dotnet",
     },
     keys = {
-      {
-        "<leader>TS",
-        "<cmd>Neotest summary toggle<CR>",
-        mode = "",
-        desc = "[T]est: [S]ummary toggle",
-      },
-      {
-        "<leader>Tt",
-        "<cmd>Neotest output toggle<CR>",
-        mode = "",
-        desc = "[T]est: Output line toggle",
-      },
-      {
-        "<leader>TT",
-        "<cmd>Neotest output-panel toggle<CR>",
-        mode = "",
-        desc = "[T]est: Output panel toggle",
-      },
-      {
-        "<leader>TN",
-        '<cmd>lua require("neotest").run.run()<CR>',
-        mode = "",
-        desc = "[T]est: Run [N]earest Test",
-      },
-      {
-        "<leader>TF",
-        '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>',
-        mode = "",
-        desc = "[T]est: Run [F]ile",
-      },
-      {
-        "<leader>TA",
-        '<cmd>lua require("neotest").run.attach()<CR>',
-        mode = "",
-        desc = "[T]est: [A]ttach to nearest [T]est",
-      },
-      {
-        "<leader>TB",
-        '<cmd>lua require("neotest").run.run({strategy = "dap"})<CR>',
-        mode = "",
-        desc = "[T]est: De[b]ug nearest Test",
-      },
-      {
-        "<leader>Ts",
-        '<cmd>lua require("neotest").run.stop()<CR>',
-        mode = "",
-        desc = "[T]est: [S]top",
-      },
+      { "<leader>TS", "<cmd>Neotest summary toggle<CR>", mode = "", desc = "[T]est: [S]ummary toggle" },
+      { "<leader>Tt", "<cmd>Neotest output toggle<CR>", mode = "", desc = "[T]est: Output line toggle" },
+      { "<leader>TT", "<cmd>Neotest output-panel toggle<CR>", mode = "", desc = "[T]est: Output panel toggle" },
+      { "<leader>TN", '<cmd>lua require("neotest").run.run()<CR>', mode = "", desc = "[T]est: Run [N]earest Test" },
+      { "<leader>TF", '<cmd>lua require("neotest").run.run(vim.fn.expand("%"))<CR>', mode = "", desc = "[T]est: Run [F]ile" },
+      { "<leader>TA", '<cmd>lua require("neotest").run.attach()<CR>', mode = "", desc = "[T]est: [A]ttach to nearest [T]est" },
+      { "<leader>TB", '<cmd>lua require("neotest").run.run({strategy = "dap"})<CR>', mode = "", desc = "[T]est: De[b]ug nearest Test" },
+      { "<leader>Ts", '<cmd>lua require("neotest").run.stop()<CR>', mode = "", desc = "[T]est: [S]top" },
     },
     config = function()
       require("neotest").setup({
@@ -1538,27 +1337,8 @@ require("lazy").setup({
       vim.fn["mkdp#util#install"]()
     end,
   },
-  {
-    "cshuaimin/ssr.nvim",
-    event = "BufEnter",
-    config = function()
-      vim.keymap.set({ "n", "x" }, "<leader>s", function()
-        require("ssr").open()
-      end, { desc = "Structural Replace" })
-    end,
-  },
-  {
-    "ahmedkhalf/project.nvim",
-    event = "UIEnter",
-    config = function()
-      require("project_nvim").setup({
-        manual_mode = true,
-        -- your configuration comes here
-        -- or leave it empty to use the default settings
-        -- refer to the configuration section below
-      })
-    end,
-  },
+  { "cshuaimin/ssr.nvim", event = "BufEnter", config = function() vim.keymap.set({ "n", "x" }, "<leader>s", function() require("ssr").open() end, { desc = "Structural Replace" }) end },
+  { "ahmedkhalf/project.nvim", event = "UIEnter", config = function() require("project_nvim").setup({ manual_mode = true }) end },
   {
     "rmagatti/auto-session",
     lazy = false,
@@ -1579,82 +1359,8 @@ require("lazy").setup({
       })
     end,
   },
-  {
-    "ojroques/nvim-bufdel",
-    event = "UIEnter",
-    config = function()
-      require("bufdel").setup({
-        next = "tabs",
-        quit = false, -- quit Neovim when last buffer is closed
-      })
-    end,
-  },
-  {
-    "WhoIsSethDaniel/mason-tool-installer.nvim",
-    config = function()
-      require("mason-tool-installer").setup({
-
-        -- a list of all tools you want to ensure are installed upon
-        -- start
-        ensure_installed = {
-
-          -- you can pin a tool to a particular version
-          -- { 'golangci-lint', version = 'v1.47.0' },
-
-          -- you can turn off/on auto_update per tool
-          -- { 'bash-language-server', auto_update = true },
-          "debugpy",
-          "python-lsp-server",
-          "lua-language-server",
-          "angular-language-server",
-          "csharpier",
-          "omnisharp",
-          "netcoredbg",
-          "clangd",
-          "typescript-language-server",
-          "bash-language-server",
-          "lua-language-server",
-          "vim-language-server",
-          "stylua",
-          "isort",
-          "black",
-          "prettierd",
-          "prettier",
-          "shfmt",
-        },
-
-        -- if set to true this will check each tool for updates. If updates
-        -- are available the tool will be updated. This setting does not
-        -- affect :MasonToolsUpdate or :MasonToolsInstall.
-        -- Default: false
-        auto_update = true,
-
-        -- automatically install / update on startup. If set to false nothing
-        -- will happen on startup. You can use :MasonToolsInstall or
-        -- :MasonToolsUpdate to install tools and check for updates.
-        -- Default: true
-        run_on_start = true,
-
-        -- set a delay (in ms) before the installation starts. This is only
-        -- effective if run_on_start is set to true.
-        -- e.g.: 5000 = 5 second delay, 10000 = 10 second delay, etc...
-        -- Default: 0
-        start_delay = 3000, -- 3 second delay
-
-        -- Only attempt to install if 'debounce_hours' number of hours has
-        -- elapsed since the last time Neovim was started. This stores a
-        -- timestamp in a file named stdpath('data')/mason-tool-installer-debounce.
-        -- This is only relevant when you are using 'run_on_start'. It has no
-        -- effect when running manually via ':MasonToolsInstall' etc....
-        -- Default: nil
-        debounce_hours = 5, -- at least 5 hours between attempts to install/update
-      })
-    end,
-  },
-  {
-    "HiPhish/rainbow-delimiters.nvim",
-    event = "BufEnter",
-  },
+  { "ojroques/nvim-bufdel", event = "UIEnter", config = function() require("bufdel").setup({ next = "tabs", quit = false }) end },
+  { "HiPhish/rainbow-delimiters.nvim", event = "BufEnter" },
   {
     "stevearc/oil.nvim",
     event = "UIEnter",
@@ -1842,16 +1548,7 @@ require("lazy").setup({
       vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "[E]dit Filetree with vim keymaps" })
     end,
   },
-  {
-    "arsham/indent-tools.nvim",
-    event = "UIEnter",
-    dependencies = {
-      "arsham/arshlib.nvim",
-      "MunifTanjim/nui.nvim",
-      "nvim-treesitter/nvim-treesitter-textobjects",
-    },
-    config = true,
-  },
+  { "arsham/indent-tools.nvim", event = "UIEnter", dependencies = { "arsham/arshlib.nvim", "MunifTanjim/nui.nvim", "nvim-treesitter/nvim-treesitter-textobjects" }, config = true },
   {
     "akinsho/bufferline.nvim",
     lazy = false,
@@ -1933,11 +1630,7 @@ require("lazy").setup({
       })
     end,
   },
-  {
-    "numToStr/Comment.nvim",
-    event = "BufEnter",
-    opts = {},
-  },
+  { "numToStr/Comment.nvim", event = "BufEnter", opts = {} },
   { -- Autoformat
     "stevearc/conform.nvim",
     event = "BufEnter",
@@ -2110,7 +1803,6 @@ vim.keymap.set(
   require("auto-session.session-lens").search_session,
   { noremap = true, desc = "Sessions" }
 )
-
 -- create new lines in Normal mode
 vim.keymap.set("n", "<leader>o", "m`o<Esc>^Da<Esc>``", { desc = "Newline Below", silent = true })
 vim.keymap.set("n", "<leader>O", "m`O<Esc>^Da<Esc>``", { desc = "Newline Above", silent = true })
@@ -2690,24 +2382,11 @@ vim.g.rainbow_delimiters = {
   },
 }
 
---[[
-If you don't know anything about Lua, I recommend taking some time to read through
-a guide. One possible example:
-- https://learnxinyminutes.com/docs/lua/
-
-And then you can explore or search through `:help lua-guide`
-- https://neovim.io/doc/user/lua-guide.html
-
-Uninstall and reinstall repo from git https://github.com/wilfriedbauer/nvim:
-# Linux / Macos (unix)
-rm -rf ~/.config/nvim
-rm -rf ~/.local/share/nvim
-
-# Windows
-rd -r ~\AppData\Local\nvim
-rd -r ~\AppData\Local\nvim-data
-
---]]
-
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+-- Uninstall and reinstall repo from git https://github.com/wilfriedbauer/nvim:
+-- # Linux / Macos (unix)
+-- rm -rf ~/.config/nvim
+-- rm -rf ~/.local/share/nvim
+--
+-- # Windows
+-- rd -r ~\AppData\Local\nvim
+-- rd -r ~\AppData\Local\nvim-data
