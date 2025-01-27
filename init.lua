@@ -1077,10 +1077,6 @@ require("lazy").setup({
     end,
   },
   {
-    "RRethy/vim-illuminate",
-    event = "BufEnter",
-  },
-  {
     "brenoprata10/nvim-highlight-colors",
     event = "BufEnter",
     config = function()
@@ -1131,13 +1127,6 @@ require("lazy").setup({
   {
     "benfowler/telescope-luasnip.nvim",
     event = "BufEnter",
-  },
-  {
-    "m-demare/hlargs.nvim",
-    event = "BufEnter",
-    config = function()
-      require("hlargs").setup()
-    end,
   },
   {
     "nvim-tree/nvim-tree.lua",
@@ -1261,7 +1250,7 @@ require("lazy").setup({
           -- Defaults
           enable_close = true, -- Auto close tags
           enable_rename = true, -- Auto rename pairs of tags
-          enable_close_on_slash = false, -- Auto close on trailing </
+          enable_close_on_slash = true, -- Auto close on trailing </
         },
       })
     end,
@@ -1598,13 +1587,6 @@ require("lazy").setup({
         next = "tabs",
         quit = false, -- quit Neovim when last buffer is closed
       })
-    end,
-  },
-  {
-    "pteroctopus/faster.nvim",
-    event = "UIEnter",
-    config = function()
-      require("faster").setup()
     end,
   },
   {
