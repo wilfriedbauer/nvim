@@ -1,6 +1,5 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-vim.g.loaded_node_provider = 0 -- :checkhealth hangs without this sometimes.
 vim.opt.guicursor = ""
 vim.wo.number = true
 if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then -- Windows-specific configurations.  vim.fn.has("unix") vim.fn.has("mac")
@@ -147,6 +146,7 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- move visual selection down a lin
 -- (These commands only work in normal mode, not in insert mode.)
 --
 -- In visual mode press 'o' to switch the side of the selection the cursor is on.
+-- While searching with / or ? press CTRL-g and CTRL-t to go to next/previous occurence without leaving search.
 vim.keymap.set("v", "p", '"_dP') -- paste without overwriting paste register while in visual mode
 vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true }) -- Remap for dealing with word wrap
 vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true }) -- Remap for dealing with word wrap
@@ -1608,7 +1608,7 @@ require("lazy").setup({
     end,
   },
   {
-    "Hoffs/omnisharp-extended-lsp.nvim",
+    "Hoffs/omnisharp-extended-lsp.nvim", -- install .net6 for omnisharp lsp to work!
     event = "UIEnter",
     config = function()
       vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
@@ -1850,7 +1850,7 @@ function JumpToVSCode()
   os.execute(command)
 end
 
--- Jump to Visual Studio at the same file and line
+-- Jump to Visual Studio at the same file (line doesnt work)
 function JumpToVisualStudio()
   local file_path, line_number = get_current_file_info()
   local command = string.format("start devenv /Edit %s", file_path)
@@ -1859,13 +1859,7 @@ end
 
 -- Keymaps
 vim.keymap.set("n", "<leader>x", JumpToVSCode, { noremap = true, silent = true, desc = "Open current file in VSCode" })
-
-vim.keymap.set(
-  "n",
-  "<leader>X",
-  JumpToVisualStudio,
-  { noremap = true, silent = true, desc = "Open current file in Visual Studio" }
-)
+vim.keymap.set("n", "<leader>X", JumpToVisualStudio, { noremap = true, silent = true, desc = "Open current file in Visual Studio" })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
