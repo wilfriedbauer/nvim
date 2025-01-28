@@ -185,24 +185,9 @@ require("lazy").setup({
     "sindrets/diffview.nvim",
     cmd = { "DiffviewOpen", "DiffviewClose" },
     keys = {
-      {
-        "<leader>gdd",
-        ":DiffviewOpen<cr>",
-        mode = "",
-        desc = "[G]it [D]iff View",
-      },
-      {
-        "<leader>gdo",
-        ":DiffviewOpen ",
-        mode = "",
-        desc = "[G]it [D]iff View [O]pen",
-      },
-      {
-        "<leader>gdc",
-        ":DiffviewClose<cr>",
-        mode = "",
-        desc = "[G]it [D]iff View [C]lose",
-      },
+      { "<leader>gd", ":DiffviewOpen<cr>", mode = "", desc = "[G]it [D]iff View" },
+      { "<leader>go", ":DiffviewOpen ", mode = "", desc = "[G]it Diff View [O]pen" },
+      { "<leader>gc", ":DiffviewClose<cr>", mode = "", desc = "[G]it Diff View [C]lose" },
     },
   },
   { -- Detect tabstop and shiftwidth automatically
@@ -422,24 +407,7 @@ require("lazy").setup({
   {
     "folke/which-key.nvim",
     event = "UIEnter",
-    opts = {
-      -- false | "classic" | "modern" | "helix"
-      preset = "modern",
-      --- Mappings are sorted using configured sorters and natural sort of the keys
-      --- Available sorters:
-      --- * local: buffer-local mappings first
-      --- * order: order of the items (Used by plugins like marks / registers)
-      --- * group: groups last
-      --- * alphanum: alpha-numerical first
-      --- * mod: special modifier keys last
-      --- * manual: the order the mappings were added
-      --- * case: lower-case first
-      sort = {
-        "group",
-        "alphanum",
-        "mod",
-      },
-    },
+    opts = { preset = "modern", sort = { "group", "alphanum", "mod" } },
   },
   {
     "lewis6991/gitsigns.nvim",
@@ -711,55 +679,14 @@ require("lazy").setup({
       },
     },
     keys = {
-      {
-        "<leader>BC",
-        function()
-          require("dap").continue()
-        end,
-        desc = "Debug: Start/Continue",
-      },
-      {
-        "<leader>BI",
-        function()
-          require("dap").step_into()
-        end,
-        desc = "Debug: Step Into",
-      },
-      {
-        "<leader>BO",
-        function()
-          require("dap").step_over()
-        end,
-        desc = "Debug: Step Over",
-      },
-      {
-        "<leader>BU",
-        function()
-          require("dap").step_out()
-        end,
-        desc = "Debug: Step Out",
-      },
-      {
-        "<leader>BP",
-        function()
-          require("dap").toggle_breakpoint()
-        end,
-        desc = "Code Debug: Toggle Breakpoint",
-      },
-      {
-        "<leader>Bp",
-        function()
-          require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: "))
-        end,
-        desc = "Code Debug: Set conditional Breakpoint",
-      },
-      {
-        "<leader>BB",
-        function()
-          require("dapui").toggle()
-        end,
-        desc = "Debug: See last session result.",
-      },
+      { "<leader>BC", function() require("dap").continue() end, desc = "Debug: Start/Continue" },
+      { "<leader>BI", function() require("dap").step_into() end, desc = "Debug: Step Into" },
+      { "<leader>BO", function() require("dap").step_over() end, desc = "Debug: Step Over" },
+      { "<leader>BU", function() require("dap").step_out() end, desc = "Debug: Step Out" },
+      { "<leader>BP", function() require("dap").toggle_breakpoint() end, desc = "Code Debug: Toggle Breakpoint" },
+      { "<leader>Bp", function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end,
+        desc = "Code Debug: Set conditional Breakpoint" },
+      { "<leader>BB", function() require("dapui").toggle() end, desc = "Debug: See last session result." },
     },
     config = function()
       vim.api.nvim_create_autocmd("ColorScheme", {
@@ -876,52 +803,18 @@ require("lazy").setup({
       dap.listeners.before.event_exited["dapui_config"] = dapui.close
     end,
   },
-  {
-    "ryanoasis/vim-devicons",
-    event = "UIEnter",
-  },
+  { "ryanoasis/vim-devicons", event = "UIEnter" },
   {
     "folke/trouble.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    opts = {
-    },
+    opts = {},
     keys = {
-      {
-        "<leader>tt",
-        "<cmd>Trouble diagnostics toggle<cr>",
-        mode = "",
-        desc = "[T]rouble [T]oggle",
-      },
-      {
-        "<leader>ts",
-        "<cmd>Trouble symbols toggle focus=false<cr>",
-        mode = "",
-        desc = "[T]rouble [S]ymbols",
-      },
-      {
-        "<leader>td",
-        "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-        mode = "",
-        desc = "[T]rouble [D]ocument Diagnostics",
-      },
-      {
-        "<leader>tq",
-        "<cmd>Trouble qflist toggle<cr>",
-        mode = "",
-        desc = "[T]rouble [Q]uickfix",
-      },
-      {
-        "<leader>tl",
-        "<cmd>Trouble loclist toggle<cr>",
-        mode = "",
-        desc = "[T]rouble [L]ocation List",
-      },
-      {
-        "<leader>tr",
-        "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
-        mode = "",
-        desc = "[T]rouble LSP [R]eferences",
-      },
+      {"<leader>tt", "<cmd>Trouble diagnostics toggle<cr>", mode = "", desc = "[T]rouble [T]oggle"},
+      {"<leader>ts", "<cmd>Trouble symbols toggle focus=false<cr>", mode = "", desc = "[T]rouble [S]ymbols"},
+      {"<leader>td", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", mode = "", desc = "[T]rouble [D]ocument Diagnostics"},
+      {"<leader>tq", "<cmd>Trouble qflist toggle<cr>", mode = "", desc = "[T]rouble [Q]uickfix"},
+      {"<leader>tl", "<cmd>Trouble loclist toggle<cr>", mode = "", desc = "[T]rouble [L]ocation List"},
+      {"<leader>tr", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", mode = "", desc = "[T]rouble LSP [R]eferences"},
     },
   },
   {
@@ -946,20 +839,8 @@ require("lazy").setup({
       })
     end,
   },
-  {
-    "andymass/vim-matchup",
-    lazy = false,
-    config = function()
-      vim.g.loaded_matchit = 1
-    end,
-  },
-  {
-    "brenoprata10/nvim-highlight-colors",
-    event = "BufEnter",
-    config = function()
-      require("nvim-highlight-colors").setup()
-    end,
-  },
+  {"andymass/vim-matchup", lazy = false, config = function() vim.g.loaded_matchit = 1 end},
+  {"brenoprata10/nvim-highlight-colors", event = "BufEnter", config = function() require("nvim-highlight-colors").setup() end},
   {
     "petertriho/nvim-scrollbar",
     event = "UIEnter",
@@ -1143,15 +1024,7 @@ require("lazy").setup({
         end,
       },
     },
-    keys = {
-      {
-        "<leader>gg",
-        function()
-          require("gitgraph").draw({}, { all = true, max_count = 5000 })
-        end,
-        desc = "GitGraph - Draw",
-      },
-    },
+    keys = {{"<leader>gg", function() require("gitgraph").draw({}, {all = true, max_count = 5000}) end, desc = "GitGraph - Draw"}},
   },
   {
     "Bekaboo/dropbar.nvim",
@@ -2210,8 +2083,6 @@ require("which-key").add({
   { "<leader>f_", hidden = true },
   { "<leader>g", group = "[G]it" },
   { "<leader>g_", hidden = true },
-  { "<leader>gd", group = "[G]it [D]iff" },
-  { "<leader>gd_", hidden = true },
   { "<leader>h", group = "[H]unk Git" },
   { "<leader>h_", hidden = true },
   { "<leader>t", group = "[T]rouble" },
