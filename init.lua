@@ -414,11 +414,12 @@ require("lazy").setup({
     event = "BufEnter",
     opts = {
       signs = {
-        add = { text = "+" },
-        change = { text = "~" },
+        add = { text = "│" },
+        change = { text = "│" },
         delete = { text = "_" },
         topdelete = { text = "‾" },
         changedelete = { text = "~" },
+        untracked = { text = "┆" },
       },
       on_attach = function(bufnr)
         local gs = package.loaded.gitsigns
@@ -1061,16 +1062,7 @@ require("lazy").setup({
         segments = {
           {
             sign = {
-              namespace = { "diagnostic/signs" },
-              maxwidth = 1,
-              colwidth = 1,
-              auto = true,
-            },
-            click = "v:lua.ScSa",
-          },
-          {
-            sign = {
-              namespace = { "gitsign" },
+              namespace = { "gitsigns" },
               maxwidth = 1,
               colwidth = 1,
               auto = true,
@@ -1089,6 +1081,15 @@ require("lazy").setup({
               maxwidth = 1,
               colwidth = 1,
               auto = false,
+            },
+            click = "v:lua.ScSa",
+          },
+          {
+            sign = {
+              namespace = { "diagnostic*" },
+              maxwidth = 1,
+              colwidth = 1,
+              auto = true,
             },
             click = "v:lua.ScSa",
           },
