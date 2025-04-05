@@ -1233,7 +1233,6 @@ require("lazy").setup({
       })
     end,
   },
-  { "ojroques/nvim-bufdel", event = "UIEnter", config = function() require("bufdel").setup({ next = "tabs", quit = false }) end },
   { "HiPhish/rainbow-delimiters.nvim", event = "BufEnter" },
   {
     "stevearc/oil.nvim",
@@ -1677,10 +1676,6 @@ vim.keymap.set(
   require("auto-session.session-lens").search_session,
   { noremap = true, desc = "Sessions" }
 )
--- create new lines in Normal mode
-vim.keymap.set("n", "<leader>o", "m`o<Esc>^Da<Esc>``", { desc = "Newline Below", silent = true })
-vim.keymap.set("n", "<leader>O", "m`O<Esc>^Da<Esc>``", { desc = "Newline Above", silent = true })
-
 vim.keymap.set("n", "zh", "zH", { desc = "Scroll right" })
 vim.keymap.set("n", "zl", "zL", { desc = "Scroll left" })
 
@@ -1694,18 +1689,19 @@ vim.keymap.set("n", "<C-j>", "<C-w>j")
 vim.keymap.set("n", "<C-k>", "<C-w>k")
 vim.keymap.set("n", "<C-l>", "<C-w>l")
 
+-- NOTE: Some terminals have coliding keymaps or are not able to send distinct keycodes
+vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
+vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
+vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
+vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+
 vim.keymap.set("n", "<leader>gs", "<cmd>G status<cr>", { desc = "[G]it [S]tatus" })
 vim.keymap.set("n", "<leader>gl", "<cmd>Gclog<cr>", { desc = "[G]it [L]og" })
 
-vim.keymap.set("n", "<c-p>", "<cmd>bp<cr>", { desc = "Previous Buffer" })
-vim.keymap.set("n", "<c-n>", "<cmd>bn<cr>", { desc = "Next Buffer" })
-
-vim.keymap.set("n", "<leader>Q", "<cmd>BufDel<CR>", { desc = "Close Buffer (smart)" })
-vim.keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Close Buffer (:q)" })
+vim.keymap.set("n", "<leader>Q", "<cmd>bd<CR>", { desc = "Close Buffer" })
+vim.keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit (:q)" })
 
 -- Diagnostic keymaps
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
 vim.keymap.set("n", "<leader>k", vim.diagnostic.open_float, { desc = "Show diagnostic Error messages" })
 vim.keymap.set("n", "<leader>K", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
