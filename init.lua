@@ -2199,23 +2199,6 @@ mason_lspconfig.setup_handlers({
   end,
 })
 
--- Customize right click contextual menu.
-vim.api.nvim_create_autocmd("VimEnter", {
-  desc = "Disable right contextual menu warning message",
-  callback = function()
-    -- Disable right click message
-    vim.api.nvim_command([[aunmenu PopUp]])
-    vim.api.nvim_command([[menu PopUp.Definition <cmd>lua vim.lsp.buf.definition()<CR>]])
-    vim.api.nvim_command([[menu PopUp.References <cmd>Telescope lsp_references<CR>]])
-    vim.api.nvim_command([[menu PopUp.Back <C-t>]])
-    vim.api.nvim_command([[menu PopUp.URL gx]])
-    vim.api.nvim_command([[menu PopUp.-2- <NOP>]])
-    vim.api.nvim_command([[menu PopUp.Toggle\ \Breakpoint <cmd>:lua require('dap').toggle_breakpoint()<CR>]])
-    vim.api.nvim_command([[menu PopUp.Start\ \Debugger <cmd>:DapContinue<CR>]])
-    vim.api.nvim_command([[menu PopUp.Run\ \Test <cmd>:Neotest run<CR>]])
-  end,
-})
-
 -- This module contains a number of default definitions
 local rainbow_delimiters = require("rainbow-delimiters")
 
