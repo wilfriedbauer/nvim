@@ -1615,9 +1615,14 @@ vim.keymap.set("n", "<C-_>", function()
   ToggleTerminal()
 end, { desc = "Toggle Terminal", noremap = true })
 
+vim.keymap.set("n", "<C-/>", function()
+  ToggleTerminal()
+end, { desc = "Toggle Terminal", noremap = true })
+
 function _G.set_terminal_keymaps()
   local opts = { buffer = 0 }
   vim.keymap.set("t", "<C-_>", [[<C-\><C-n>]], opts)
+  vim.keymap.set("t", "<C-/>", [[<C-\><C-n>]], opts)
   vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], opts)
   vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], opts)
   vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], opts)
