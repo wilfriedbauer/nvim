@@ -63,63 +63,19 @@ vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,
 -- change diagnostic signs and display the most severe one in the sign gutter on the left.
 vim.diagnostic.config({
   virtual_text = true,
-  signs = true,
+  virtual_lines = { current_line = true },
+  signs = {
+    text = {
+      [vim.diagnostic.severity.HINT]  = "󰌶 ",
+      [vim.diagnostic.severity.ERROR] = "󰅚 ",
+      [vim.diagnostic.severity.INFO]  = " ",
+      [vim.diagnostic.severity.WARN]  = "󰀪 "
+    }
+  },
   underline = true,
   update_in_insert = false,
   severity_sort = true,
 })
-
-local signs = { Error = "󰅚 ", Warn = "󰀪 ", Hint = "󰌶 ", Info = " " }
-for type, icon in pairs(signs) do
-  local hl = "DiagnosticSign" .. type
-  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-end
-
-local filter_diagnostics = function(diagnostics)
-  if not diagnostics then
-    return {}
-  end
-
-  -- find the "worst" diagnostic per line
-  local most_severe = {}
-  for _, cur in pairs(diagnostics) do
-    local max = most_severe[cur.lnum]
-
-    -- higher severity has lower value (`:h diagnostic-severity`)
-    if not max or cur.severity < max.severity then
-      most_severe[cur.lnum] = cur
-    end
-  end
-
-  -- return list of diagnostics
-  return vim.tbl_values(most_severe)
-end
-
----custom namespace
-local ns = vim.api.nvim_create_namespace("severe-diagnostics")
-
----reference to the original handler
-local orig_signs_handler = vim.diagnostic.handlers.signs
-
----Overriden diagnostics signs helper to only show the single most relevant sign
----:h diagnostic-handlers
-vim.diagnostic.handlers.signs = {
-  show = function(_, bufnr, _, opts)
-    -- get all diagnostics from the whole buffer rather
-    -- than just the diagnostics passed to the handler
-    local diagnostics = vim.diagnostic.get(bufnr)
-
-    local filtered_diagnostics = filter_diagnostics(diagnostics)
-
-    -- pass the filtered diagnostics (with the
-    -- custom namespace) to the original handler
-    orig_signs_handler.show(ns, bufnr, filtered_diagnostics, opts)
-  end,
-
-  hide = function(_, bufnr)
-    orig_signs_handler.hide(ns, bufnr)
-  end,
-}
 
 vim.api.nvim_create_autocmd("FileType", {
   pattern = {
@@ -1665,6 +1621,24 @@ vim.api.nvim_set_keymap(
   "n",
   "<leader>dh",
   ":call v:lua.toggle_virtual_text()<CR>",
+  { desc = "[D]iagnostics - Toggle [H]ide Virtual Text", noremap = true, silent = true }
+)
+
+vim.g.virtual_lines_on_current_line_visible = true
+function _G.toggle_virtual_lines_on_current_line_visible()
+  if vim.g.virtual_lines_on_current_line_visible then
+    vim.g.virtual_lines_on_current_line_visible = false
+    vim.diagnostic.config({ virtual_lines = false })
+  else
+    vim.g.virtual_lines_on_current_line_visible = true
+    vim.diagnostic.config({ virtual_lines = { current_line = true } })
+  end
+end
+
+vim.api.nvim_set_keymap(
+  "n",
+  "<leader>dl",
+  ":call v:lua.toggle_virtual_lines_on_current_line_visible()<CR>",
   { desc = "[D]iagnostics - Toggle [H]ide Virtual Text", noremap = true, silent = true }
 )
 
