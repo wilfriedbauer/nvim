@@ -20,7 +20,7 @@ vim.o.updatetime = 50
 vim.o.timeoutlen = 500
 vim.o.completeopt = "menuone,noselect"
 vim.o.termguicolors = true
--- vim.opt.relativenumber = true  -- enable relative line numbers next to absolute line numbers.
+vim.opt.relativenumber = true
 -- vim.o.statuscolumn = "%s %l %=%r "  -- enable relative line numbers next to absolute line numbers.
 vim.opt.list = true
 vim.opt.listchars = {
@@ -63,7 +63,7 @@ vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,
 -- change diagnostic signs and display the most severe one in the sign gutter on the left.
 vim.diagnostic.config({
   virtual_text = true,
-  virtual_lines = { current_line = true },
+  virtual_lines = { current_line = false },
   signs = {
     text = {
       [vim.diagnostic.severity.HINT]  = "󰌶 ",
@@ -1624,7 +1624,7 @@ vim.api.nvim_set_keymap(
   { desc = "[D]iagnostics - Toggle [H]ide Virtual Text", noremap = true, silent = true }
 )
 
-vim.g.virtual_lines_on_current_line_visible = true
+vim.g.virtual_lines_on_current_line_visible = false
 function _G.toggle_virtual_lines_on_current_line_visible()
   if vim.g.virtual_lines_on_current_line_visible then
     vim.g.virtual_lines_on_current_line_visible = false
@@ -1639,7 +1639,7 @@ vim.api.nvim_set_keymap(
   "n",
   "<leader>dl",
   ":call v:lua.toggle_virtual_lines_on_current_line_visible()<CR>",
-  { desc = "[D]iagnostics - Toggle [H]ide Virtual Text", noremap = true, silent = true }
+  { desc = "[D]iagnostics - Toggle [H]ide Virtual Lines on current line", noremap = true, silent = true }
 )
 
 vim.keymap.set("n", "<leader>P", ":Telescope projects<CR>", { desc = "Projects" })
