@@ -1056,10 +1056,9 @@ require("lazy").setup({
   },
   {
     "kevinhwang91/nvim-ufo",
-    event = "UIEnter",
+    lazy = false,
     dependencies = {
       "kevinhwang91/promise-async",
-      "luukvbaal/statuscol.nvim",
     },
     config = function()
       local handler = function(virtText, lnum, endLnum, width, truncate)
