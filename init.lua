@@ -63,7 +63,6 @@ vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,
 -- change diagnostic signs and display the most severe one in the sign gutter on the left.
 vim.diagnostic.config({
   virtual_text = true,
-  virtual_lines = { current_line = false },
   signs = {
     text = {
       [vim.diagnostic.severity.HINT]  = "󰌶 ",
@@ -143,6 +142,7 @@ require("lazy").setup({
     keys = {
       { "<leader>gd", ":DiffviewOpen<cr>", mode = "", desc = "[G]it [D]iff View" },
       { "<leader>go", ":DiffviewOpen ", mode = "", desc = "[G]it Diff View [O]pen" },
+      { "<leader>gh", ":DiffviewFileHistory<cr>", mode = "", desc = "[G]it Diff View File [H]istory" },
       { "<leader>gc", ":DiffviewClose<cr>", mode = "", desc = "[G]it Diff View [C]lose" },
     },
   },
@@ -2204,6 +2204,23 @@ vim.g.rainbow_delimiters = {
     "RainbowDelimiterCyan",
   },
 }
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  desc = "Setup custom right-click contextual menu",
+  callback = function()
+    vim.api.nvim_command([[menu PopUp.-3- <NOP>]])
+    vim.api.nvim_command([[menu PopUp.-4- <NOP>]])
+    vim.api.nvim_command([[menu PopUp.Definition <cmd>Telescope lsp_definitions<CR>]])
+    vim.api.nvim_command([[menu PopUp.References <cmd>Telescope lsp_references<CR>]])
+    vim.api.nvim_command([[menu PopUp.URL gx]])
+    vim.api.nvim_command([[menu PopUp.-5- <NOP>]])
+    vim.api.nvim_command([[menu PopUp.Back <C-t>]])
+    vim.api.nvim_command([[menu PopUp.-6- <NOP>]])
+    vim.api.nvim_command([[menu PopUp.Toggle\ \Breakpoint <cmd>:lua require('dap').toggle_breakpoint()<CR>]])
+    vim.api.nvim_command([[menu PopUp.Start\ \Debugger <cmd>:DapContinue<CR>]])
+    vim.api.nvim_command([[menu PopUp.Run\ \Test <cmd>:Neotest run<CR>]])
+  end,
+})
 
 -- Uninstall and reinstall repo from git https://github.com/wilfriedbauer/nvim:
 -- # Linux / Macos (unix)
