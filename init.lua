@@ -1624,7 +1624,7 @@ vim.api.nvim_set_keymap(
 )
 
 vim.g.virtual_lines_on_current_line_visible = false
-function _G.toggle_virtual_lines_on_current_line_visible()
+function _G.toggle_virtual_lines_on_current_line()
   if vim.g.virtual_lines_on_current_line_visible then
     vim.g.virtual_lines_on_current_line_visible = false
     vim.diagnostic.config({ virtual_lines = false })
@@ -1640,6 +1640,25 @@ vim.api.nvim_set_keymap(
   ":call v:lua.toggle_virtual_lines_on_current_line_visible()<CR>",
   { desc = "[D]iagnostics - Toggle [H]ide Virtual Lines on current line", noremap = true, silent = true }
 )
+
+vim.g.keep_cursor_centered = true
+function _G.toggle_keep_cursor_centered()
+  if vim.g.keep_cursor_centered then
+    vim.g.keep_cursor_centered = false
+    vim.opt.scrolloff = 999
+  else
+    vim.g.keep_cursor_centered = true
+    vim.opt.scrolloff = 2
+  end
+end
+
+vim.api.nvim_set_keymap(
+  "n",
+  "<leader>z",
+  ":call v:lua.toggle_keep_cursor_centered()<CR> :norm zz<cr>",
+  { desc = "Toggle keep cursor centered (auto zz)", noremap = true, silent = true }
+)
+
 
 vim.keymap.set("n", "<leader>P", ":Telescope projects<CR>", { desc = "Projects" })
 vim.keymap.set(
