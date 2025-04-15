@@ -1592,9 +1592,11 @@ function _G.toggle_diagnostics()
   if vim.g.diagnostics_visible then
     vim.g.diagnostics_visible = false
     vim.diagnostic.enable(false)
+    print("Diagnostics Enabled: ", vim.g.diagnostics_visible)
   else
     vim.g.diagnostics_visible = true
     vim.diagnostic.enable()
+    print("Diagnostics Enabled: ", vim.g.diagnostics_visible)
   end
 end
 
@@ -1610,9 +1612,11 @@ function _G.toggle_virtual_text()
   if vim.g.virtual_text_visible then
     vim.g.virtual_text_visible = false
     vim.diagnostic.config({ virtual_text = false })
+    print("Virtual Text Enabled: ", vim.g.virtual_text_visible)
   else
     vim.g.virtual_text_visible = true
     vim.diagnostic.config({ virtual_text = true })
+    print("Virtual Text Enabled: ", vim.g.virtual_text_visible)
   end
 end
 
@@ -1624,13 +1628,15 @@ vim.api.nvim_set_keymap(
 )
 
 vim.g.virtual_lines_on_current_line_visible = false
-function _G.toggle_virtual_lines_on_current_line()
+function _G.toggle_virtual_lines_on_current_line_visible()
   if vim.g.virtual_lines_on_current_line_visible then
     vim.g.virtual_lines_on_current_line_visible = false
     vim.diagnostic.config({ virtual_lines = false })
+    print("Virtual Lines on current line enabled: ", vim.g.virtual_lines_on_current_line_visible)
   else
     vim.g.virtual_lines_on_current_line_visible = true
     vim.diagnostic.config({ virtual_lines = { current_line = true } })
+    print("Virtual Lines on current line enabled: ", vim.g.virtual_lines_on_current_line_visible)
   end
 end
 
@@ -1644,11 +1650,13 @@ vim.api.nvim_set_keymap(
 vim.g.keep_cursor_centered = true
 function _G.toggle_keep_cursor_centered()
   if vim.g.keep_cursor_centered then
-    vim.g.keep_cursor_centered = false
     vim.opt.scrolloff = 999
+    print("Keep Cursor Centered Enabled: ", vim.g.keep_cursor_centered)
+    vim.g.keep_cursor_centered = false
   else
-    vim.g.keep_cursor_centered = true
     vim.opt.scrolloff = 2
+    print("Keep Cursor Centered Enabled: ", vim.g.keep_cursor_centered)
+    vim.g.keep_cursor_centered = true
   end
 end
 
