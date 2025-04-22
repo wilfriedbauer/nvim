@@ -98,10 +98,10 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- move visual selection down a lin
 -- INFO:
 -- Instead of pressing ^ you can press _(underscore) to jump to the first non-whitespace character on the same line the cursor is on.
 -- + and - jump to the first non-whitespace character on the next / previous line.
--- (These commands only work in normal mode, not in insert mode.)
---
 -- In visual mode press 'o' to switch the side of the selection the cursor is on.
 -- While searching with / or ? press CTRL-g and CTRL-t to go to next/previous occurence without leaving search.
+vim.keymap.set("n", "ycc", '"yy" . v:count1 . "gcc\']p"', { remap = true, expr = true }) --Duplicate line and comment the line(takes count)
+vim.keymap.set("x", "/", "<Esc>/\\%V") --search within visual selection
 vim.keymap.set("v", "p", '"_dP') -- paste without overwriting paste register while in visual mode
 vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true }) -- Remap for dealing with word wrap
 vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true }) -- Remap for dealing with word wrap
