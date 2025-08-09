@@ -13,6 +13,7 @@ if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then -- Windows-specific
 end
 vim.o.mouse = "a"
 vim.o.clipboard = "unnamedplus"
+vim.o.virtualedit = "all"
 vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.wo.signcolumn = "yes"
@@ -20,7 +21,7 @@ vim.o.updatetime = 50
 vim.o.timeoutlen = 500
 vim.o.completeopt = "menuone,noselect"
 vim.o.termguicolors = true
-vim.opt.relativenumber = true
+vim.opt.relativenumber = false
 -- vim.o.statuscolumn = "%s %l %=%r "  -- enable relative line numbers next to absolute line numbers.
 vim.opt.list = true
 vim.opt.listchars = {
@@ -64,11 +65,17 @@ vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,
 vim.diagnostic.config({
   virtual_text = true,
   signs = {
+    numhl = {
+      [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+      [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
+      [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
+      [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+    },
     text = {
       [vim.diagnostic.severity.HINT]  = "󰌶 ",
       [vim.diagnostic.severity.ERROR] = "󰅚 ",
       [vim.diagnostic.severity.INFO]  = " ",
-      [vim.diagnostic.severity.WARN]  = "󰀪 "
+      [vim.diagnostic.severity.WARN]  = "󰀪 ",
     }
   },
   underline = true,
@@ -151,16 +158,23 @@ require("lazy").setup({
     event = "BufEnter",
   },
   {
-    -- LSP Configuration & Plugins
+    -- LSP CONFIG
     "neovim/nvim-lspconfig",
-    event = "BufEnter",
     dependencies = {
-      -- Automatically install LSPs to stdpath for neovim
-      "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
-
-      -- Useful status updates for LSP
-      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
+      { "seblyng/roslyn.nvim" },
+      { "mason-org/mason-lspconfig.nvim" },
+      { "mason-org/mason.nvim" },
+      {
+        "folke/lazydev.nvim",
+        ft = "lua", -- only load on lua files
+        opts = {
+          library = {
+            -- See the configuration section for more details
+            -- Load luvit types when the `vim.uv` word is found
+            { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+          },
+        },
+      },
       {
         "j-hui/fidget.nvim",
         event = "UIEnter",
@@ -194,10 +208,47 @@ require("lazy").setup({
           },
         },
       },
-
-      -- Additional lua configuration, makes nvim stuff amazing!
-      "folke/neodev.nvim",
     },
+      config = function()
+        require("mason").setup({
+          registries = { "github:crashdummyy/mason-registry", "github:mason-org/mason-registry" },
+        })
+        require("mason-lspconfig").setup()
+        require("roslyn").setup()
+
+        -- Keymaps only set when an LSP attaches
+          vim.api.nvim_create_autocmd("LspAttach", {
+            callback = function(ev)
+              local bufnr = ev.buf
+
+              vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, { buffer = bufnr, desc = "[R]ename" })
+              vim.keymap.set("n", "<leader>C", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code Action (Builtin LSP)" })
+
+              vim.keymap.set("n", "gd", require("telescope.builtin").lsp_definitions, { buffer = bufnr, desc = "[G]oto [D]efinition" })
+              vim.keymap.set("n", "gr", require("telescope.builtin").lsp_references, { buffer = bufnr, desc = "[G]oto [R]eferences" })
+
+              vim.keymap.set("n", "gI", require("telescope.builtin").lsp_implementations, { buffer = bufnr, desc = "[G]oto [I]mplementation" })
+              vim.keymap.set("n", "gD", require("telescope.builtin").lsp_type_definitions, { buffer = bufnr, desc = "Type [D]efinition" })
+              vim.keymap.set("n", "gR", vim.lsp.buf.declaration, { buffer = bufnr, desc = "[G]oto [D]eclaration" })
+
+              vim.keymap.set("n", "<C-s>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature Documentation" })
+
+              vim.keymap.set("n", "<leader>wd", require("telescope.builtin").lsp_document_symbols, { buffer = bufnr, desc = "[D]ocument Symbols" })
+              vim.keymap.set("n", "<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, { buffer = bufnr, desc = "[W]orkspace [S]ymbols" })
+
+              vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, { buffer = bufnr, desc = "[W]orkspace [A]dd Folder" })
+              vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, { buffer = bufnr, desc = "[W]orkspace [R]emove Folder" })
+              vim.keymap.set("n", "<leader>wl", function()
+                print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+              end, { buffer = bufnr, desc = "[W]orkspace [L]ist Folders" })
+
+              vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
+                require("conform").format({ async = false, lsp_fallback = true })
+                vim.cmd("retab")
+              end, { desc = "Format current buffer with LSP" })
+            end,
+          })
+        end,
   },
   {
     "hrsh7th/nvim-cmp",
@@ -542,91 +593,10 @@ require("lazy").setup({
     build = ":TSUpdate",
   },
   {
-    "neovim/nvim-lspconfig",
-    event = "BufEnter",
-    config = function()
-      -- Switch for controlling whether you want autoformatting.
-      -- Use :FormatToggle to toggle autoformatting on or off
-      local format_is_enabled = false
-      vim.api.nvim_create_user_command("FormatToggle", function()
-        format_is_enabled = not format_is_enabled
-        print("Setting autoformatting to: " .. tostring(format_is_enabled))
-      end, {})
-
-      -- Create an augroup that is used for managing our formatting autocmds.
-      -- We need one augroup per client to make sure that multiple clients
-      -- can attach to the same buffer without interfering with each other.
-      local _augroups = {}
-      local get_augroup = function(client)
-        if not _augroups[client.id] then
-          local group_name = "kickstart-lsp-format-" .. client.name
-          local id = vim.api.nvim_create_augroup(group_name, { clear = true })
-          _augroups[client.id] = id
-        end
-
-        return _augroups[client.id]
-      end
-
-      -- Whenever an LSP attaches to a buffer, we will run this function.
-      -- See `:help LspAttach` for more information about this autocmd event.
-      vim.api.nvim_create_autocmd("LspAttach", {
-        group = vim.api.nvim_create_augroup("kickstart-lsp-attach-format", { clear = true }),
-        -- This is where we attach the autoformatting for reasonable clients
-        callback = function(args)
-          local client_id = args.data.client_id
-          local client = vim.lsp.get_client_by_id(client_id)
-          local bufnr = args.buf
-
-          if client.server_capabilities.inlayHintProvider then
-            vim.g.inlay_hints_visible = true
-            vim.lsp.inlay_hint.enable(false)
-          end
-
-          -- if client.server_capabilities.codeLensProvider then
-          --   vim.lsp.codelens.display(vim.lsp.codelens.get(0), 0, client_id)
-          --   vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
-          --     buffer = bufnr,
-          --     callback = function()
-          --       vim.lsp.codelens.refresh({ buffer = bufnr, client = client })
-          --     end,
-          --   })
-          -- end
-
-          -- Only attach to clients that support document formatting
-          if not client.server_capabilities.documentFormattingProvider then
-            return
-          end
-
-          -- Create an autocmd that will run *before* we save the buffer.
-          -- Run the formatting command for the LSP that has just attached.
-          vim.api.nvim_create_autocmd("BufWritePre", {
-            group = get_augroup(client),
-            buffer = bufnr,
-            callback = function(args)
-              if not format_is_enabled then
-                return
-              end
-
-              require("conform").format({ bufnr = args.buf, async = false, lsp_fallback = true })
-              vim.cmd("retab")
-
-              -- vim.lsp.buf.format({
-              --  async = false,
-              --  filter = function(c)
-              --    return c.id == client.id
-              --  end,
-              -- })
-            end,
-          })
-        end,
-      })
-    end,
-  },
-  {
     "mfussenegger/nvim-dap",
     dependencies = {
       "rcarriga/nvim-dap-ui",
-      "williamboman/mason.nvim",
+      "mason-org/mason.nvim",
       "jay-babu/mason-nvim-dap.nvim",
       {
         "theHamsta/nvim-dap-virtual-text",
@@ -919,7 +889,7 @@ require("lazy").setup({
       })
     end,
   },
-  { "nvim-treesitter/nvim-treesitter-context", event = "BufEnter", config = function() vim.cmd("TSContextDisable") end },
+  { "nvim-treesitter/nvim-treesitter-context", event = "BufEnter", config = function() vim.cmd("TSContext disable") end },
   {
     "windwp/nvim-ts-autotag",
     event = "BufEnter",
@@ -1435,29 +1405,29 @@ require("lazy").setup({
       )
     end,
   },
-  {
-    "Hoffs/omnisharp-extended-lsp.nvim", -- install .net6 for omnisharp lsp to work!
-    event = "UIEnter",
-    config = function()
-      vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
-        pattern = { "*.cs" },
-        callback = function()
-          vim.keymap.set("n", "gd", function()
-            require("omnisharp_extended").telescope_lsp_definition()
-          end, { desc = "[LSP] Omnisharp go to Definition", buffer = true })
-          vim.keymap.set("n", "gD", function()
-            require("omnisharp_extended").telescope_lsp_type_definition()
-          end, { desc = "[LSP] Omnisharp go to Type Definition", buffer = true })
-          vim.keymap.set("n", "gr", function()
-            require("omnisharp_extended").telescope_lsp_references()
-          end, { desc = "[LSP] Omnisharp go to References", buffer = true })
-          vim.keymap.set("n", "gI", function()
-            require("omnisharp_extended").telescope_lsp_implementation()
-          end, { desc = "[LSP] Omnisharp go to Implementation", buffer = true })
-        end,
-      })
-    end,
-  },
+  -- {
+  --   "Hoffs/omnisharp-extended-lsp.nvim", -- install .net6 for omnisharp lsp to work!
+  --   event = "UIEnter",
+  --   config = function()
+  --     vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+  --       pattern = { "*.cs" },
+  --       callback = function()
+  --         vim.keymap.set("n", "gd", function()
+  --           require("omnisharp_extended").telescope_lsp_definition()
+  --         end, { desc = "[LSP] Omnisharp go to Definition", buffer = true })
+  --         vim.keymap.set("n", "gD", function()
+  --           require("omnisharp_extended").telescope_lsp_type_definition()
+  --         end, { desc = "[LSP] Omnisharp go to Type Definition", buffer = true })
+  --         vim.keymap.set("n", "gr", function()
+  --           require("omnisharp_extended").telescope_lsp_references()
+  --         end, { desc = "[LSP] Omnisharp go to References", buffer = true })
+  --         vim.keymap.set("n", "gI", function()
+  --           require("omnisharp_extended").telescope_lsp_implementation()
+  --         end, { desc = "[LSP] Omnisharp go to Implementation", buffer = true })
+  --       end,
+  --     })
+  --   end,
+  -- },
   { "numToStr/Comment.nvim", event = "BufEnter", opts = {} },
   { -- Autoformat
     "stevearc/conform.nvim",
@@ -2009,69 +1979,6 @@ vim.defer_fn(function()
   })
 end, 0)
 
--- [[ Configure LSP ]]
---  This function gets run when an LSP connects to a particular buffer.
-local on_attach = function(_, bufnr)
-  local nmap = function(keys, func, desc)
-    if desc then
-      desc = "LSP: " .. desc
-    end
-
-    vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
-  end
-
-  nmap("<leader>r", vim.lsp.buf.rename, "[R]ename")
-
-  nmap("<leader>C", vim.lsp.buf.code_action, "Code Action (Builtin LSP)")
-
-  -- Jump to the definition of the word under your cursor.
-  --  This is where a variable was first declared, or where a function is defined, etc.
-  --  To jump back, press <C-t>.
-  nmap("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
-
-  -- Find references for the word under your cursor.
-  nmap("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-
-  -- Jump to the implementation of the word under your cursor.
-  --  Useful when your language has ways of declaring types without an actual implementation.
-  nmap("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
-
-  -- Jump to the type of the word under your cursor.
-  --  Useful when you're not sure what type a variable is and you want to see
-  --  the definition of its *type*, not where it was *defined*.
-  nmap("gD", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
-
-  -- WARN: This is not Goto Definition, this is Goto Declaration.
-  --  For example, in C this would take you to the header.
-  nmap("gR", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-
-  nmap("<C-s>", vim.lsp.buf.signature_help, "Signature Documentation")
-
-  -- Standard Neovim Mappings:
-  -- nmap("gR", function() vim.lsp.buf.declaration() end, "Declaration")
-  -- nmap("gd", function() vim.lsp.buf.definition() end, "Definition")
-  -- nmap("gr", function() vim.lsp.buf.references() end, "References")
-  -- nmap("gI", function() vim.lsp.buf.implementation() end, "Implementation")
-  -- nmap("gD", function() vim.lsp.buf.type_definition() end, "Type Definition")
-
-  -- Lesser used LSP functionality
-  nmap("<leader>wd", require("telescope.builtin").lsp_document_symbols, "[D]ocument Symbols")
-  nmap("<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
-
-  nmap("<leader>wa", vim.lsp.buf.add_workspace_folder, "[W]orkspace [A]dd Folder")
-  nmap("<leader>wr", vim.lsp.buf.remove_workspace_folder, "[W]orkspace [R]emove Folder")
-  nmap("<leader>wl", function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, "[W]orkspace [L]ist Folders")
-
-  -- Create a command `:Format` local to the LSP buffer
-  vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
-    require("conform").format({ async = false, lsp_fallback = true })
-    vim.cmd("retab")
-    -- vim.lsp.buf.format()
-  end, { desc = "Format current buffer with LSP" })
-end
-
 require("which-key").add({
   { "<leader>B", group = "[B]ug" },
   { "<leader>B_", hidden = true },
@@ -2103,105 +2010,6 @@ require("which-key").add({
 }, {
   { "<leader>", group = "VISUAL <leader>", mode = "v" },
   { "<leader>h", desc = "Git [H]unk", mode = "v" },
-})
-
--- mason-lspconfig requires that these setup functions are called in this order
--- before setting up the servers.
-require("mason").setup()
-require("mason-lspconfig").setup()
-
--- Enable the following language servers
---  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
---
---  Add any additional override configuration in the following tables. They will be passed to
---  the `settings` field of the server config. You must look up that documentation yourself.
---
---  If you want to override the default filetypes that your language server will attach to you can
---  define the property 'filetypes' to the map in question.
-local servers = {
-  -- clangd = {},
-  -- gopls = {},
-  -- pyright = {},
-  -- rust_analyzer = {},
-  -- tsserver = {},
-  -- html = { filetypes = { 'html', 'twig', 'hbs'} },
-
-  omnisharp = {
-    cmd = { "omnisharp", "--languageserver", "--hostPID", tostring(vim.fn.getpid()) },
-    FormattingOptions = {
-      -- Enables support for reading code style, naming convention and analyzer
-      -- settings from .editorconfig.
-      EnableEditorConfigSupport = true,
-      -- Specifies whether 'using' directives should be grouped and sorted during
-      -- document formatting.
-      OrganizeImports = true,
-    },
-    MsBuild = {
-      -- If true, MSBuild project system will only load projects for files that
-      -- were opened in the editor. This setting is useful for big C# codebases
-      -- and allows for faster initialization of code navigation features only
-      -- for projects that are relevant to code that is being edited. With this
-      -- setting enabled OmniSharp may load fewer projects and may thus display
-      -- incomplete reference lists for symbols.
-      LoadProjectsOnDemand = false,
-    },
-    RoslynExtensionsOptions = {
-      -- Enables support for roslyn analyzers, code fixes and rulesets.
-      EnableAnalyzersSupport = true,
-      -- Enables support for showing unimported types and unimported extension
-      -- methods in completion lists. When committed, the appropriate using
-      -- directive will be added at the top of the current file. This option can
-      -- have a negative impact on initial completion responsiveness,
-      -- particularly for the first few completion sessions after opening a
-      -- solution.
-      EnableImportCompletion = true,
-      -- Only run analyzers against open files when 'enableRoslynAnalyzers' is
-      -- true
-      AnalyzeOpenDocumentsOnly = false,
-    },
-    Sdk = {
-      -- Specifies whether to include preview versions of the .NET SDK when
-      -- determining which version to use for project loading.
-      IncludePrereleases = true,
-    },
-  },
-
-  lua_ls = {
-    Lua = {
-      hint = { enable = true },
-      workspace = { checkThirdParty = false },
-      telemetry = { enable = false },
-      -- NOTE: toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-      diagnostics = { disable = { "missing-fields" } },
-    },
-  },
-}
-
--- Setup neovim lua configuration
-require("neodev").setup()
-
--- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
-
--- Ensure the servers above are installed
-local mason_lspconfig = require("mason-lspconfig")
-
-mason_lspconfig.setup({
-  ensure_installed = vim.tbl_keys(servers),
-  automatic_installation = true,
-})
-
-mason_lspconfig.setup_handlers({
-  function(server_name)
-    require("lspconfig")[server_name].setup({
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = servers[server_name],
-      filetypes = (servers[server_name] or {}).filetypes,
-      cmd = (servers[server_name] or {}).cmd,
-    })
-  end,
 })
 
 -- This module contains a number of default definitions
@@ -2249,7 +2057,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 
--- Uninstall and reinstall repo from git https://github.com/wilfriedbauer/nvim:
+-- Uninstall d reinstall repo from )  https://github.com/wilfriedbauer/nvim:
 -- # Linux / Macos (unix)
 -- rm -rf ~/.config/nvim
 -- rm -rf ~/.local/share/nvim
