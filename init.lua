@@ -16,6 +16,7 @@ vim.o.clipboard = "unnamedplus"
 vim.o.virtualedit = "all"
 vim.o.ignorecase = true
 vim.o.smartcase = true
+vim.o.showmode = false
 vim.wo.signcolumn = "yes"
 vim.o.updatetime = 50
 vim.o.timeoutlen = 500
@@ -670,7 +671,7 @@ require("lazy").setup({
 
       require("mason").setup()
       require("mason-nvim-dap").setup({
-        automatic_setup = true,
+        automatic_installation = true,
         handlers = {},
         ensure_installed = {
           "netcoredbg",
@@ -1410,29 +1411,6 @@ require("lazy").setup({
       )
     end,
   },
-  -- {
-  --   "Hoffs/omnisharp-extended-lsp.nvim", -- install .net6 for omnisharp lsp to work!
-  --   event = "UIEnter",
-  --   config = function()
-  --     vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
-  --       pattern = { "*.cs" },
-  --       callback = function()
-  --         vim.keymap.set("n", "gd", function()
-  --           require("omnisharp_extended").telescope_lsp_definition()
-  --         end, { desc = "[LSP] Omnisharp go to Definition", buffer = true })
-  --         vim.keymap.set("n", "gD", function()
-  --           require("omnisharp_extended").telescope_lsp_type_definition()
-  --         end, { desc = "[LSP] Omnisharp go to Type Definition", buffer = true })
-  --         vim.keymap.set("n", "gr", function()
-  --           require("omnisharp_extended").telescope_lsp_references()
-  --         end, { desc = "[LSP] Omnisharp go to References", buffer = true })
-  --         vim.keymap.set("n", "gI", function()
-  --           require("omnisharp_extended").telescope_lsp_implementation()
-  --         end, { desc = "[LSP] Omnisharp go to Implementation", buffer = true })
-  --       end,
-  --     })
-  --   end,
-  -- },
   { "numToStr/Comment.nvim", event = "BufEnter", opts = {} },
   { -- Autoformat
     "stevearc/conform.nvim",
@@ -2062,7 +2040,35 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 
--- Uninstall d reinstall repo from )  https://github.com/wilfriedbauer/nvim:
+vim.api.nvim_create_user_command("Messages", function()
+  -- Save current window to return to it later
+  local main_win = vim.api.nvim_get_current_win()
+
+  -- Capture :messages output
+  local messages = vim.api.nvim_exec2("messages", { output = true }).output
+
+  -- Create horizontal split at bottom with height 10
+  vim.cmd("botright 10split")
+  local msg_buf = vim.api.nvim_create_buf(false, true) -- [listed=false, scratch=true]
+  vim.api.nvim_win_set_buf(0, msg_buf)
+
+  -- Set buffer options
+  vim.bo[msg_buf].buftype = "nofile"
+  vim.bo[msg_buf].bufhidden = "wipe"
+  vim.bo[msg_buf].swapfile = false
+  vim.bo[msg_buf].modifiable = true
+
+  -- Fill buffer
+  vim.api.nvim_buf_set_lines(msg_buf, 0, -1, false, vim.split(messages, "\n"))
+
+  -- Make buffer read-only
+  vim.bo[msg_buf].modifiable = false
+
+  -- Return focus to original window
+  vim.api.nvim_set_current_win(main_win)
+end, {})
+
+-- Uninstall and reinstall repo from https://github.com/wilfriedbauer/nvim:
 -- # Linux / Macos (unix)
 -- rm -rf ~/.config/nvim
 -- rm -rf ~/.local/share/nvim
