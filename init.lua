@@ -210,46 +210,173 @@ require("lazy").setup({
         },
       },
     },
-      config = function()
-        require("mason").setup({
-          registries = { "github:crashdummyy/mason-registry", "github:mason-org/mason-registry" },
-        })
-        require("mason-lspconfig").setup()
-        require("roslyn").setup()
+    config = function()
+      require("mason").setup({
+        registries = { "github:crashdummyy/mason-registry", "github:mason-org/mason-registry" },
+      })
+      require("mason-lspconfig").setup()
+      require("roslyn").setup()
 
-        -- Keymaps only set when an LSP attaches
-          vim.api.nvim_create_autocmd("LspAttach", {
-            callback = function(ev)
-              local bufnr = ev.buf
+      -- Keymaps only set when an LSP attaches
+      vim.api.nvim_create_autocmd("LspAttach", {
+        callback = function(ev)
+          local bufnr = ev.buf
 
-              vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, { buffer = bufnr, desc = "[R]ename" })
-              vim.keymap.set("n", "<leader>C", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code Action (Builtin LSP)" })
+          vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, { buffer = bufnr, desc = "[R]ename" })
+          vim.keymap.set("n", "<leader>C", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code Action (Builtin LSP)" })
 
-              vim.keymap.set("n", "gd", require("telescope.builtin").lsp_definitions, { buffer = bufnr, desc = "[G]oto [D]efinition" })
-              vim.keymap.set("n", "gr", require("telescope.builtin").lsp_references, { buffer = bufnr, desc = "[G]oto [R]eferences" })
+          vim.keymap.set("n", "gd", require("telescope.builtin").lsp_definitions, { buffer = bufnr, desc = "[G]oto [D]efinition" })
+          vim.keymap.set("n", "gr", require("telescope.builtin").lsp_references, { buffer = bufnr, desc = "[G]oto [R]eferences" })
 
-              vim.keymap.set("n", "gI", require("telescope.builtin").lsp_implementations, { buffer = bufnr, desc = "[G]oto [I]mplementation" })
-              vim.keymap.set("n", "gD", require("telescope.builtin").lsp_type_definitions, { buffer = bufnr, desc = "Type [D]efinition" })
-              vim.keymap.set("n", "gR", vim.lsp.buf.declaration, { buffer = bufnr, desc = "[G]oto [D]eclaration" })
+          vim.keymap.set("n", "gI", require("telescope.builtin").lsp_implementations, { buffer = bufnr, desc = "[G]oto [I]mplementation" })
+          vim.keymap.set("n", "gD", require("telescope.builtin").lsp_type_definitions, { buffer = bufnr, desc = "Type [D]efinition" })
+          vim.keymap.set("n", "gR", vim.lsp.buf.declaration, { buffer = bufnr, desc = "[G]oto [D]eclaration" })
 
-              vim.keymap.set("n", "<C-s>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature Documentation" })
+          vim.keymap.set("n", "<C-s>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature Documentation" })
 
-              vim.keymap.set("n", "<leader>wd", require("telescope.builtin").lsp_document_symbols, { buffer = bufnr, desc = "[D]ocument Symbols" })
-              vim.keymap.set("n", "<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, { buffer = bufnr, desc = "[W]orkspace [S]ymbols" })
+          vim.keymap.set("n", "<leader>wd", require("telescope.builtin").lsp_document_symbols, { buffer = bufnr, desc = "[D]ocument Symbols" })
+          vim.keymap.set("n", "<leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, { buffer = bufnr, desc = "[W]orkspace [S]ymbols" })
 
-              vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, { buffer = bufnr, desc = "[W]orkspace [A]dd Folder" })
-              vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, { buffer = bufnr, desc = "[W]orkspace [R]emove Folder" })
-              vim.keymap.set("n", "<leader>wl", function()
-                print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-              end, { buffer = bufnr, desc = "[W]orkspace [L]ist Folders" })
+          vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, { buffer = bufnr, desc = "[W]orkspace [A]dd Folder" })
+          vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, { buffer = bufnr, desc = "[W]orkspace [R]emove Folder" })
+          vim.keymap.set("n", "<leader>wl", function()
+            print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+          end, { buffer = bufnr, desc = "[W]orkspace [L]ist Folders" })
 
-              vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
-                require("conform").format({ async = false, lsp_fallback = true })
-                vim.cmd("retab")
-              end, { desc = "Format current buffer with LSP" })
-            end,
-          })
+          vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
+            require("conform").format({ async = false, lsp_fallback = true })
+            vim.cmd("retab")
+          end, { desc = "Format current buffer with LSP" })
         end,
+      })
+    end,
+  },
+  {
+    "GustavEikaas/easy-dotnet.nvim",
+    -- 'nvim-telescope/telescope.nvim' or 'ibhagwan/fzf-lua' or 'folke/snacks.nvim'
+    -- are highly recommended for a better experience
+    dependencies = { "nvim-lua/plenary.nvim", 'nvim-telescope/telescope.nvim', },
+    config = function()
+      local function get_secret_path(secret_guid)
+        local path = ""
+        local home_dir = vim.fn.expand('~')
+        if require("easy-dotnet.extensions").isWindows() then
+          local secret_path = home_dir ..
+              '\\AppData\\Roaming\\Microsoft\\UserSecrets\\' .. secret_guid .. "\\secrets.json"
+          path = secret_path
+        else
+          local secret_path = home_dir .. "/.microsoft/usersecrets/" .. secret_guid .. "/secrets.json"
+          path = secret_path
+        end
+        return path
+      end
+
+      local dotnet = require("easy-dotnet")
+      -- Options are not required
+      dotnet.setup({
+        --Optional function to return the path for the dotnet sdk (e.g C:/ProgramFiles/dotnet/sdk/8.0.0)
+        -- easy-dotnet will resolve the path automatically if this argument is omitted, for a performance improvement you can add a function that returns a hardcoded string
+        -- You should define this function to return a hardcoded path for a performance improvement 🚀
+        get_sdk_path = get_sdk_path,
+        ---@type TestRunnerOptions
+        test_runner = {
+          ---@type "split" | "vsplit" | "float" | "buf"
+          viewmode = "float",
+          ---@type number|nil
+          vsplit_width = nil,
+          ---@type string|nil "topleft" | "topright" 
+          vsplit_pos = nil,
+          enable_buffer_test_execution = true, --Experimental, run tests directly from buffer
+          noBuild = true,
+            icons = {
+              passed = "",
+              skipped = "",
+              failed = "",
+              success = "",
+              reload = "",
+              test = "",
+              sln = "󰘐",
+              project = "󰘐",
+              dir = "",
+              package = "",
+            },
+          mappings = {
+            run_test_from_buffer = { lhs = "<leader>r", desc = "run test from buffer" },
+            filter_failed_tests = { lhs = "<leader>fe", desc = "filter failed tests" },
+            debug_test = { lhs = "<leader>d", desc = "debug test" },
+            go_to_file = { lhs = "g", desc = "go to file" },
+            run_all = { lhs = "<leader>R", desc = "run all tests" },
+            run = { lhs = "<leader>r", desc = "run test" },
+            peek_stacktrace = { lhs = "<leader>p", desc = "peek stacktrace of failed test" },
+            expand = { lhs = "o", desc = "expand" },
+            expand_node = { lhs = "E", desc = "expand node" },
+            expand_all = { lhs = "-", desc = "expand all" },
+            collapse_all = { lhs = "W", desc = "collapse all" },
+            close = { lhs = "q", desc = "close testrunner" },
+            refresh_testrunner = { lhs = "<C-r>", desc = "refresh testrunner" }
+          },
+          --- Optional table of extra args e.g "--blame crash"
+          additional_args = {}
+        },
+        new = {
+          project = {
+            prefix = "sln" -- "sln" | "none"
+          }
+        },
+        ---@param action "test" | "restore" | "build" | "run"
+        terminal = function(path, action, args)
+          args = args or ""
+          local commands = {
+            run = function() return string.format("dotnet run --project %s %s", path, args) end,
+            test = function() return string.format("dotnet test %s %s", path, args) end,
+            restore = function() return string.format("dotnet restore %s %s", path, args) end,
+            build = function() return string.format("dotnet build %s %s", path, args) end,
+            watch = function() return string.format("dotnet watch --project %s %s", path, args) end,
+          }
+          local command = commands[action]()
+          if require("easy-dotnet.extensions").isWindows() == true then command = command .. "\r" end
+          vim.cmd("vsplit")
+          vim.cmd("term " .. command)
+        end,
+        secrets = {
+          path = get_secret_path
+        },
+        csproj_mappings = true,
+        fsproj_mappings = true,
+        auto_bootstrap_namespace = {
+            --block_scoped, file_scoped
+            type = "block_scoped",
+            enabled = true,
+            use_clipboard_json = {
+              behavior = "prompt", --'auto' | 'prompt' | 'never',
+              register = "+", -- which register to check
+            },
+        },
+        -- choose which picker to use with the plugin
+        -- possible values are "telescope" | "fzf" | "snacks" | "basic"
+        -- if no picker is specified, the plugin will determine
+        -- the available one automatically with this priority:
+        -- telescope -> fzf -> snacks ->  basic
+        picker = "telescope",
+        background_scanning = true,
+        notifications = {
+          --Set this to false if you have configured lualine to avoid double logging
+          handler = function(start_event)
+            local spinner = require("easy-dotnet.ui-modules.spinner").new()
+            spinner:start_spinner(start_event.job.name)
+            ---@param finished_event JobEvent
+            return function(finished_event)
+              spinner:stop_spinner(finished_event.result.text, finished_event.result.level)
+            end
+          end,
+        },
+        debugger = {
+          mappings = {
+            open_variable_viewer = { lhs = "T", desc = "open variable viewer" },
+          },
+        }
+      })
+    end
   },
   {
     "hrsh7th/nvim-cmp",
@@ -375,6 +502,7 @@ require("lazy").setup({
           { name = "nvim_lsp_signature_help", group_index = 1 },
           { name = "luasnip", group_index = 3 },
           { name = "nvim_lsp", group_index = 1 },
+          { name = 'easy-dotnet', group_index = 2 },
           { name = "nvim_lua", group_index = 2 },
           { name = "path", group_index = 2 },
           { name = "buffer", group_index = 2, keyword_length = 2 },
@@ -675,6 +803,7 @@ require("lazy").setup({
         handlers = {},
         ensure_installed = {
           "netcoredbg",
+          "coreclr"
         },
       })
       -- dap.adapters.coreclr = {
@@ -683,22 +812,99 @@ require("lazy").setup({
       --   args = { "--interpreter=vscode" },
       -- }
 
-      dap.adapters.netcoredbg = {
+      -- .NET specific setup using `easy-dotnet`
+      local function rebuild_project(co, path)
+        local spinner = require("easy-dotnet.ui-modules.spinner").new()
+        spinner:start_spinner "Building"
+        vim.fn.jobstart(string.format("dotnet build %s", path), {
+          on_exit = function(_, return_code)
+            if return_code == 0 then
+              spinner:stop_spinner "Built successfully"
+            else
+              spinner:stop_spinner("Build failed with exit code " .. return_code, vim.log.levels.ERROR)
+              error "Build failed"
+            end
+            coroutine.resume(co)
+          end,
+        })
+        coroutine.yield()
+      end
+
+      require("easy-dotnet.netcoredbg").register_dap_variables_viewer() -- special variables viewer specific for .NET
+      local dotnet = require("easy-dotnet")
+      local debug_dll = nil
+
+      local function ensure_dll()
+        if debug_dll ~= nil then
+          return debug_dll
+        end
+        local dll = dotnet.get_debug_dll(true)
+        debug_dll = dll
+        return dll
+      end
+
+      for _, value in ipairs({ "cs", "fsharp" }) do
+        dap.configurations[value] = {
+          {
+            type = "coreclr",
+            name = "Program",
+            request = "launch",
+            env = function()
+              local dll = ensure_dll()
+              local vars = dotnet.get_environment_variables(dll.project_name, dll.relative_project_path)
+              return vars or nil
+            end,
+            program = function()
+              local dll = ensure_dll()
+              local co = coroutine.running()
+              rebuild_project(co, dll.project_path)
+              return dll.relative_dll_path
+            end,
+            cwd = function()
+              local dll = ensure_dll()
+              return dll.relative_project_path
+            end
+          },
+          {
+            type = "coreclr",
+            name = "Test",
+            request = "attach",
+            processId = function()
+              local res = require("easy-dotnet").experimental.start_debugging_test_project()
+              return res.process_id
+            end
+          }
+        }
+      end
+
+      -- Reset debug_dll after each terminated session
+      dap.listeners.before['event_terminated']['easy-dotnet'] = function()
+        debug_dll = nil
+      end
+
+      dap.adapters.coreclr = {
         type = "executable",
-        command = "netcoredbg",
+        -- command = "netcoredbg",
+        command = vim.fn.stdpath("data") .. "/mason/packages/netcoredbg/netcoredbg/netcoredbg.exe",
         args = { "--interpreter=vscode" },
       }
 
-      dap.configurations.cs = {
-        {
-          type = "coreclr",
-          name = "launch - netcoredbg",
-          request = "launch",
-          program = function()
-            return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/src/", "file")
-          end,
-        },
-      }
+      -- dap.adapters.netcoredbg = {
+      --   type = "executable",
+      --   command = "netcoredbg",
+      --   args = { "--interpreter=vscode" },
+      -- }
+
+      -- dap.configurations.cs = {
+      --   {
+      --     type = "coreclr",
+      --     name = "launch - netcoredbg",
+      --     request = "launch",
+      --     program = function()
+      --       return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/src/", "file")
+      --     end,
+      --   },
+      -- }
       -- vim.keymap.set("n", "<leader>BC", dap.continue, { desc = "[B]ug: Start/[C]ontinue" })
       -- vim.keymap.set("n", "<leader>BI", dap.step_into, { desc = "[B]ug: Step [I]nto" })
       -- vim.keymap.set("n", "<leader>BO", dap.step_over, { desc = "[B]ug: Step [O]ver" })
@@ -846,6 +1052,11 @@ require("lazy").setup({
         vim.keymap.set("n", "L", vsplit_preview, opts("Vsplit Preview"))
         vim.keymap.set("n", "h", api.tree.close, opts("Close"))
         vim.keymap.set("n", "H", api.tree.collapse_all, opts("Collapse All"))
+        vim.keymap.set('n', 'A', function()
+          local node = api.tree.get_node_under_cursor()
+          local path = node.type == "directory" and node.absolute_path or vim.fs.dirname(node.absolute_path)
+          require("easy-dotnet").create_new_item(path)
+        end, opts('Create file from dotnet template'))
       end
       -- vim.g.loaded_netrw = 1
       -- vim.g.loaded_netrwPlugin = 1
@@ -1091,6 +1302,7 @@ require("lazy").setup({
       "antoinemadec/FixCursorHold.nvim",
       "nvim-treesitter/nvim-treesitter",
       "Issafalcon/neotest-dotnet",
+      "nsidorenco/neotest-vstest",
     },
     keys = {
       { "<leader>TS", "<cmd>Neotest summary toggle<CR>", mode = "", desc = "[T]est: [S]ummary toggle" },
@@ -1130,6 +1342,7 @@ require("lazy").setup({
             discovery_root = "project", -- Default
           }),
         },
+        require("neotest-vstest")
       })
     end,
   },
@@ -2041,8 +2254,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
 })
 
 vim.api.nvim_create_user_command("Messages", function()
-  -- Save current window to return to it later
-  local main_win = vim.api.nvim_get_current_win()
+  -- -- Save current window to return to it later
+  -- local main_win = vim.api.nvim_get_current_win()
 
   -- Capture :messages output
   local messages = vim.api.nvim_exec2("messages", { output = true }).output
@@ -2065,7 +2278,7 @@ vim.api.nvim_create_user_command("Messages", function()
   vim.bo[msg_buf].modifiable = false
 
   -- Return focus to original window
-  vim.api.nvim_set_current_win(main_win)
+  -- vim.api.nvim_set_current_win(main_win)
 end, {})
 
 -- Uninstall and reinstall repo from https://github.com/wilfriedbauer/nvim:
