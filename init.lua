@@ -946,7 +946,7 @@ require("lazy").setup({
     opts = {
       options = {
         icons_enabled = true,
-        theme = "catppuccin",
+        theme = "ayu_mirage",
         component_separators = "|",
         section_separators = { left = "", right = "" },
         globalstatus = true,
