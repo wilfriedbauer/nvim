@@ -13,7 +13,7 @@ vim.o.updatetime = 50
 vim.o.timeoutlen = 500
 vim.o.completeopt = "menuone,noselect"
 vim.o.termguicolors = true
-vim.opt.relativenumber = true
+vim.opt.relativenumber = false
 -- vim.o.statuscolumn = "%s %l %=%r "  -- enable relative line numbers next to absolute line numbers.
 vim.opt.list = true
 vim.opt.listchars = {
@@ -120,6 +120,44 @@ vim.keymap.set("n", "<leader>L", function()
   vim.lsp.codelens.refresh()
   vim.lsp.codelens.run()
 end, { desc = "Codelens Toggle" })
+
+-- diff visual selection or current file with clipboard in scratchbuffer
+vim.keymap.set({ "n", "v" }, "<leader>dd", function()
+  local clipboard = vim.fn.getreg("+") -- or "*" for primary selection
+  local mode = vim.fn.mode()
+  local buf = vim.api.nvim_create_buf(false, true)
+  -- Insert clipboard into new buffer
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(clipboard, "\n"))
+  -- Save current window
+  local curr_win = vim.api.nvim_get_current_win()
+  -- Handle visual selection or entire buffer
+  local lines
+  if mode == "v" or mode == "V" then
+    -- Get visual range
+    local start_pos = vim.fn.getpos("'<")[2]
+    local end_pos = vim.fn.getpos("'>")[2]
+    lines = vim.api.nvim_buf_get_lines(0, start_pos - 1, end_pos, false)
+  else
+    -- Use entire buffer
+    lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  end
+  -- Create new scratch buffer and insert selected lines
+  local buf2 = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf2, 0, -1, false, lines)
+  -- Split and load buffers
+  vim.cmd("vsplit")
+  vim.api.nvim_win_set_buf(curr_win, buf2)
+  vim.api.nvim_set_current_buf(buf)
+  -- Enable diff mode
+  vim.cmd("wincmd l")
+  vim.cmd("diffthis")
+  vim.cmd("wincmd h")
+  vim.cmd("diffthis")
+end, { desc = "Compare clipboard with selection or file" })
+vim.keymap.set("n", "<leader>dc", function()
+  vim.cmd("diffoff!")
+  vim.cmd("bd!") -- Close the scratch buffer
+end, { desc = "Exit diff mode and close scratch buffers" })
 
 -- Terminal
 local te_buf = nil
@@ -473,6 +511,285 @@ require("lazy").setup({
     -- LSP CONFIG
     "neovim/nvim-lspconfig",
     dependencies = {
+      { -- Fuzzy Finder (files, lsp, etc)
+        "nvim-telescope/telescope.nvim",
+        event = "UIEnter",
+        dependencies = {
+          "nvim-lua/plenary.nvim",
+          { "benfowler/telescope-luasnip.nvim", event = "BufEnter" },
+        },
+        config = function()
+          require("telescope").setup({
+            defaults = {
+              vimgrep_arguments = {
+                "rg",
+                "-L",
+                "--color=never",
+                "--no-heading",
+                "--with-filename",
+                "--line-number",
+                "--column",
+                "--smart-case",
+              },
+              prompt_prefix = "   ",
+              selection_caret = "  ",
+              entry_prefix = "  ",
+              initial_mode = "insert",
+              selection_strategy = "reset",
+              sorting_strategy = "ascending",
+              layout_strategy = "horizontal",
+              layout_config = {
+                horizontal = {
+                  prompt_position = "top",
+                  preview_width = 0.55,
+                  results_width = 0.8,
+                },
+                vertical = {
+                  mirror = false,
+                },
+                width = 0.87,
+                height = 0.80,
+                preview_cutoff = 120,
+              },
+              file_sorter = require("telescope.sorters").get_fuzzy_file,
+              file_ignore_patterns = { "node_modules" },
+              generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
+              path_display = { "filename_first", "truncate" },
+              winblend = 0,
+              border = {},
+              borderchars = { " ", " ", " ", " ", " ", " ", " ", " " },
+              color_devicons = true,
+              set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
+              file_previewer = require("telescope.previewers").vim_buffer_cat.new,
+              grep_previewer = require("telescope.previewers").vim_buffer_vimgrep.new,
+              qflist_previewer = require("telescope.previewers").vim_buffer_qflist.new,
+              -- Developer configurations: Not meant for general override
+              buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
+              mappings = {
+                -- for input mode
+                i = {
+                  ["<c-f>"] = require("telescope.actions").to_fuzzy_refine,
+                  ["<C-j>"] = require("telescope.actions").move_selection_next,
+                  ["<C-k>"] = require("telescope.actions").move_selection_previous,
+                  ["<C-n>"] = require("telescope.actions").cycle_history_next,
+                  ["<C-p>"] = require("telescope.actions").cycle_history_prev,
+                },
+                -- for normal mode
+                n = {
+                  ["<c-f>"] = require("telescope.actions").to_fuzzy_refine,
+                  ["<C-j>"] = require("telescope.actions").move_selection_next,
+                  ["<C-k>"] = require("telescope.actions").move_selection_previous,
+                  ["<C-n>"] = require("telescope.actions").cycle_history_next,
+                  ["<C-p>"] = require("telescope.actions").cycle_history_prev,
+                  ["q"] = require("telescope.actions").close,
+                },
+              },
+            },
+          })
+          pcall(require("telescope").load_extension("luasnip"))
+
+          -- Set telescope Highlights. Something like NVChad.
+          local TelescopeColor = {
+            TelescopeMatching = { fg = colors.red },
+            TelescopeSelection = { fg = colors.text, bg = colors.surface0, bold = true },
+
+            TelescopePromptPrefix = { bg = colors.surface0 },
+            TelescopePromptNormal = { bg = colors.surface0 },
+            TelescopeResultsNormal = { bg = colors.mantle },
+            TelescopePreviewNormal = { bg = colors.mantle },
+            TelescopePromptBorder = { bg = colors.surface0, fg = colors.surface0 },
+            TelescopeResultsBorder = { bg = colors.mantle, fg = colors.mantle },
+            TelescopePreviewBorder = { bg = colors.mantle, fg = colors.mantle },
+            TelescopePromptTitle = { bg = colors.red, fg = colors.mantle },
+            TelescopeResultsTitle = { fg = colors.mantle },
+            TelescopePreviewTitle = { bg = colors.blue, fg = colors.mantle },
+          }
+
+          for hl, col in pairs(TelescopeColor) do
+            vim.api.nvim_set_hl(0, hl, col)
+          end
+
+          -- Telescope live_grep in git root
+          -- Function to find the git root directory based on the current buffer's path
+          local function find_git_root()
+            -- Use the current buffer's path as the starting point for the git search
+            local current_file = vim.api.nvim_buf_get_name(0)
+            local current_dir
+            local cwd = vim.fn.getcwd()
+            -- If the buffer is not associated with a file, return nil
+            if current_file == "" then
+              current_dir = cwd
+            else
+              -- Extract the directory from the current file's path
+              current_dir = vim.fn.fnamemodify(current_file, ":h")
+            end
+
+            -- Find the Git root directory from the current file's path
+            local git_root = vim.fn.systemlist("git -C " .. vim.fn.escape(current_dir, " ") .. " rev-parse --show-toplevel")[1]
+            if vim.v.shell_error ~= 0 then
+              print("Not a git repository. Searching on current working directory")
+              return cwd
+            end
+            return git_root
+          end
+
+          -- Custom live_grep function to search in git root
+          local function live_grep_git_root()
+            local git_root = find_git_root()
+            if git_root then
+              require("telescope.builtin").live_grep({
+                search_dirs = { git_root },
+              })
+            end
+          end
+
+          vim.api.nvim_create_user_command("LiveGrepGitRoot", live_grep_git_root, {})
+
+          -- See `:help telescope.builtin`
+          vim.keymap.set("n", "<leader>?", require("telescope.builtin").oldfiles, { desc = "[?] Find recently opened files" })
+          vim.keymap.set("n", "<leader><space>", require("telescope.builtin").buffers, { desc = "[ ] Find existing buffers" })
+          vim.keymap.set(
+            "n",
+            "<leader>/",
+            require("telescope.builtin").current_buffer_fuzzy_find,
+            { desc = "[/] Fuzzily search in current buffer" }
+          )
+
+          local function telescope_live_grep_open_files()
+            require("telescope.builtin").live_grep({
+              grep_open_files = true,
+              prompt_title = "Live Grep in Open Files",
+            })
+          end
+          vim.keymap.set("n", "<leader>f/", telescope_live_grep_open_files, { desc = "[F]ind [/] in Open Files" })
+          vim.keymap.set("n", "<leader>fb", require("telescope.builtin").builtin, { desc = "[F]ind Telescope [B]uiltin" })
+          vim.keymap.set("n", "<leader>fs", ":Telescope luasnip<CR>", { desc = "[F]ind [S]nippets" })
+          vim.keymap.set("n", "<leader>fg", require("telescope.builtin").git_files, { desc = "[F]ind [G]it Files" })
+          vim.keymap.set("n", "<leader>ff", require("telescope.builtin").find_files, { desc = "[F]ind [F]iles" })
+          vim.keymap.set("n", "<leader>fh", require("telescope.builtin").help_tags, { desc = "[F]ind [H]elp" })
+          vim.keymap.set("n", "<leader>fw", require("telescope.builtin").grep_string, { desc = "[F]ind current [W]ord" })
+          vim.keymap.set("n", "<leader>ft", require("telescope.builtin").live_grep, { desc = "[F]ind [T]ext by Grep" })
+          vim.keymap.set("n", "<leader>fG", ":LiveGrepGitRoot<cr>", { desc = "[F]ind by Grep on [G]it Root" })
+          vim.keymap.set("n", "<leader>fd", require("telescope.builtin").diagnostics, { desc = "[F]ind [D]iagnostics" })
+          vim.keymap.set("n", "<leader>fr", require("telescope.builtin").resume, { desc = "[F]ind [R]esume Last Search" })
+          vim.keymap.set("n", "<leader>fc", function() require("telescope.builtin").lsp_dynamic_workspace_symbols({ symbols = { "Class" }, prompt_title = "Search Classes" }) end, { desc = "[F]ind [C]lass" })
+          vim.keymap.set("n", "<leader>fd", function() require("telescope.builtin").lsp_dynamic_workspace_symbols({ symbols = { "Function", "Method" }, prompt_title = "Search Functions" }) end, { desc = "[F]ind Function [D]efinition" })
+          vim.keymap.set("n", "<leader>fv", function() require("telescope.builtin").lsp_dynamic_workspace_symbols({ symbols = { "Variable", "Constant" }, prompt_title = "Search Variables" }) end, { desc = "[F]ind [V]ariable" })
+        end
+      },
+      {
+        -- Highlight, edit, and navigate code
+        "nvim-treesitter/nvim-treesitter",
+        event = "UIEnter",
+        dependencies = {
+          "nvim-treesitter/nvim-treesitter-textobjects",
+        },
+        build = ":TSUpdate",
+        config = function()
+          -- Defer Treesitter setup after first render to improve startup time of 'nvim {filename}'
+          vim.defer_fn(function()
+            require("nvim-treesitter.configs").setup({
+              -- Add languages to be installed here that you want installed for treesitter
+              ensure_installed = {
+                "c",
+                "cpp",
+                "c_sharp",
+                "go",
+                "lua",
+                "python",
+                "tsx",
+                "http",
+                "json",
+                "json5",
+                "html",
+                "scss",
+                "yaml",
+                "xml",
+                "sql",
+                "diff",
+                "dockerfile",
+                "terraform",
+                "angular",
+                "javascript",
+                "typescript",
+                "vimdoc",
+                "vim",
+                "bash",
+                "git_config",
+                "git_rebase",
+                "gitattributes",
+                "gitcommit",
+                "gitignore",
+                "markdown",
+                "markdown_inline",
+              },
+
+              -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
+              auto_install = true,
+
+              matchup = {
+                enable = true, -- mandatory, false will disable the whole extension
+              },
+
+              highlight = { enable = true },
+              indent = { enable = true },
+              incremental_selection = {
+                enable = true,
+                keymaps = {
+                  init_selection = "<leader>v",
+                  node_incremental = "<leader>v",
+                  scope_incremental = "<leader>V",
+                  node_decremental = "<backspace>",
+                },
+              },
+              textobjects = {
+                select = {
+                  enable = true,
+                  lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+                  keymaps = {
+                    -- You can use the capture groups defined in textobjects.scm
+                    ["aa"] = "@parameter.outer",
+                    ["ia"] = "@parameter.inner",
+                    ["af"] = "@function.outer",
+                    ["if"] = "@function.inner",
+                    ["ac"] = "@class.outer",
+                    ["ic"] = "@class.inner",
+                  },
+                },
+                move = {
+                  enable = true,
+                  set_jumps = true, -- whether to set jumps in the jumplist
+                  goto_next_start = {
+                    ["]f"] = "@function.outer",
+                    ["]{"] = "@class.outer",
+                  },
+                  goto_next_end = {
+                    ["]F"] = "@function.outer",
+                    ["]}"] = "@class.outer",
+                  },
+                  goto_previous_start = {
+                    ["[f"] = "@function.outer",
+                    ["[{"] = "@class.outer",
+                  },
+                  goto_previous_end = {
+                    ["[F"] = "@function.outer",
+                    ["[}"] = "@class.outer",
+                  },
+                },
+                swap = {
+                  enable = true,
+                  swap_next = {
+                    ["<leader>>"] = "@parameter.inner",
+                  },
+                  swap_previous = {
+                    ["<leader><lt>"] = "@parameter.inner",
+                  },
+                },
+              },
+            })
+          end, 0)
+        end
+      },
       { "seblyng/roslyn.nvim" },
       { "mason-org/mason-lspconfig.nvim" },
       { "mason-org/mason.nvim" },
@@ -883,284 +1200,6 @@ require("lazy").setup({
     lazy = false,
     main = "ibl",
     opts = {},
-  },
-  { -- Fuzzy Finder (files, lsp, etc)
-    "nvim-telescope/telescope.nvim",
-    event = "UIEnter",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      { "benfowler/telescope-luasnip.nvim", event = "BufEnter" },
-    },
-    config = function()
-      require("telescope").setup({
-        defaults = {
-          vimgrep_arguments = {
-            "rg",
-            "-L",
-            "--color=never",
-            "--no-heading",
-            "--with-filename",
-            "--line-number",
-            "--column",
-            "--smart-case",
-          },
-          prompt_prefix = "   ",
-          selection_caret = "  ",
-          entry_prefix = "  ",
-          initial_mode = "insert",
-          selection_strategy = "reset",
-          sorting_strategy = "ascending",
-          layout_strategy = "horizontal",
-          layout_config = {
-            horizontal = {
-              prompt_position = "top",
-              preview_width = 0.55,
-              results_width = 0.8,
-            },
-            vertical = {
-              mirror = false,
-            },
-            width = 0.87,
-            height = 0.80,
-            preview_cutoff = 120,
-          },
-          file_sorter = require("telescope.sorters").get_fuzzy_file,
-          file_ignore_patterns = { "node_modules" },
-          generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
-          path_display = { "filename_first", "truncate" },
-          winblend = 0,
-          border = {},
-          borderchars = { " ", " ", " ", " ", " ", " ", " ", " " },
-          color_devicons = true,
-          set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
-          file_previewer = require("telescope.previewers").vim_buffer_cat.new,
-          grep_previewer = require("telescope.previewers").vim_buffer_vimgrep.new,
-          qflist_previewer = require("telescope.previewers").vim_buffer_qflist.new,
-          -- Developer configurations: Not meant for general override
-          buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
-          mappings = {
-            -- for input mode
-            i = {
-              ["<c-f>"] = require("telescope.actions").to_fuzzy_refine,
-              ["<C-j>"] = require("telescope.actions").move_selection_next,
-              ["<C-k>"] = require("telescope.actions").move_selection_previous,
-              ["<C-n>"] = require("telescope.actions").cycle_history_next,
-              ["<C-p>"] = require("telescope.actions").cycle_history_prev,
-            },
-            -- for normal mode
-            n = {
-              ["<c-f>"] = require("telescope.actions").to_fuzzy_refine,
-              ["<C-j>"] = require("telescope.actions").move_selection_next,
-              ["<C-k>"] = require("telescope.actions").move_selection_previous,
-              ["<C-n>"] = require("telescope.actions").cycle_history_next,
-              ["<C-p>"] = require("telescope.actions").cycle_history_prev,
-              ["q"] = require("telescope.actions").close,
-            },
-          },
-        },
-      })
-      pcall(require("telescope").load_extension("luasnip"))
-
-      -- Set telescope Highlights. Something like NVChad.
-      local TelescopeColor = {
-        TelescopeMatching = { fg = colors.red },
-        TelescopeSelection = { fg = colors.text, bg = colors.surface0, bold = true },
-
-        TelescopePromptPrefix = { bg = colors.surface0 },
-        TelescopePromptNormal = { bg = colors.surface0 },
-        TelescopeResultsNormal = { bg = colors.mantle },
-        TelescopePreviewNormal = { bg = colors.mantle },
-        TelescopePromptBorder = { bg = colors.surface0, fg = colors.surface0 },
-        TelescopeResultsBorder = { bg = colors.mantle, fg = colors.mantle },
-        TelescopePreviewBorder = { bg = colors.mantle, fg = colors.mantle },
-        TelescopePromptTitle = { bg = colors.red, fg = colors.mantle },
-        TelescopeResultsTitle = { fg = colors.mantle },
-        TelescopePreviewTitle = { bg = colors.blue, fg = colors.mantle },
-      }
-
-      for hl, col in pairs(TelescopeColor) do
-        vim.api.nvim_set_hl(0, hl, col)
-      end
-
-      -- Telescope live_grep in git root
-      -- Function to find the git root directory based on the current buffer's path
-      local function find_git_root()
-        -- Use the current buffer's path as the starting point for the git search
-        local current_file = vim.api.nvim_buf_get_name(0)
-        local current_dir
-        local cwd = vim.fn.getcwd()
-        -- If the buffer is not associated with a file, return nil
-        if current_file == "" then
-          current_dir = cwd
-        else
-          -- Extract the directory from the current file's path
-          current_dir = vim.fn.fnamemodify(current_file, ":h")
-        end
-
-        -- Find the Git root directory from the current file's path
-        local git_root = vim.fn.systemlist("git -C " .. vim.fn.escape(current_dir, " ") .. " rev-parse --show-toplevel")[1]
-        if vim.v.shell_error ~= 0 then
-          print("Not a git repository. Searching on current working directory")
-          return cwd
-        end
-        return git_root
-      end
-
-      -- Custom live_grep function to search in git root
-      local function live_grep_git_root()
-        local git_root = find_git_root()
-        if git_root then
-          require("telescope.builtin").live_grep({
-            search_dirs = { git_root },
-          })
-        end
-      end
-
-      vim.api.nvim_create_user_command("LiveGrepGitRoot", live_grep_git_root, {})
-
-      -- See `:help telescope.builtin`
-      vim.keymap.set("n", "<leader>?", require("telescope.builtin").oldfiles, { desc = "[?] Find recently opened files" })
-      vim.keymap.set("n", "<leader><space>", require("telescope.builtin").buffers, { desc = "[ ] Find existing buffers" })
-      vim.keymap.set(
-        "n",
-        "<leader>/",
-        require("telescope.builtin").current_buffer_fuzzy_find,
-        { desc = "[/] Fuzzily search in current buffer" }
-      )
-
-      local function telescope_live_grep_open_files()
-        require("telescope.builtin").live_grep({
-          grep_open_files = true,
-          prompt_title = "Live Grep in Open Files",
-        })
-      end
-      vim.keymap.set("n", "<leader>f/", telescope_live_grep_open_files, { desc = "[F]ind [/] in Open Files" })
-      vim.keymap.set("n", "<leader>fb", require("telescope.builtin").builtin, { desc = "[F]ind Telescope [B]uiltin" })
-      vim.keymap.set("n", "<leader>fs", ":Telescope luasnip<CR>", { desc = "[F]ind [S]nippets" })
-      vim.keymap.set("n", "<leader>fg", require("telescope.builtin").git_files, { desc = "[F]ind [G]it Files" })
-      vim.keymap.set("n", "<leader>ff", require("telescope.builtin").find_files, { desc = "[F]ind [F]iles" })
-      vim.keymap.set("n", "<leader>fh", require("telescope.builtin").help_tags, { desc = "[F]ind [H]elp" })
-      vim.keymap.set("n", "<leader>fw", require("telescope.builtin").grep_string, { desc = "[F]ind current [W]ord" })
-      vim.keymap.set("n", "<leader>ft", require("telescope.builtin").live_grep, { desc = "[F]ind [T]ext by Grep" })
-      vim.keymap.set("n", "<leader>fG", ":LiveGrepGitRoot<cr>", { desc = "[F]ind by Grep on [G]it Root" })
-      vim.keymap.set("n", "<leader>fd", require("telescope.builtin").diagnostics, { desc = "[F]ind [D]iagnostics" })
-      vim.keymap.set("n", "<leader>fr", require("telescope.builtin").resume, { desc = "[F]ind [R]esume Last Search" })
-
-
-    end
-  },
-  {
-    -- Highlight, edit, and navigate code
-    "nvim-treesitter/nvim-treesitter",
-    event = "UIEnter",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter-textobjects",
-    },
-    build = ":TSUpdate",
-    config = function()
-      -- Defer Treesitter setup after first render to improve startup time of 'nvim {filename}'
-      vim.defer_fn(function()
-        require("nvim-treesitter.configs").setup({
-          -- Add languages to be installed here that you want installed for treesitter
-          ensure_installed = {
-            "c",
-            "cpp",
-            "c_sharp",
-            "go",
-            "lua",
-            "python",
-            "tsx",
-            "http",
-            "json",
-            "json5",
-            "html",
-            "scss",
-            "yaml",
-            "xml",
-            "sql",
-            "diff",
-            "dockerfile",
-            "terraform",
-            "angular",
-            "javascript",
-            "typescript",
-            "vimdoc",
-            "vim",
-            "bash",
-            "git_config",
-            "git_rebase",
-            "gitattributes",
-            "gitcommit",
-            "gitignore",
-            "markdown",
-            "markdown_inline",
-          },
-
-          -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-          auto_install = true,
-
-          matchup = {
-            enable = true, -- mandatory, false will disable the whole extension
-          },
-
-          highlight = { enable = true },
-          indent = { enable = true },
-          incremental_selection = {
-            enable = true,
-            keymaps = {
-              init_selection = "<leader>v",
-              node_incremental = "<leader>v",
-              scope_incremental = "<leader>V",
-              node_decremental = "<backspace>",
-            },
-          },
-          textobjects = {
-            select = {
-              enable = true,
-              lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-              keymaps = {
-                -- You can use the capture groups defined in textobjects.scm
-                ["aa"] = "@parameter.outer",
-                ["ia"] = "@parameter.inner",
-                ["af"] = "@function.outer",
-                ["if"] = "@function.inner",
-                ["ac"] = "@class.outer",
-                ["ic"] = "@class.inner",
-              },
-            },
-            move = {
-              enable = true,
-              set_jumps = true, -- whether to set jumps in the jumplist
-              goto_next_start = {
-                ["]f"] = "@function.outer",
-                ["]{"] = "@class.outer",
-              },
-              goto_next_end = {
-                ["]F"] = "@function.outer",
-                ["]}"] = "@class.outer",
-              },
-              goto_previous_start = {
-                ["[f"] = "@function.outer",
-                ["[{"] = "@class.outer",
-              },
-              goto_previous_end = {
-                ["[F"] = "@function.outer",
-                ["[}"] = "@class.outer",
-              },
-            },
-            swap = {
-              enable = true,
-              swap_next = {
-                ["<leader>>"] = "@parameter.inner",
-              },
-              swap_previous = {
-                ["<leader><lt>"] = "@parameter.inner",
-              },
-            },
-          },
-        })
-      end, 0)
-    end
   },
   {
     "mfussenegger/nvim-dap",
@@ -1829,188 +1868,11 @@ require("lazy").setup({
   },
   {
     "stevearc/oil.nvim",
-    event = "UIEnter",
     opts = {},
     -- Optional dependencies
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
-      require("oil").setup({
-        -- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
-        -- Set to false if you still want to use netrw.
-        default_file_explorer = false,
-        -- Id is automatically added at the beginning, and name at the end
-        -- See :help oil-columns
-        columns = {
-          "icon",
-          -- "permissions",
-          -- "size",
-          -- "mtime",
-        },
-        -- Buffer-local options to use for oil buffers
-        buf_options = {
-          buflisted = false,
-          bufhidden = "hide",
-        },
-        -- Window-local options to use for oil buffers
-        win_options = {
-          wrap = false,
-          signcolumn = "no",
-          cursorcolumn = false,
-          foldcolumn = "0",
-          spell = false,
-          list = false,
-          conceallevel = 3,
-          concealcursor = "nvic",
-        },
-        -- Send deleted files to the trash instead of permanently deleting them (:help oil-trash)
-        delete_to_trash = false,
-        -- Skip the confirmation popup for simple operations (:help oil.skip_confirm_for_simple_edits)
-        skip_confirm_for_simple_edits = false,
-        -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
-        -- (:help prompt_save_on_select_new_entry)
-        prompt_save_on_select_new_entry = true,
-        -- Oil will automatically delete hidden buffers after this delay
-        -- You can set the delay to false to disable cleanup entirely
-        -- Note that the cleanup process only starts when none of the oil buffers are currently displayed
-        cleanup_delay_ms = 2000,
-        lsp_file_methods = {
-          -- Time to wait for LSP file operations to complete before skipping
-          timeout_ms = 1000,
-          -- Set to true to autosave buffers that are updated with LSP willRenameFiles
-          -- Set to "unmodified" to only save unmodified buffers
-          autosave_changes = false,
-        },
-        -- Constrain the cursor to the editable parts of the oil buffer
-        -- Set to `false` to disable, or "name" to keep it on the file names
-        constrain_cursor = "editable",
-        -- Set to true to watch the filesystem for changes and reload oil
-        experimental_watch_for_changes = false,
-        -- Keymaps in oil buffer. Can be any value that `vim.keymap.set` accepts OR a table of keymap
-        -- options with a `callback` (e.g. { callback = function() ... end, desc = "", mode = "n" })
-        -- Additionally, if it is a string that matches "actions.<name>",
-        -- it will use the mapping at require("oil.actions").<name>
-        -- Set to `false` to remove a keymap
-        -- See :help oil-actions for a list of all available actions
-        keymaps = {
-          ["g?"] = "actions.show_help",
-          ["<CR>"] = "actions.select",
-          ["<C-s>"] = "actions.select_vsplit",
-          ["<C-h>"] = "actions.select_split",
-          ["<C-t>"] = "actions.select_tab",
-          ["<C-p>"] = "actions.preview",
-          ["<C-c>"] = "actions.close",
-          ["<C-l>"] = "actions.refresh",
-          ["-"] = "actions.parent",
-          ["_"] = "actions.open_cwd",
-          ["`"] = "actions.cd",
-          ["~"] = "actions.tcd",
-          ["gs"] = "actions.change_sort",
-          ["gx"] = "actions.open_external",
-          ["g."] = "actions.toggle_hidden",
-          ["g\\"] = "actions.toggle_trash",
-        },
-        -- Set to false to disable all of the above keymaps
-        use_default_keymaps = true,
-        view_options = {
-          -- Show files and directories that start with "."
-          show_hidden = true,
-          -- This function defines what is considered a "hidden" file
-          is_hidden_file = function(name, bufnr)
-            return vim.startswith(name, ".")
-          end,
-          -- This function defines what will never be shown, even when `show_hidden` is set
-          is_always_hidden = function(name, bufnr)
-            return false
-          end,
-          -- Sort file names in a more intuitive order for humans. Is less performant,
-          -- so you may want to set to false if you work with large directories.
-          natural_order = true,
-          sort = {
-            -- sort order can be "asc" or "desc"
-            -- see :help oil-columns to see which columns are sortable
-            { "type", "asc" },
-            { "name", "asc" },
-          },
-        },
-        -- Extra arguments to pass to SCP when moving/copying files over SSH
-        extra_scp_args = {},
-        -- EXPERIMENTAL support for performing file operations with git
-        git = {
-          -- Return true to automatically git add/mv/rm files
-          add = function()
-            return true
-          end,
-          mv = function()
-            return true
-          end,
-          rm = function()
-            return true
-          end,
-        },
-        -- Configuration for the floating window in oil.open_float
-        float = {
-          -- Padding around the floating window
-          padding = 2,
-          max_width = 0,
-          max_height = 0,
-          border = "rounded",
-          win_options = {
-            winblend = 0,
-          },
-          -- This is the config that will be passed to nvim_open_win.
-          -- Change values here to customize the layout
-          override = function(conf)
-            return conf
-          end,
-        },
-        -- Configuration for the actions floating preview window
-        preview = {
-          -- Width dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
-          -- min_width and max_width can be a single value or a list of mixed integer/float types.
-          -- max_width = {100, 0.8} means "the lesser of 100 columns or 80% of total"
-          max_width = 0.9,
-          -- min_width = {40, 0.4} means "the greater of 40 columns or 40% of total"
-          min_width = { 40, 0.4 },
-          -- optionally define an integer/float for the exact width of the preview window
-          width = nil,
-          -- Height dimensions can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
-          -- min_height and max_height can be a single value or a list of mixed integer/float types.
-          -- max_height = {80, 0.9} means "the lesser of 80 columns or 90% of total"
-          max_height = 0.9,
-          -- min_height = {5, 0.1} means "the greater of 5 columns or 10% of total"
-          min_height = { 5, 0.1 },
-          -- optionally define an integer/float for the exact height of the preview window
-          height = nil,
-          border = "rounded",
-          win_options = {
-            winblend = 0,
-          },
-          -- Whether the preview window is automatically updated when the cursor is moved
-          update_on_cursor_moved = true,
-        },
-        -- Configuration for the floating progress window
-        progress = {
-          max_width = 0.9,
-          min_width = { 40, 0.4 },
-          width = nil,
-          max_height = { 10, 0.9 },
-          min_height = { 5, 0.1 },
-          height = nil,
-          border = "rounded",
-          minimized_border = "none",
-          win_options = {
-            winblend = 0,
-          },
-        },
-        -- Configuration for the floating SSH window
-        ssh = {
-          border = "rounded",
-        },
-        -- Configuration for the floating keymaps help window
-        keymaps_help = {
-          border = "rounded",
-        },
-      })
+      require("oil").setup({})
       vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "[E]dit Filetree with vim keymaps" })
     end,
   },
