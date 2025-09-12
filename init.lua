@@ -1055,25 +1055,6 @@ require("lazy").setup({
     event = "UIEnter",
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
-      {
-        "nvim-treesitter/nvim-treesitter-context",
-        event = "BufEnter",
-        config = function()
-          vim.cmd("TSContext disable")
-          vim.keymap.set("n", "<leader>dc", "<cmd>TSContext toggle<cr>", { desc = "Code Context toggle"})
-          require("treesitter-context").setup({
-            enable = true,            -- Enable the plugin
-            max_lines = '20%',          -- How many lines of context to show (0 = unlimited) Can be '<int>%' like '30%' - to specify percentage of win.height
-            min_window_height = 0,    -- Only show if window height > X
-            line_numbers = true,      -- Show line numbers in context window
-            multiline_threshold = 20, -- Collapse if more than N lines
-            trim_scope = 'outer',     -- Which context lines to discard if too many 'inner', 'outer'
-            mode = 'cursor',          -- 'cursor' (top-most node) or 'topline'
-            separator = nil,          -- You can add a line like "─"
-            zindex = 20,              -- Priority of context window
-          })
-        end,
-      },
     },
     build = ":TSUpdate",
     config = function()
