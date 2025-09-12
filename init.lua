@@ -16,6 +16,7 @@ vim.o.termguicolors = true
 vim.opt.relativenumber = false
 -- vim.o.statuscolumn = "%s %l %=%r "  -- enable relative line numbers next to absolute line numbers.
 vim.opt.list = true
+vim.opt.path:append(",**")
 vim.opt.listchars = {
   tab = "» ",
   trail = "·",
