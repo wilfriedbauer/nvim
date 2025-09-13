@@ -5,5 +5,5 @@ modified version of kickstart.nvim
 
 2.install a patched nerd font
 
-3.install rg
+3.install rg, dotnet, python, npm, go, rust
 
