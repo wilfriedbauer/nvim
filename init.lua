@@ -823,6 +823,7 @@ require("lazy").setup({
         ensure_installed = {
           -- JavaScript / TypeScript
           "typescript-language-server", -- LSP
+          "prettierd", -- formatter
           "prettier", -- formatter
           "eslint_d", -- linter
 
@@ -836,11 +837,12 @@ require("lazy").setup({
 
           -- SQL
           "sqlls",    -- LSP
-          "sqlfluff", -- linter / formatter
+          "sqlfluff", -- linter
+          "sqlfmt",   -- formatter
 
           -- Python
           "pyright",                  -- LSP
-          "black",                    -- formatter
+          "black", "isort",           -- formatter
           "flake8", "ruff", "pylint", -- linters
 
           -- Bash / Shell
@@ -850,6 +852,7 @@ require("lazy").setup({
 
           -- Java
           "jdtls", -- LSP
+          "google-java-format", --formatter
 
           -- C#
           "roslyn",    -- LSP
@@ -865,6 +868,7 @@ require("lazy").setup({
 
           -- PHP
           "phpactor", -- LSP
+          "phpcbf",   -- formatter
           "phpcs",    -- linter
 
           -- Go
@@ -879,12 +883,12 @@ require("lazy").setup({
 
           -- Kotlin
           "kotlin_language_server", -- LSP
-          "detekt",                 -- linter
+          "ktfmt",                  -- formatter
+          "ktlint",                 -- linter
 
           -- Lua
           "lua_ls", -- LSP
           "stylua", -- formatter
-          "selene", -- linter
 
           -- Assembly
           "asm_lsp", -- LSP
@@ -894,6 +898,7 @@ require("lazy").setup({
 
           -- YAML
           "yamlls",   -- LSP
+          "yamlfmt",  -- formatter
           "yamllint", -- linter
 
           -- TOML
@@ -922,7 +927,6 @@ require("lazy").setup({
         javascriptreact = { "eslint_d" },
         typescriptreact = { "eslint_d" },
         python = { "flake8", "ruff", "pylint" },
-        lua = { "selene" },
         go = { "golangci-lint" },
         php = { "phpcs" },
         sh = { "shellcheck" },
@@ -934,9 +938,9 @@ require("lazy").setup({
         xml = { "xmllint" },
         dockerfile = { "hadolint" },
         markdown = { "markdownlint" },
-        c = { "clang-tidy" },
-        cpp = { "clang-tidy" },
-        rust = { "clippy" },
+        c = { "cpplint" },
+        cpp = { "cpplint" },
+        rust = { "bacon" },
         kotlin = { "detekt" },
       }
 
@@ -990,6 +994,16 @@ require("lazy").setup({
             { desc = "Lsp Overloads Signature", noremap = true, silent = true, buffer = bufnr })
           vim.keymap.set("n", "<A-s>", "<cmd>LspOverloadsSignature<CR>",
             { desc = "Lsp Overloads Signature", noremap = true, silent = true, buffer = bufnr })
+
+          -- Jump to next error
+          vim.keymap.set("n", "]e", function()
+            vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.ERROR })
+          end, { desc = "Next Error" })
+          -- Jump to previous error
+          vim.keymap.set("n", "[e", function()
+            vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.ERROR })
+          end, { desc = "Previous Error" })
+
         end,
       })
     end,
@@ -2129,16 +2143,15 @@ require("lazy").setup({
               go              = { "gofmt" },
               php             = { "phpcbf" },
               rust            = { "rustfmt" },
-              kotlin          = { "ktlint" },
+              kotlin          = { "ktfmt" },
               java            = { "google-java-format" },
               c               = { "clang-format" },
               cpp             = { "clang-format" },
-              sql             = { "sqlfluff" },
+              sql             = { "sqlfmt" },
               json            = { "prettierd", "prettier" },
               yaml            = { "yamlfmt" },
               toml            = { "taplo" },
               xml             = { "xmlformat" },
-              dockerfile      = { "dockfmt" },
               markdown        = { "prettierd", "prettier" },
             },
           },
