@@ -801,10 +801,6 @@ require("lazy").setup({
       { "WhoIsSethDaniel/mason-tool-installer.nvim" },
       { "mfussenegger/nvim-lint" },
       {
-        'Issafalcon/lsp-overloads.nvim',
-        opts = {},
-      },
-      {
         "folke/lazydev.nvim",
         ft = "lua", -- only load on lua files
         opts = {
@@ -989,11 +985,6 @@ require("lazy").setup({
             require("conform").format({ async = false, lsp_fallback = true })
             vim.cmd("retab")
           end, { desc = "Format current buffer with LSP" })
-
-          vim.keymap.set("i", "<A-s>", "<cmd>LspOverloadsSignature<CR>",
-            { desc = "Lsp Overloads Signature", noremap = true, silent = true, buffer = bufnr })
-          vim.keymap.set("n", "<A-s>", "<cmd>LspOverloadsSignature<CR>",
-            { desc = "Lsp Overloads Signature", noremap = true, silent = true, buffer = bufnr })
 
           -- Jump to next error
           vim.keymap.set("n", "]e", function()
