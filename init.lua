@@ -462,6 +462,8 @@ vim.api.nvim_set_hl(0, "Keyword", { fg = colors.mauve, italic = true })
 vim.api.nvim_set_hl(0, "WinBar", { fg = colors.text, bg = colors.mantle, bold = true })
 vim.api.nvim_set_hl(0, "WinBarNC", { fg = colors.overlay1, bg = colors.mantle })
 
+vim.cmd.packadd('cfilter') --add quickfix filter builtin
+
 -- Plugins
 local lazypath = vim.fn.stdpath("data") ..
 "/lazy/lazy.nvim"                                            -- Install `lazy.nvim` plugin manager https://github.com/folke/lazy.nvim `:help lazy.nvim.txt` for more info
