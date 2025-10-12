@@ -803,6 +803,11 @@ require("lazy").setup({
       { "WhoIsSethDaniel/mason-tool-installer.nvim" },
       { "mfussenegger/nvim-lint" },
       {
+          "pmizio/typescript-tools.nvim",
+          dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
+          opts = {},
+      },
+      {
         "folke/lazydev.nvim",
         ft = "lua", -- only load on lua files
         opts = {
