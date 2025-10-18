@@ -1,6 +1,6 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-vim.opt.guicursor = ""
+vim.opt.guicursor = "n:blinkwait100-blinkon100-blinkoff100,i:ver25-blinkwait100-blinkon100-blinkoff100,v:blinkwait100-blinkon100-blinkoff100"
 vim.o.number = true
 vim.o.mouse = "a"
 vim.o.clipboard = "unnamedplus"
