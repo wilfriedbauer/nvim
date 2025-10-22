@@ -51,7 +51,7 @@ vim.keymap.set({ "n", "x", "o" }, "H", "^")
 vim.keymap.set({ "n", "x", "o" }, "L", "$")
 vim.opt.scrolloff = 2
 vim.opt.sidescrolloff = 5
-vim.opt.colorcolumn = ""
+vim.opt.colorcolumn = "80"
 vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,winpos,terminal" -- auto-session.nvim
 
 -- change diagnostic signs and display the most severe one in the sign gutter on the left.
@@ -419,36 +419,37 @@ vim.api.nvim_create_user_command("Messages", function()
 end, {})
 
 local colors = {
-  rosewater = "#f5e0dc",
-  flamingo  = "#f2cdcd",
-  pink      = "#f5c2e7",
-  mauve     = "#cba6f7",
-  red       = "#f38ba8",
-  maroon    = "#eba0ac",
-  peach     = "#fab387",
-  yellow    = "#f9e2af",
-  green     = "#a6e3a1",
-  teal      = "#94e2d5",
-  sky       = "#89dceb",
-  sapphire  = "#74c7ec",
-  blue      = "#89b4fa",
-  lavender  = "#b4befe",
+  rosewater  = "#f5e0dc",
+  flamingo   = "#f2cdcd",
+  pink       = "#f5c2e7",
+  mauve      = "#cba6f7",
+  red        = "#f38ba8",
+  maroon     = "#eba0ac",
+  peach      = "#fab387",
+  yellow     = "#f9e2af",
+  green      = "#a6e3a1",
+  teal       = "#94e2d5",
+  sky        = "#89dceb",
+  sapphire   = "#74c7ec",
+  blue       = "#89b4fa",
+  lavender   = "#b4befe",
 
-  text      = "#cdd6f4",
-  subtext1  = "#bac2de",
-  subtext0  = "#a6adc8",
-  overlay2  = "#9399b2",
-  overlay1  = "#7f849c",
-  overlay0  = "#6c7086",
-  surface2  = "#585b70",
-  surface1  = "#45475a",
-  surface0  = "#313244",
+  text       = "#cdd6f4",
+  subtext1   = "#bac2de",
+  subtext0   = "#a6adc8",
+  overlay2   = "#9399b2",
+  overlay1   = "#7f849c",
+  overlay0   = "#6c7086",
+  surface2   = "#585b70",
+  surface1   = "#45475a",
+  surface0   = "#313244",
 
-  base      = "#1e1e2e",
-  mantle    = "#181825",
-  crust     = "#11111b",
+  base       = "#1e1e2e",
+  colorcolumn= "#1e1e25",
+  mantle     = "#181825",
+  crust      = "#11111b",
 }
--- basic editor UI
+-- basic colorscheme
 vim.api.nvim_set_hl(0, "Normal", { fg = colors.text, bg = colors.base })
 vim.api.nvim_set_hl(0, "NormalFloat", { fg = colors.text, bg = colors.mantle })
 vim.api.nvim_set_hl(0, "CursorLine", { bg = colors.surface0 })
@@ -461,6 +462,7 @@ vim.api.nvim_set_hl(0, "Function", { fg = colors.blue, bold = true })
 vim.api.nvim_set_hl(0, "Keyword", { fg = colors.mauve, italic = true })
 vim.api.nvim_set_hl(0, "WinBar", { fg = colors.text, bg = colors.mantle, bold = true })
 vim.api.nvim_set_hl(0, "WinBarNC", { fg = colors.overlay1, bg = colors.mantle })
+vim.api.nvim_set_hl(0, "ColorColumn", { bg = colors.colorcolumn })
 
 vim.cmd.packadd('cfilter') --add quickfix filter builtin
 
