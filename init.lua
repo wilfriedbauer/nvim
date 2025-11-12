@@ -14,7 +14,7 @@ vim.o.timeoutlen = 500
 vim.o.completeopt = "menuone,noselect"
 vim.o.termguicolors = true
 vim.opt.relativenumber = false
--- vim.o.statuscolumn = "%s %l %=%r "  -- enable relative line numbers next to absolute line numbers.
+vim.o.statuscolumn = "%s %l %C "
 vim.opt.list = true
 vim.opt.path:append(",**")
 vim.opt.listchars = {
@@ -22,6 +22,20 @@ vim.opt.listchars = {
   trail = "·",
   nbsp = "␣",
   -- eol = '↵',
+}
+vim.o.foldmethod = "indent"
+vim.o.foldcolumn = "1"
+vim.o.foldlevel = 99
+vim.o.foldlevelstart = 99
+vim.o.foldenable = true
+vim.opt.fillchars = {
+    eob = ' ',
+    fold = ' ',
+    foldopen = '',
+    foldclose = '',
+    foldsep = ' ',
+    foldinner = ' ',
+    msgsep = '─',
 }
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "number"
@@ -104,7 +118,6 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- move visual selection down a lin
 -- https://vimregex.com/
 vim.keymap.set("n", "ycc", '"yy" . v:count1 . "gcc\']p"', { remap = true, expr = true }) --Duplicate line and comment the line(takes count)
 vim.keymap.set("x", "/", "<Esc>/\\%V")                                                   --search within visual selection
-vim.keymap.set("v", "p", '"_dP')                                                         -- paste without overwriting paste register while in visual mode
 vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })    -- Remap for dealing with word wrap
 vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })    -- Remap for dealing with word wrap
 
@@ -205,7 +218,6 @@ if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then -- Windows-specific
   vim.o.shellquote = ""
   vim.o.shellpipe = "| Out-File -Encoding UTF8 %s"
   vim.o.shellredir = "| Out-File -Encoding UTF8 %s"
-  -- vim.g.undotree_DiffCommand = "FC" -- Set FC as windows diff equivalent to fix undotree, if its broken.
 end
 
 -- have to set <C-_> instead of <C-/> for terminal toggle on CTRL-/.
@@ -465,7 +477,14 @@ vim.api.nvim_set_hl(0, "WinBar", { fg = colors.text, bg = colors.mantle, bold = 
 vim.api.nvim_set_hl(0, "WinBarNC", { fg = colors.overlay1, bg = colors.mantle })
 vim.api.nvim_set_hl(0, "ColorColumn", { bg = colors.colorcolumn })
 
-vim.cmd.packadd('cfilter') --add quickfix filter builtin
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    vim.cmd.packadd('cfilter') --add quickfix filter builtin
+    vim.cmd.packadd('termdebug') --add gdb debug command
+    vim.cmd.packadd('nvim.difftool')
+    vim.cmd.packadd('nvim.undotree')
+  end
+})
 
 -- Plugins
 local lazypath = vim.fn.stdpath("data") ..
@@ -496,16 +515,6 @@ require("lazy").setup({
   },
   {
     "tpope/vim-rhubarb",
-  },
-  {
-    "sindrets/diffview.nvim",
-    cmd = { "DiffviewOpen", "DiffviewClose" },
-    keys = {
-      { "<leader>gd", ":DiffviewOpen<cr>",        mode = "", desc = "[G]it [D]iff View" },
-      { "<leader>go", ":DiffviewOpen ",           mode = "", desc = "[G]it Diff View [O]pen" },
-      { "<leader>gh", ":DiffviewFileHistory<cr>", mode = "", desc = "[G]it Diff View File [H]istory" },
-      { "<leader>gc", ":DiffviewClose<cr>",       mode = "", desc = "[G]it Diff View [C]lose" },
-    },
   },
   { -- Detect tabstop and shiftwidth automatically
     "tpope/vim-sleuth",
@@ -1690,7 +1699,6 @@ require("lazy").setup({
       })
     end,
   },
-  { "andymass/vim-matchup",               lazy = false,       config = function() vim.g.loaded_matchit = 1 end },
   { "brenoprata10/nvim-highlight-colors", event = "BufEnter", config = function() require("nvim-highlight-colors").setup() end },
   {
     "petertriho/nvim-scrollbar",
@@ -1711,7 +1719,6 @@ require("lazy").setup({
       })
     end,
   },
-  { "mbbill/undotree",       keys = { { "<leader>u", vim.cmd.UndotreeToggle, mode = "", desc = "[U]ndotree Toggle" } } },
   {
     "L3MON4D3/LuaSnip",
     event = "InsertEnter",
@@ -1903,105 +1910,6 @@ require("lazy").setup({
         max_join_length = 1000,
       })
       vim.keymap.set("n", "<leader>j", require("treesj").toggle, { desc = "Toggle Join/Split of Code Block" })
-    end,
-  },
-  {
-    "luukvbaal/statuscol.nvim",
-    lazy = false,
-    config = function()
-      local builtin = require("statuscol.builtin")
-      require("statuscol").setup({
-        relculright = true,
-        segments = {
-          {
-            sign = {
-              namespace = { "gitsigns" },
-              maxwidth = 1,
-              colwidth = 1,
-              auto = true,
-              fillchar = " ",
-              fillcharhl = "StatusColumnSeparator",
-            },
-            click = "v:lua.ScSa",
-          },
-          { text = { builtin.lnumfunc }, click = "v:lua.ScLa" },
-          {
-            sign = {
-              name = {
-                "Dap",
-                "neotest",
-              },
-              maxwidth = 1,
-              colwidth = 1,
-              auto = false,
-            },
-            click = "v:lua.ScSa",
-          },
-          {
-            sign = {
-              namespace = { "diagnostic*" },
-              maxwidth = 1,
-              colwidth = 1,
-              auto = true,
-            },
-            click = "v:lua.ScSa",
-          },
-          { text = { builtin.foldfunc }, click = "v:lua.ScFa" },
-        },
-      })
-    end,
-  },
-  {
-    "kevinhwang91/nvim-ufo",
-    lazy = false,
-    dependencies = {
-      "kevinhwang91/promise-async",
-    },
-    config = function()
-      local handler = function(virtText, lnum, endLnum, width, truncate)
-        local newVirtText = {}
-        local suffix = (" 󰁂 %d "):format(endLnum - lnum)
-        local sufWidth = vim.fn.strdisplaywidth(suffix)
-        local targetWidth = width - sufWidth
-        local curWidth = 0
-        for _, chunk in ipairs(virtText) do
-          local chunkText = chunk[1]
-          local chunkWidth = vim.fn.strdisplaywidth(chunkText)
-          if targetWidth > curWidth + chunkWidth then
-            table.insert(newVirtText, chunk)
-          else
-            chunkText = truncate(chunkText, targetWidth - curWidth)
-            local hlGroup = chunk[2]
-            table.insert(newVirtText, { chunkText, hlGroup })
-            chunkWidth = vim.fn.strdisplaywidth(chunkText)
-            -- str width returned from truncate() may less than 2nd argument, need padding
-            if curWidth + chunkWidth < targetWidth then
-              suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
-            end
-            break
-          end
-          curWidth = curWidth + chunkWidth
-        end
-        table.insert(newVirtText, { suffix, "MoreMsg" })
-        return newVirtText
-      end
-
-      require("ufo").setup({
-        fold_virt_text_handler = handler,
-        provider_selector = function()
-          return { "treesitter", "indent" }
-        end,
-      })
-      vim.keymap.set("n", "zo", require("ufo").openFoldsExceptKinds)
-      vim.keymap.set("n", "zO", require("ufo").openAllFolds)
-      vim.keymap.set("n", "zc", require("ufo").closeFoldsWith)
-      vim.keymap.set("n", "zC", require("ufo").closeAllFolds)
-      -- ufo.nvim
-      vim.o.foldcolumn = "1" -- '0' is not bad
-      vim.o.foldlevel = 99   -- Using ufo provider need a large value, feel free to decrease the value
-      vim.o.foldlevelstart = 99
-      vim.o.foldenable = true
-      vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
     end,
   },
   {
