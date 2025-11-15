@@ -50,6 +50,7 @@ vim.opt.splitright = true
 vim.opt.textwidth = 0
 vim.opt.wrapmargin = 0
 vim.opt.breakindent = true
+vim.opt.breakindentopt= "shift:8"
 vim.opt.showbreak = string.rep(" ", 2) .. "↪  " -- Make it so that long lines wrap smartly
 vim.opt.linebreak = true
 vim.opt.wrap = true
