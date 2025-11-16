@@ -2071,14 +2071,6 @@ require("lazy").setup({
 
 -- https://vimregex.com/
 
--- append this to .gitconfig to use nvim for diff and merges:
--- [diff]
---   tool = nvimdiff
--- [merge]
---   tool = nvimdiff
--- [mergetool "vimdiff"]
---   layout = BASE,MERGED + BASE,LOCAL + BASE,REMOTE
-
 -- Uninstall and reinstall repo from https://github.com/wilfriedbauer/nvim:
 -- # Linux or MacOS (unix)
 -- rm -rf ~/.config/nvim
@@ -2087,3 +2079,63 @@ require("lazy").setup({
 -- # Windows
 -- rd -r ~\AppData\Local\nvim
 -- rd -r ~\AppData\Local\nvim-data
+
+-- Append .gitconfig to use nvim for diffs and merges (and other goodies):
+-- [user]
+-- 	name = REPLACE_PLACEHOLDER
+-- 	email = REPLACE_PLACEHOLDER
+-- [credential]
+-- 	helper = store
+-- [push]
+-- 	autoSetupRemote = true
+-- 	followTags = true
+-- [pull]
+-- 	rebase = true
+-- [fetch]
+-- 	prune = true
+-- 	pruneTags = true
+-- [core]
+-- 	editor = nvim
+-- 	autocrlf = input
+-- [branch]
+-- 	sort = -committerdate
+-- [commit]
+-- 	verbose = true
+-- [diff]
+-- 	tool = nvimdiff
+-- 	algorithm = histogram
+-- 	indentHeuristic = true
+-- 	colorMoved = default
+-- 	colorMovedWS = ignore-all-space
+-- [merge]
+-- 	tool = nvimdiff
+-- 	conflictstyle = zdiff3
+-- 	stat = true
+-- [mergetool "vimdiff"]
+-- 	layout = BASE,MERGED + BASE,LOCAL + BASE,REMOTE
+-- [color]
+-- 	ui = auto
+-- [column]
+-- 	ui = auto
+-- [tag]
+-- 	sort = version:refname
+-- [rerere]
+-- 	enabled = true
+-- 	autoupdate = true
+-- [help]
+-- 	autocorrect = prompt
+-- [alias]
+-- 	st = status -sb
+-- 	co = checkout
+-- 	br = branch
+-- 	rb = rebase -i HEAD~
+-- 	d = diff --color-moved
+-- 	df = diff --minimal
+-- 	lg = log --graph --oneline --decorate --all
+-- 	graph = log --graph --decorate --pretty=format:'%C(auto)%h %Cgreen%ad%Creset %C(bold blue)%an%Creset %s' --date=short
+-- 	amend = commit --amend --no-edit
+-- 	unstage = reset HEAD --
+-- 	last = log -1 HEAD
+-- 	undo = reset --soft HEAD~1
+-- 	wipe = reset --hard HEAD
+-- 	changes = diff HEAD~1 HEAD
