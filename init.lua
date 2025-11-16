@@ -62,8 +62,6 @@ vim.opt.undofile = true
 vim.opt.incsearch = true
 vim.opt.hlsearch = true
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
-vim.keymap.set({ "n", "x", "o" }, "H", "^")
-vim.keymap.set({ "n", "x", "o" }, "L", "$")
 vim.opt.scrolloff = 2
 vim.opt.sidescrolloff = 5
 vim.opt.colorcolumn = "80"
@@ -111,12 +109,6 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv") -- move visual selection up a line with <s-j>
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- move visual selection down a line with <s-k>
--- INFO:
--- Instead of pressing ^ you can press _(underscore) to jump to the first non-whitespace character on the same line the cursor is on.
--- + and - jump to the first non-whitespace character on the next / previous line.
--- In visual mode press 'o' to switch the side of the selection the cursor is on.
--- While searching with / or ? press CTRL-g and CTRL-t to go to next/previous occurence without leaving search.
--- https://vimregex.com/
 vim.keymap.set("n", "ycc", '"yy" . v:count1 . "gcc\']p"', { remap = true, expr = true }) --Duplicate line and comment the line(takes count)
 vim.keymap.set("x", "/", "<Esc>/\\%V")                                                   --search within visual selection
 vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })    -- Remap for dealing with word wrap
@@ -2070,11 +2062,28 @@ require("lazy").setup({
         },
 }, {})
 
+-- INFO:
+-- Instead of pressing ^ you can press _(underscore) to jump to the first non-whitespace character on the same line the cursor is on.
+-- + and - jump to the first non-whitespace character on the next / previous line.
+-- In visual mode press 'o' to switch the side of the selection the cursor is on.
+-- In insert mode press CTRL-o to execute one normal mode command and go back to insertmode.
+-- While searching with / or ? press CTRL-g and CTRL-t to go to next/previous occurence without leaving search.
+
+-- https://vimregex.com/
+
+-- append this to .gitconfig to use nvim for diff and merges:
+-- [diff]
+--   tool = nvimdiff
+-- [merge]
+--   tool = nvimdiff
+-- [mergetool "vimdiff"]
+--   layout = BASE,MERGED + BASE,LOCAL + BASE,REMOTE
+
 -- Uninstall and reinstall repo from https://github.com/wilfriedbauer/nvim:
 -- # Linux or MacOS (unix)
 -- rm -rf ~/.config/nvim
 -- rm -rf ~/.local/share/nvim
---
+
 -- # Windows
 -- rd -r ~\AppData\Local\nvim
 -- rd -r ~\AppData\Local\nvim-data
