@@ -2075,6 +2075,7 @@ require("lazy").setup({
 -- While searching with / or ? press CTRL-g and CTRL-t to go to next/previous occurence without leaving search.
 
 -- https://vimregex.com/
+-- https://blog.sanctum.geek.nz/series/unix-as-ide/
 
 -- Uninstall and reinstall repo from https://github.com/wilfriedbauer/nvim:
 -- # Linux or MacOS (unix)
