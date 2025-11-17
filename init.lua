@@ -65,7 +65,7 @@ vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.opt.scrolloff = 2
 vim.opt.sidescrolloff = 5
 vim.opt.colorcolumn = "80"
-vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,winpos,terminal" -- auto-session.nvim
+vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,winpos,terminal"
 
 -- change diagnostic signs and display the most severe one in the sign gutter on the left.
 vim.diagnostic.config({
@@ -347,42 +347,48 @@ vim.keymap.set("n", "<leader>Q", "<cmd>bd<CR>", { desc = "Close Buffer" })
 vim.keymap.set("n", "<leader>k", vim.diagnostic.open_float, { desc = "Show diagnostic Error messages" })
 vim.keymap.set("n", "<leader>K", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
---- IDE Jump Keymaps for Neovim
--- Function to get the current buffer's file path and line number
-local function get_current_file_info()
-  local file_path = vim.fn.expand("%:p")
-  local line_number = vim.fn.line(".")
-  return file_path, line_number
-end
-
--- Jump to VSCode at the same file and line
-function JumpToVSCode()
-  local file_path, line_number = get_current_file_info()
-  local command = string.format('code --goto "%s":%d', file_path, line_number)
-  os.execute(command)
-end
-
--- Jump to Visual Studio at the same file (line doesnt work)
-function JumpToVisualStudio()
-  local file_path, line_number = get_current_file_info()
-  local command = string.format("start devenv /Edit %s", file_path)
-  os.execute(command)
-end
-
--- Keymaps
-vim.keymap.set("n", "<leader>x", JumpToVSCode, { noremap = true, silent = true, desc = "Open current file in VSCode" })
-vim.keymap.set("n", "<leader>X", JumpToVisualStudio,
-  { noremap = true, silent = true, desc = "Open current file in Visual Studio" })
-
--- [[ Highlight on yank ]]
--- See `:help vim.highlight.on_yank()`
-local highlight_group = vim.api.nvim_create_augroup("YankHighlight", { clear = true })
+-- highlight yank
 vim.api.nvim_create_autocmd("TextYankPost", {
-  callback = function()
-    vim.highlight.on_yank()
-  end,
-  group = highlight_group,
-  pattern = "*",
+    group = vim.api.nvim_create_augroup("highlight_yank", { clear = true }),
+    pattern = "*",
+    desc = "highlight selection on yank",
+    callback = function()
+        vim.highlight.on_yank({ timeout = 200, visual = true })
+    end,
+})
+
+-- restore cursor to file position in previous editing session
+vim.api.nvim_create_autocmd("BufReadPost", {
+    callback = function(args)
+        local mark = vim.api.nvim_buf_get_mark(args.buf, '"')
+        local line_count = vim.api.nvim_buf_line_count(args.buf)
+        if mark[1] > 0 and mark[1] <= line_count then
+            vim.api.nvim_win_set_cursor(0, mark)
+            -- defer centering slightly so it's applied after render
+            vim.schedule(function()
+                vim.cmd("normal! zz")
+            end)
+        end
+    end,
+})
+
+-- open help in vertical split
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "help",
+    command = "wincmd L",
+})
+
+-- auto resize splits when the terminal's window is resized
+vim.api.nvim_create_autocmd("VimResized", {
+    command = "wincmd =",
+})
+
+-- no auto continue comments on new line
+vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("no_auto_comment", {}),
+    callback = function()
+        vim.opt_local.formatoptions:remove({ "c", "r", "o" })
+    end,
 })
 
 vim.api.nvim_create_autocmd("VimEnter", {
@@ -398,7 +404,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
     vim.api.nvim_command([[menu PopUp.-6- <NOP>]])
     vim.api.nvim_command([[menu PopUp.Toggle\ \Breakpoint <cmd>:lua require('dap').toggle_breakpoint()<CR>]])
     vim.api.nvim_command([[menu PopUp.Start\ \Debugger <cmd>:DapContinue<CR>]])
-    vim.api.nvim_command([[menu PopUp.Run\ \Test <cmd>:Neotest run<CR>]])
+    vim.api.nvim_command([[menu PopUp.Run\ \Test <cmd>lua require("neotest").run.run()<CR>]])
   end,
 })
 
@@ -2001,65 +2007,64 @@ require("lazy").setup({
       )
     end,
   },
-  { "numToStr/Comment.nvim", event = "BufEnter", opts = {} },
-      { -- Autoformat
-        "stevearc/conform.nvim",
-        event = "BufEnter",
-        keys = {
-          {
-            "<leader>FF",
-            function()
-              require("conform").format({ async = false, lsp_fallback = true })
-              vim.cmd("retab")
-            end,
-            mode = "",
-            desc = "[F]ormat buffer",
-          },
+  { -- Autoformat
+    "stevearc/conform.nvim",
+    event = "BufEnter",
+    keys = {
+      {
+        "<leader>FF",
+        function()
+          require("conform").format({ async = false, lsp_fallback = true })
+          vim.cmd("retab")
+        end,
+        mode = "",
+        desc = "[F]ormat buffer",
+      },
+    },
+    opts = {
+      notify_on_error = false,
+      stop_after_first = true,
+      format_on_save = nil,
+      -- format_on_save = function(bufnr)
+      --   -- Disable "format_on_save lsp_fallback" for languages that don't
+      --   -- have a well standardized coding style. You can add additional
+      --   -- languages here or re-enable it for the disabled ones.
+      --   local disable_filetypes = { --[[  c = true, cpp = true  ]]
+      --   }
+      --   return {
+      --     timeout_ms = 500,
+      --     lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
+      --   }
+      -- end,
+        formatters_by_ft = {
+          lua             = { "stylua" },
+          csharp          = { "csharpier" },
+          python          = { "isort", "black" },
+          javascript      = { "prettierd", "prettier" },
+          javascriptreact = { "prettierd", "prettier" },
+          typescript      = { "prettierd", "prettier" },
+          typescriptreact = { "prettierd", "prettier" },
+          graphql         = { "prettierd", "prettier" },
+          html            = { "prettierd", "prettier" },
+          css             = { "prettierd", "prettier" },
+          sh              = { "shfmt" },
+          bash            = { "shfmt" },
+          go              = { "gofmt" },
+          php             = { "phpcbf" },
+          rust            = { "rustfmt" },
+          kotlin          = { "ktfmt" },
+          java            = { "google-java-format" },
+          c               = { "clang-format" },
+          cpp             = { "clang-format" },
+          sql             = { "sqlfmt" },
+          json            = { "prettierd", "prettier" },
+          yaml            = { "yamlfmt" },
+          toml            = { "taplo" },
+          xml             = { "xmlformat" },
+          markdown        = { "prettierd", "prettier" },
         },
-        opts = {
-          notify_on_error = false,
-          stop_after_first = true,
-          format_on_save = nil,
-          -- format_on_save = function(bufnr)
-          --   -- Disable "format_on_save lsp_fallback" for languages that don't
-          --   -- have a well standardized coding style. You can add additional
-          --   -- languages here or re-enable it for the disabled ones.
-          --   local disable_filetypes = { --[[  c = true, cpp = true  ]]
-          --   }
-          --   return {
-          --     timeout_ms = 500,
-          --     lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-          --   }
-          -- end,
-            formatters_by_ft = {
-              lua             = { "stylua" },
-              csharp          = { "csharpier" },
-              python          = { "isort", "black" },
-              javascript      = { "prettierd", "prettier" },
-              javascriptreact = { "prettierd", "prettier" },
-              typescript      = { "prettierd", "prettier" },
-              typescriptreact = { "prettierd", "prettier" },
-              graphql         = { "prettierd", "prettier" },
-              html            = { "prettierd", "prettier" },
-              css             = { "prettierd", "prettier" },
-              sh              = { "shfmt" },
-              bash            = { "shfmt" },
-              go              = { "gofmt" },
-              php             = { "phpcbf" },
-              rust            = { "rustfmt" },
-              kotlin          = { "ktfmt" },
-              java            = { "google-java-format" },
-              c               = { "clang-format" },
-              cpp             = { "clang-format" },
-              sql             = { "sqlfmt" },
-              json            = { "prettierd", "prettier" },
-              yaml            = { "yamlfmt" },
-              toml            = { "taplo" },
-              xml             = { "xmlformat" },
-              markdown        = { "prettierd", "prettier" },
-            },
-          },
-        },
+      },
+    },
 }, {})
 
 -- INFO:
@@ -2082,60 +2087,60 @@ require("lazy").setup({
 
 -- Append .gitconfig to use nvim for diffs and merges (and other goodies):
 -- [user]
--- 	name = REPLACE_PLACEHOLDER
--- 	email = REPLACE_PLACEHOLDER
+--  name = REPLACE_PLACEHOLDER
+--  email = REPLACE_PLACEHOLDER
 -- [credential]
--- 	helper = store
+--  helper = store
 -- [push]
--- 	autoSetupRemote = true
--- 	followTags = true
+--  autoSetupRemote = true
+--  followTags = true
 -- [pull]
--- 	rebase = true
+--  rebase = true
 -- [fetch]
--- 	prune = true
--- 	pruneTags = true
+--  prune = true
+--  pruneTags = true
 -- [core]
--- 	editor = nvim
--- 	autocrlf = input
+--  editor = nvim
+--  autocrlf = input
 -- [branch]
--- 	sort = -committerdate
+--  sort = -committerdate
 -- [commit]
--- 	verbose = true
+--  verbose = true
 -- [diff]
--- 	tool = nvimdiff
--- 	algorithm = histogram
--- 	indentHeuristic = true
--- 	colorMoved = default
--- 	colorMovedWS = ignore-all-space
+--  tool = nvimdiff
+--  algorithm = histogram
+--  indentHeuristic = true
+--  colorMoved = default
+--  colorMovedWS = ignore-all-space
 -- [merge]
--- 	tool = nvimdiff
--- 	conflictstyle = zdiff3
--- 	stat = true
+--  tool = nvimdiff
+--  conflictstyle = zdiff3
+--  stat = true
 -- [mergetool "vimdiff"]
--- 	layout = BASE,MERGED + BASE,LOCAL + BASE,REMOTE
+--  layout = BASE,MERGED + BASE,LOCAL + BASE,REMOTE
 -- [color]
--- 	ui = auto
+--  ui = auto
 -- [column]
--- 	ui = auto
+--  ui = auto
 -- [tag]
--- 	sort = version:refname
+--  sort = version:refname
 -- [rerere]
--- 	enabled = true
--- 	autoupdate = true
+--  enabled = true
+--  autoupdate = true
 -- [help]
--- 	autocorrect = prompt
+--  autocorrect = prompt
 -- [alias]
--- 	st = status -sb
--- 	co = checkout
--- 	br = branch
--- 	rb = rebase -i HEAD~
--- 	d = diff --color-moved
--- 	df = diff --minimal
--- 	lg = log --graph --oneline --decorate --all
--- 	graph = log --graph --decorate --pretty=format:'%C(auto)%h %Cgreen%ad%Creset %C(bold blue)%an%Creset %s' --date=short
--- 	amend = commit --amend --no-edit
--- 	unstage = reset HEAD --
--- 	last = log -1 HEAD
--- 	undo = reset --soft HEAD~1
--- 	wipe = reset --hard HEAD
--- 	changes = diff HEAD~1 HEAD
+--  st = status -sb
+--  co = checkout
+--  br = branch
+--  rb = rebase -i HEAD~
+--  d = diff --color-moved
+--  df = diff --minimal
+--  lg = log --graph --oneline --decorate --all
+--  graph = log --graph --decorate --pretty=format:'%C(auto)%h %Cgreen%ad%Creset %C(bold blue)%an%Creset %s' --date=short
+--  amend = commit --amend --no-edit
+--  unstage = reset HEAD --
+--  last = log -1 HEAD
+--  undo = reset --soft HEAD~1
+--  wipe = reset --hard HEAD
+--  changes = diff HEAD~1 HEAD
