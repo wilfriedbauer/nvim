@@ -110,7 +110,8 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv") -- move visual selection up a line with <s-j>
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- move visual selection down a line with <s-k>
 vim.keymap.set("n", "ycc", '"yy" . v:count1 . "gcc\']p"', { remap = true, expr = true }) --Duplicate line and comment the line(takes count)
-vim.keymap.set("x", "/", "<Esc>/\\%V")                                                   --search within visual selection
+vim.keymap.set("x", "<C-/>", "<Esc>/\\%V")                                                   --search within visual selection
+
 vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })    -- Remap for dealing with word wrap
 vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })    -- Remap for dealing with word wrap
 
