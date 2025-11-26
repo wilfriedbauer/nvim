@@ -11,7 +11,11 @@ vim.o.showmode = false
 vim.wo.signcolumn = "yes"
 vim.o.updatetime = 50
 vim.o.timeoutlen = 500
-vim.o.completeopt = "menuone,noselect"
+vim.o.completeopt = "fuzzy,menuone,noselect,popup"
+vim.o.autocomplete = false
+-- vim.o.pumheight = 7
+-- vim.o.complete = ".,o" -- use buffer and omnifunc
+
 vim.o.termguicolors = true
 vim.opt.relativenumber = false
 vim.o.statuscolumn = "%s %l %C "
@@ -106,9 +110,9 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
-vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv") -- move visual selection up a line with <s-j>
-vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv") -- move visual selection down a line with <s-k>
+vim.keymap.set({ "n", "x" }, "<Space>", "<Nop>", { silent = true })
+vim.keymap.set("x", "J", ":m '>+1<CR>gv=gv") -- move visual selection up a line with <s-j>
+vim.keymap.set("x", "K", ":m '<-2<CR>gv=gv") -- move visual selection down a line with <s-k>
 vim.keymap.set("n", "ycc", '"yy" . v:count1 . "gcc\']p"', { remap = true, expr = true }) --Duplicate line and comment the line(takes count)
 vim.keymap.set("x", "<C-/>", "<Esc>/\\%V")                                                   --search within visual selection
 
@@ -129,44 +133,6 @@ vim.keymap.set("n", "<leader>L", function()
   vim.lsp.codelens.refresh()
   vim.lsp.codelens.run()
 end, { desc = "Codelens Toggle" })
-
--- diff visual selection or current file with clipboard in scratchbuffer
-vim.keymap.set({ "n", "v" }, "<leader>dd", function()
-  local clipboard = vim.fn.getreg("+") -- or "*" for primary selection
-  local mode = vim.fn.mode()
-  local buf = vim.api.nvim_create_buf(false, true)
-  -- Insert clipboard into new buffer
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(clipboard, "\n"))
-  -- Save current window
-  local curr_win = vim.api.nvim_get_current_win()
-  -- Handle visual selection or entire buffer
-  local lines
-  if mode == "v" or mode == "V" then
-    -- Get visual range
-    local start_pos = vim.fn.getpos("'<")[2]
-    local end_pos = vim.fn.getpos("'>")[2]
-    lines = vim.api.nvim_buf_get_lines(0, start_pos - 1, end_pos, false)
-  else
-    -- Use entire buffer
-    lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-  end
-  -- Create new scratch buffer and insert selected lines
-  local buf2 = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(buf2, 0, -1, false, lines)
-  -- Split and load buffers
-  vim.cmd("vsplit")
-  vim.api.nvim_win_set_buf(curr_win, buf2)
-  vim.api.nvim_set_current_buf(buf)
-  -- Enable diff mode
-  vim.cmd("wincmd l")
-  vim.cmd("diffthis")
-  vim.cmd("wincmd h")
-  vim.cmd("diffthis")
-end, { desc = "Compare clipboard with selection or file" })
-vim.keymap.set("n", "<leader>dc", function()
-  vim.cmd("diffoff!")
-  vim.cmd("bd!") -- Close the scratch buffer
-end, { desc = "Exit diff mode and close scratch buffers" })
 
 -- Terminal
 local te_buf = nil
@@ -966,26 +932,31 @@ require("lazy").setup({
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(ev)
           local bufnr = ev.buf
+          local client = vim.lsp.get_client_by_id(ev.data.client_id)
+          -- Only activate if server supports it
+          if not client.server_capabilities.documentHighlightProvider then
+            return
+          end
 
-          vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, { buffer = bufnr, desc = "[R]ename" })
-          vim.keymap.set("n", "<leader>C", vim.lsp.buf.code_action,
-            { buffer = bufnr, desc = "Code Action (Builtin LSP)" })
-          vim.keymap.set('n', '<leader>Ff', vim.lsp.buf.format,
-            { noremap = true, silent = true, desc = 'Format buffer with LSP' })
+          local group = vim.api.nvim_create_augroup("LspDocumentHighlight" .. bufnr, { clear = true })
 
-          vim.keymap.set("n", "gd", require("telescope.builtin").lsp_definitions,
-            { buffer = bufnr, desc = "[G]oto [D]efinition" })
-          vim.keymap.set("n", "gr", "<Nop>", { noremap = true })
-          vim.keymap.set("n", "gr", require("telescope.builtin").lsp_references,
-            { buffer = bufnr, desc = "[G]oto [R]eferences", nowait = true })
+          -- Trigger highlight on CursorHold
+          vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+            group = group,
+            buffer = bufnr,
+            callback = function()
+              vim.lsp.buf.document_highlight()
+            end,
+          })
 
-          vim.keymap.set("n", "gI", require("telescope.builtin").lsp_implementations,
-            { buffer = bufnr, desc = "[G]oto [I]mplementation" })
-          vim.keymap.set("n", "gD", require("telescope.builtin").lsp_type_definitions,
-            { buffer = bufnr, desc = "Type [D]efinition" })
-          vim.keymap.set("n", "gR", vim.lsp.buf.declaration, { buffer = bufnr, desc = "[G]oto [D]eclaration" })
-
-          vim.keymap.set("n", "<C-s>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature Documentation" })
+          -- Clear highlight on movement
+          vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+            group = group,
+            buffer = bufnr,
+            callback = function()
+              vim.lsp.buf.clear_references()
+            end,
+          })
 
           vim.keymap.set("n", "<leader>wd", require("telescope.builtin").lsp_document_symbols,
             { buffer = bufnr, desc = "[D]ocument Symbols" })
@@ -1244,8 +1215,8 @@ require("lazy").setup({
         { "<leader>8",  hidden = true },
         { "<leader>9",  hidden = true },
       }, {
-        { "<leader>",  group = "VISUAL <leader>", mode = "v" },
-        { "<leader>h", desc = "Git [H]unk",       mode = "v" },
+        { "<leader>",  group = "VISUAL <leader>", mode = "x" },
+        { "<leader>h", desc = "Git [H]unk",       mode = "x" },
       })
     end
   },
@@ -1271,7 +1242,7 @@ require("lazy").setup({
         end
 
         -- Navigation
-        map({ "n", "v" }, "]c", function()
+        map({ "n", "x" }, "]c", function()
           if vim.wo.diff then
             return "]c"
           end
@@ -1281,7 +1252,7 @@ require("lazy").setup({
           return "<Ignore>"
         end, { expr = true, desc = "Jump to next hunk" })
 
-        map({ "n", "v" }, "[c", function()
+        map({ "n", "x" }, "[c", function()
           if vim.wo.diff then
             return "[c"
           end
@@ -1293,10 +1264,10 @@ require("lazy").setup({
 
         -- Actions
         -- visual mode
-        map("v", "<leader>hs", function()
+        map("x", "<leader>hs", function()
           gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
         end, { desc = "stage git hunk" })
-        map("v", "<leader>hr", function()
+        map("x", "<leader>hr", function()
           gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
         end, { desc = "reset git hunk" })
         -- normal mode
@@ -1899,6 +1870,10 @@ require("lazy").setup({
       })
       vim.keymap.set("n", "<leader>j", require("treesj").toggle, { desc = "Toggle Join/Split of Code Block" })
     end,
+  },
+  {
+    "OXY2DEV/markview.nvim",
+    lazy = false,
   },
   {
     "iamcco/markdown-preview.nvim",
