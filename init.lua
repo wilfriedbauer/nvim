@@ -785,7 +785,6 @@ require("lazy").setup({
     dependencies = {
       { "nvim-telescope/telescope.nvim" },
       { "nvim-treesitter/nvim-treesitter" },
-      { "seblyng/roslyn.nvim" },
       { "mason-org/mason-lspconfig.nvim" },
       { "mason-org/mason.nvim" },
       { "WhoIsSethDaniel/mason-tool-installer.nvim" },
@@ -806,9 +805,7 @@ require("lazy").setup({
       },
     },
     config = function()
-      require("mason").setup({
-        registries = { "github:crashdummyy/mason-registry", "github:mason-org/mason-registry" },
-      })
+      require("mason").setup()
       require("mason-lspconfig").setup()
       require("mason-tool-installer").setup({
         ensure_installed = {
@@ -846,7 +843,6 @@ require("lazy").setup({
           "google-java-format", --formatter
 
           -- C#
-          "roslyn",    -- LSP
           "csharpier", -- formatter
 
           -- C / C++
@@ -937,7 +933,6 @@ require("lazy").setup({
 
       vim.keymap.set("n", "<leader>FL", function() require("lint").try_lint() end, { buffer = bufnr, desc = "[L]int" })
 
-      require("roslyn").setup()
       -- Keymaps only set when an LSP attaches
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(ev)
@@ -1001,9 +996,16 @@ require("lazy").setup({
   },
   {
     "GustavEikaas/easy-dotnet.nvim",
-    dependencies = { "nvim-lua/plenary.nvim", 'nvim-telescope/telescope.nvim', },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim",
+    },
     config = function()
-      require("easy-dotnet").setup()
+      require("easy-dotnet").setup({
+        debugger = {
+          bin_path = "netcoredbg",
+        },
+      })
     end
   },
   {
@@ -1390,7 +1392,7 @@ require("lazy").setup({
         function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end,
         desc = "Code Debug: Set conditional Breakpoint"
       },
-      { "<leader>BB", function() require("dapui").toggle() end,                                      desc = "Debug: See last session result." },
+      { "<leader>BB", function() require("dapui").toggle() end,                                      desc = "Debug: Toggle UI & See last session result." },
       { "<leader>Bc", function() require("dap").run_to_cursor() end,                                 desc = "Debug: Run to Cursor" },
       { "<leader>BR", function() require("dap").repl.toggle() end,                                   desc = "Debug: Toggle REPL" },
       { "<leader>BJ", function() require("dap").down() end,                                          desc = "Debug: Go Down Stack Frame" },
@@ -1400,52 +1402,46 @@ require("lazy").setup({
       end,                                                                                           desc = "Debug: Terminate and Clear Breakpoints" },
     },
     config = function()
-      vim.api.nvim_create_autocmd("ColorScheme", {
-        pattern = "*",
-        desc = "Prevent colorscheme clearing self-defined DAP marker colors",
-        callback = function()
-          -- Reuse current SignColumn background (except for DapStoppedLine)
-          local sign_column_hl = vim.api.nvim_get_hl(0, { name = "SignColumn" })
-          -- if bg or ctermbg aren't found, use bg = 'bg' (which means current Normal) and ctermbg = 'Black'
-          -- convert to 6 digit hex value starting with #
-          local sign_column_bg = (sign_column_hl.bg ~= nil) and ("#%06x"):format(sign_column_hl.bg) or "bg"
-          local sign_column_ctermbg = (sign_column_hl.ctermbg ~= nil) and sign_column_hl.ctermbg or "Black"
-
-          vim.api.nvim_set_hl(
-            0,
-            "DapStopped",
-            { fg = "#00ff00", bg = sign_column_bg, ctermbg = sign_column_ctermbg }
-          )
-          vim.api.nvim_set_hl(0, "DapStoppedLine", { bg = "#2e4d3d", ctermbg = "Green" })
-          vim.api.nvim_set_hl(
-            0,
-            "DapBreakpoint",
-            { fg = "#c23127", bg = sign_column_bg, ctermbg = sign_column_ctermbg }
-          )
-          vim.api.nvim_set_hl(
-            0,
-            "DapBreakpointRejected",
-            { fg = "#888ca6", bg = sign_column_bg, ctermbg = sign_column_ctermbg }
-          )
-          vim.api.nvim_set_hl(
-            0,
-            "DapLogPoint",
-            { fg = "#61afef", bg = sign_column_bg, ctermbg = sign_column_ctermbg }
-          )
-        end,
-      })
-
-      -- reload current color scheme to pick up colors override if it was set up in a lazy plugin definition fashion
-      vim.cmd.colorscheme(vim.g.colors_name)
-
-      vim.fn.sign_define("DapBreakpoint", { text = "", texthl = "DapBreakpoint" })
-      vim.fn.sign_define("DapBreakpointCondition", { text = "", texthl = "DapBreakpoint" })
-      vim.fn.sign_define("DapBreakpointRejected", { text = "", texthl = "DapBreakpoint" })
-      vim.fn.sign_define("DapLogPoint", { text = "", texthl = "DapLogPoint" })
-      vim.fn.sign_define("DapStopped", { text = "", texthl = "DapStopped" })
-
       local dap = require("dap")
       local dapui = require("dapui")
+
+      vim.api.nvim_set_hl(0, "DapBreakpoint",            { fg = "#E06C75" })
+      vim.api.nvim_set_hl(0, "DapBreakpointCondition",   { fg = "#E5C07B" })
+      vim.api.nvim_set_hl(0, "DapLogPoint",              { fg = "#61AFEF" })
+      vim.api.nvim_set_hl(0, "DapBreakpointRejected",    { fg = "#BE5046" })
+      vim.api.nvim_set_hl(0, "DapStopped",               { fg = "#98C379" })
+      vim.api.nvim_set_hl(0, "DapStoppedLine",           { bg = "#2c313c" })
+
+      vim.fn.sign_define("DapBreakpoint", {
+        text = "●",
+        texthl = "DapBreakpoint",
+        numhl = "DapBreakpoint",
+      })
+
+      vim.fn.sign_define("DapBreakpointCondition", {
+        text = "",
+        texthl = "DapBreakpointCondition",
+        numhl = "DapBreakpointCondition",
+      })
+
+      vim.fn.sign_define("DapLogPoint", {
+        text = "",
+        texthl = "DapLogPoint",
+        numhl = "DapLogPoint",
+      })
+
+      vim.fn.sign_define("DapBreakpointRejected", {
+        text = "",
+        texthl = "DapBreakpointRejected",
+        numhl = "DapBreakpointRejected",
+      })
+
+      vim.fn.sign_define("DapStopped", {
+        text = "",
+        texthl = "DapStopped",
+        linehl = "DapStoppedLine",
+        numhl = "DapStopped",
+      })
 
       require("mason").setup()
       require("mason-nvim-dap").setup({
@@ -1456,137 +1452,27 @@ require("lazy").setup({
           "coreclr"
         },
       })
-      -- dap.adapters.coreclr = {
-      --   type = "executable",
-      --   command = "netcoredbg",
-      --   args = { "--interpreter=vscode" },
-      -- }
 
-      -- .NET specific setup using `easy-dotnet`
-      local function rebuild_project(co, path)
-        local spinner = require("easy-dotnet.ui-modules.spinner").new()
-        spinner:start_spinner "Building"
-        vim.fn.jobstart(string.format("dotnet build %s", path), {
-          on_exit = function(_, return_code)
-            if return_code == 0 then
-              spinner:stop_spinner "Built successfully"
-            else
-              spinner:stop_spinner("Build failed with exit code " .. return_code, vim.log.levels.ERROR)
-              error "Build failed"
-            end
-            coroutine.resume(co)
-          end,
-        })
-        coroutine.yield()
-      end
-
-      require("easy-dotnet.netcoredbg").register_dap_variables_viewer() -- special variables viewer specific for .NET
-      local dotnet = require("easy-dotnet")
-      local debug_dll = nil
-
-      local function ensure_dll()
-        if debug_dll ~= nil then
-          return debug_dll
-        end
-        local dll = dotnet.get_debug_dll(true)
-        debug_dll = dll
-        return dll
-      end
-
-      for _, value in ipairs({ "cs", "fsharp" }) do
-        dap.configurations[value] = {
-          {
-            type = "coreclr",
-            name = "Program",
-            request = "launch",
-            env = function()
-              local dll = ensure_dll()
-              local vars = dotnet.get_environment_variables(dll.project_name, dll.relative_project_path)
-              return vars or nil
-            end,
-            program = function()
-              local dll = ensure_dll()
-              local co = coroutine.running()
-              rebuild_project(co, dll.project_path)
-              return dll.relative_dll_path
-            end,
-            cwd = function()
-              local dll = ensure_dll()
-              return dll.relative_project_path
-            end
-          },
-          {
-            type = "coreclr",
-            name = "Test",
-            request = "attach",
-            processId = function()
-              local res = require("easy-dotnet").experimental.start_debugging_test_project()
-              return res.process_id
-            end
-          }
-        }
-      end
-
-      -- Reset debug_dll after each terminated session
-      dap.listeners.before['event_terminated']['easy-dotnet'] = function()
-        debug_dll = nil
-      end
-
-      dap.adapters.coreclr = {
-        type = "executable",
-        -- command = "netcoredbg",
-        command = vim.fn.stdpath("data") .. "/mason/packages/netcoredbg/netcoredbg/netcoredbg.exe",
-        args = { "--interpreter=vscode" },
-      }
-
-      -- dap.adapters.netcoredbg = {
-      --   type = "executable",
-      --   command = "netcoredbg",
-      --   args = { "--interpreter=vscode" },
-      -- }
-
-      -- dap.configurations.cs = {
-      --   {
-      --     type = "coreclr",
-      --     name = "launch - netcoredbg",
-      --     request = "launch",
-      --     program = function()
-      --       return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/src/", "file")
-      --     end,
-      --   },
-      -- }
-      -- vim.keymap.set("n", "<leader>BC", dap.continue, { desc = "[B]ug: Start/[C]ontinue" })
-      -- vim.keymap.set("n", "<leader>BI", dap.step_into, { desc = "[B]ug: Step [I]nto" })
-      -- vim.keymap.set("n", "<leader>BO", dap.step_over, { desc = "[B]ug: Step [O]ver" })
-      -- vim.keymap.set("n", "<leader>BU", dap.step_out, { desc = "[B]ug: Step O[u]t" })
-      -- vim.keymap.set("n", "<leader>BP", dap.toggle_breakpoint, { desc = "[B]ug: Toggle Break[P]oint" })
-      -- vim.keymap.set("n", "<leader>Bp", function()
-      --   dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
-      -- end, { desc = "[B]ug: Set conditional Break[p]oint" })
-
-      -- Dap UI setup
-      -- For more information, see |:help nvim-dap-ui|
       dapui.setup({
-        -- Set icons to characters that are more likely to work in every terminal.
-        icons = { expanded = "▾", collapsed = "▸", current_frame = "*" },
+        icons = {
+          expanded = "▾",
+          collapsed = "▸",
+          current_frame = "●",
+        },
         controls = {
           icons = {
             pause = "⏸",
             play = "▶",
-            step_into = "⏎",
-            step_over = "⏭",
-            step_out = "⏮",
-            step_back = "b",
-            run_last = "▶▶",
+            step_into = "↳",
+            step_over = "↷",
+            step_out = "↰",
+            step_back = "↶",
+            run_last = "⟳",
             terminate = "⏹",
             disconnect = "⏏",
           },
         },
       })
-
-      -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-      -- vim.keymap.set("n", "<leader>BB", dapui.toggle, { desc = "De[b]ug: Toggle UI" })
-
       dap.listeners.after.event_initialized["dapui_config"] = dapui.open
       dap.listeners.before.event_terminated["dapui_config"] = dapui.close
       dap.listeners.before.event_exited["dapui_config"] = dapui.close
@@ -1644,7 +1530,7 @@ require("lazy").setup({
       })
     end,
   },
-  { "ryanoasis/vim-devicons",             event = "UIEnter" },
+  { "ryanoasis/vim-devicons", event = "UIEnter" },
   {
     "folke/trouble.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
