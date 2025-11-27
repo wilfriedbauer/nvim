@@ -358,6 +358,16 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
+vim.api.nvim_create_autocmd('TextYankPost', { -- yank-ring
+    callback = function()
+        if vim.v.event.operator == 'y' then
+            for i = 9, 1, -1 do -- Shift all numbered registers.
+                vim.fn.setreg(tostring(i), vim.fn.getreg(tostring(i - 1)))
+            end
+        end
+    end,
+})
+
 vim.api.nvim_create_autocmd("VimEnter", {
   desc = "Setup custom right-click contextual menu",
   callback = function()
@@ -1110,7 +1120,7 @@ require("lazy").setup({
           ["<C-e>"] = cmp.mapping.close(),
           ["<CR>"] = cmp.mapping.confirm({
             behavior = cmp.ConfirmBehavior.Replace,
-            select = true,
+            select = false,
           }),
           ["<Tab>"] = cmp_next,
           ["<down>"] = cmp_next,
