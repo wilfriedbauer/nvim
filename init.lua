@@ -1,7 +1,8 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-vim.opt.guicursor = "n:blinkwait100-blinkon100-blinkoff100,i:ver25-blinkwait100-blinkon100-blinkoff100,v:blinkwait100-blinkon100-blinkoff100"
+vim.o.guicursor = "n:blinkwait100-blinkon100-blinkoff100,i:ver25-blinkwait100-blinkon100-blinkoff100,v:blinkwait100-blinkon100-blinkoff100"
 vim.o.number = true
+vim.o.relativenumber = false
 vim.o.mouse = "a"
 vim.o.clipboard = "unnamedplus"
 vim.o.virtualedit = "all"
@@ -9,22 +10,23 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.showmode = false
 vim.wo.signcolumn = "yes"
-vim.o.updatetime = 50
+vim.o.updatetime = 100
 vim.o.timeoutlen = 500
-vim.o.completeopt = "fuzzy,menuone,noselect,popup"
-vim.o.autocomplete = false
--- vim.o.pumheight = 7
--- vim.o.complete = ".,o" -- use buffer and omnifunc
-
+vim.o.title = true
+vim.o.titlestring = [[nvim - %{fnamemodify(getcwd(), ":t")} - %{expand("%s:~:h")} - %{luaeval("require('dap').status()")}]]
+vim.o.completeopt = "fuzzy,menuone,noselect,popup,preview"
+vim.o.confirm = true
 vim.o.termguicolors = true
-vim.opt.relativenumber = false
 vim.o.statuscolumn = "%s %l %C "
-vim.opt.list = true
 vim.opt.path:append(",**")
+vim.o.list = true
 vim.opt.listchars = {
-  tab = "» ",
+  tab = "«-»",
   trail = "·",
   nbsp = "␣",
+  leadmultispace = " |",
+  extends = "→",
+  precedes = "←",
   -- eol = '↵',
 }
 vim.o.foldmethod = "indent"
@@ -41,37 +43,180 @@ vim.opt.fillchars = {
     foldinner = ' ',
     msgsep = '─',
 }
-vim.opt.cursorline = true
-vim.opt.cursorlineopt = "number"
-vim.opt.cursorcolumn = false
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
-vim.opt.inccommand = "split"
-vim.opt.splitbelow = true
-vim.opt.splitright = true
-vim.opt.textwidth = 0
-vim.opt.wrapmargin = 0
-vim.opt.breakindent = true
-vim.opt.breakindentopt= "shift:8"
-vim.opt.showbreak = string.rep(" ", 2) .. "↪  " -- Make it so that long lines wrap smartly
-vim.opt.linebreak = true
-vim.opt.wrap = true
-vim.opt.smartindent = true
-vim.opt.jumpoptions = "stack,view"
-vim.opt.swapfile = false
-vim.opt.backup = false
-vim.opt.undofile = true
-vim.opt.incsearch = true
-vim.opt.hlsearch = true
-vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
-vim.opt.scrolloff = 2
-vim.opt.sidescrolloff = 5
-vim.opt.colorcolumn = "80"
+vim.o.cursorline = true
+vim.o.cursorlineopt = "number"
+vim.o.cursorcolumn = false
+vim.o.tabstop = 4
+vim.o.softtabstop = 4
+vim.o.shiftwidth = 4
+vim.o.expandtab = true
+vim.o.smartindent = true
+vim.o.splitbelow = true
+vim.o.splitright = true
+vim.o.wrap = true
+vim.o.textwidth = 0
+vim.o.wrapmargin = 0
+vim.o.breakindent = true
+vim.o.breakindentopt= "shift:8"
+vim.o.showbreak = "  ↪  "
+vim.o.linebreak = true
+vim.o.jumpoptions = "stack,view"
+vim.o.swapfile = false
+vim.o.backup = false
+vim.o.undofile = true
+vim.o.inccommand = "split"
+vim.o.incsearch = true
+vim.o.hlsearch = true
+vim.o.scrolloff = 2
+vim.o.sidescrolloff = 5
+vim.o.colorcolumn = "80"
 vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,winpos,terminal"
+vim.o.iskeyword = '@,48-57,192-255,_,-'
 
--- change diagnostic signs and display the most severe one in the sign gutter on the left.
+
+if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then -- Windows-specific configurations.  vim.fn.has("unix") vim.fn.has("mac")
+  vim.o.shell = vim.fn.executable("pwsh") == 1 and "pwsh" or "powershell"
+  vim.o.shellxquote = ""
+  vim.o.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command "
+  vim.o.shellquote = ""
+  vim.o.shellpipe = "| Out-File -Encoding UTF8 %s"
+  vim.o.shellredir = "| Out-File -Encoding UTF8 %s"
+end
+
+vim.keymap.set('n', '<space>q', ':copen<CR>', { desc = 'Open the quickfix list' })
+vim.keymap.set('n', '<space>Q', ':cclose<CR>', { desc = 'Close the quickfix list' })
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+vim.keymap.set("n", "<leader>b", ":ls<CR>:b ", { desc = "Buffer Navigation" })
+vim.keymap.set('n', '<Space>e', ':30vs %:p:h/<CR>', { noremap = true })
+vim.keymap.set('n', 'Y', 'y$', { noremap = true })
+vim.keymap.set('n', ']a', ':next<CR>:arg<CR>', { desc = "Next and display Arglist", noremap = true })
+vim.keymap.set('n', '[a', ':previous<CR>:arg<CR>', { desc = "Previous and display Arglist", noremap = true })
+vim.keymap.set("n", "<leader>a", ":argadd%<CR>:arg<CR>", { desc = "Add current file to Arglist"})
+vim.keymap.set({ "n", "x" }, "<Space>", "<Nop>", { silent = true })
+vim.keymap.set("x", "J", ":m '>+1<CR>gv=gv")
+vim.keymap.set("x", "K", ":m '<-2<CR>gv=gv")
+vim.keymap.set("n", "ycc", '"yy" . v:count1 . "gcc\']p"', { remap = true, expr = true })
+vim.keymap.set("x", "<C-/>", "<Esc>/\\%V")
+vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+
+vim.keymap.set("n", "<leader>p", ":cd %:p:h<CR> :pwd<CR>", { desc = "Find Project Root Automatically" })
+
+vim.keymap.set("n", "zh", "zH", { desc = "Scroll right" })
+vim.keymap.set("n", "zl", "zL", { desc = "Scroll left" })
+
+vim.keymap.set("n", "<C-h>", "<C-w>h")
+vim.keymap.set("n", "<C-j>", "<C-w>j")
+vim.keymap.set("n", "<C-k>", "<C-w>k")
+vim.keymap.set("n", "<C-l>", "<C-w>l")
+
+vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
+vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
+vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
+vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+
+vim.keymap.set("n", "<Up>", "<cmd>resize -5<CR>", { desc = "Resize Down" })
+vim.keymap.set("n", "<Down>", "<cmd>resize +5<CR>", { desc = "Resize Up" })
+vim.keymap.set("n", "<Left>", "<cmd>vertical resize +5<CR>", { desc = "Resize Left" })
+vim.keymap.set("n", "<Right>", "<cmd>vertical resize -5<CR>", { desc = "Resize Right" })
+
+vim.keymap.set("n", "<leader>k", vim.diagnostic.open_float, { desc = "Show diagnostic Error messages" })
+vim.keymap.set("n", "<leader>K", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
+
+vim.keymap.set("n", "<leader>l", function()
+  vim.o.relativenumber = not vim.o.relativenumber
+  print("Relative Numbers Enabled: ", vim.o.relativenumber)
+end, { desc = "Toggle Relative Line Numbers" })
+
+vim.keymap.set("n", "<leader>i", function()
+  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+  print("InlayHint Enabled: ", vim.lsp.inlay_hint.is_enabled())
+end, { desc = "Inlay Hints Toggle" })
+
+local codelens_enabled = false
+vim.keymap.set("n", "<leader>L", function()
+  codelens_enabled = not codelens_enabled
+  if codelens_enabled then
+    vim.lsp.codelens.refresh()
+    vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+      group = vim.api.nvim_create_augroup("CodelensToggle", { clear = true }),
+      callback = vim.lsp.codelens.refresh,
+    })
+  else
+    vim.lsp.codelens.clear()
+    vim.api.nvim_clear_autocmds({ group = "CodelensToggle" })
+  end
+  print("CodeLens Enabled:", codelens_enabled)
+end, { desc = "Toggle CodeLens" })
+
+vim.keymap.set("n", "<leader>dH", function()
+  local enabled = vim.diagnostic.is_enabled()
+  vim.diagnostic.enable(not enabled)
+  print("Diagnostics Enabled:", not enabled)
+end, { desc = "[D]iagnostics - Toggle [H]ide all Diagnostics" })
+
+vim.keymap.set("n", "<leader>dh", function()
+  local config = vim.diagnostic.config()
+  local enabled = config.virtual_text ~= false
+  vim.diagnostic.config({ virtual_text = not enabled })
+  print("Virtual Text Enabled:", not enabled)
+end, { desc = "[D]iagnostics - Toggle [H]ide Virtual Text" })
+
+vim.keymap.set("n", "<leader>dl", function()
+  local config = vim.diagnostic.config()
+  local enabled = config.virtual_lines ~= nil and config.virtual_lines ~= false
+  vim.diagnostic.config({
+    virtual_lines = not enabled and { only_current_line = true } or false
+  })
+  print("Virtual Lines on current line enabled:", not enabled)
+end, { desc = "[D]iagnostics - Toggle Virtual Lines on current line" })
+
+vim.keymap.set("n", "<leader>z", function()
+  local centered = vim.opt.scrolloff:get() == 999
+  vim.opt.scrolloff = centered and 2 or 999
+  vim.cmd("normal! zz")
+  print("Keep Cursor Centered Enabled:", not centered)
+end, { desc = "Toggle keep cursor centered (auto zz)" })
+
+vim.lsp.inline_completion.enable(true)
+vim.keymap.set("i", "<C-CR>", function()
+  if not vim.lsp.inline_completion.get() then
+    return "<C-CR>"
+  end
+end, {
+  expr = true,
+  replace_keycodes = true,
+  desc = "Get the current inline completion",
+})
+
+local keys = { "!", "@", "#", "$", "%", "^", "&", "*", "(" }
+for i, key in ipairs(keys) do
+  vim.keymap.set("n", "<leader>" .. key, function()
+    local args = vim.fn.argv()
+    if i <= #args then
+      vim.cmd("argument " .. i)
+      vim.cmd("arg")
+    else
+      print("No arglist entry #" .. i)
+    end
+  end, {
+    noremap = true,
+    silent = true,
+    desc = "Go to arg " .. i
+  })
+end
+
+for i = 1, 9 do
+  vim.keymap.set('n', '<leader>' .. i, function()
+    local bufs = vim.fn.getbufinfo({ buflisted = 1 })
+    if i <= #bufs then
+      vim.cmd('buffer ' .. bufs[i].bufnr)
+    else
+      print("No buffer #" .. i)
+    end
+  end, { silent = true, noremap = true })
+end
+
 vim.diagnostic.config({
   virtual_text = true,
   signs = {
@@ -93,6 +238,16 @@ vim.diagnostic.config({
   severity_sort = true,
 })
 
+vim.api.nvim_create_autocmd('TextYankPost', { -- yank-ring
+    callback = function()
+        if vim.v.event.operator == 'y' then
+            for i = 9, 1, -1 do -- Shift all numbered registers.
+                vim.fn.setreg(tostring(i), vim.fn.getreg(tostring(i - 1)))
+            end
+        end
+    end,
+})
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = {
     "checkhealth",
@@ -104,215 +259,12 @@ vim.api.nvim_create_autocmd("FileType", {
     "notify",
     "qf",
     "query",
+    "nvim-undotree"
   },
   callback = function()
     vim.keymap.set("n", "q", vim.cmd.close, { desc = "Close the current buffer", buffer = true })
   end,
 })
-
-vim.keymap.set({ "n", "x" }, "<Space>", "<Nop>", { silent = true })
-vim.keymap.set("x", "J", ":m '>+1<CR>gv=gv") -- move visual selection up a line with <s-j>
-vim.keymap.set("x", "K", ":m '<-2<CR>gv=gv") -- move visual selection down a line with <s-k>
-vim.keymap.set("n", "ycc", '"yy" . v:count1 . "gcc\']p"', { remap = true, expr = true }) --Duplicate line and comment the line(takes count)
-vim.keymap.set("x", "<C-/>", "<Esc>/\\%V")                                                   --search within visual selection
-
-vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })    -- Remap for dealing with word wrap
-vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })    -- Remap for dealing with word wrap
-
-vim.keymap.set("n", "<leader>l", function()
-  vim.o.relativenumber = not vim.o.relativenumber
-  print("Relative Numbers Enabled: ", vim.o.relativenumber)
-end, { desc = "Toggle Relative Line Numbers" })
-
-vim.keymap.set("n", "<leader>i", function()
-  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
-  print("InlayHint Enabled: ", vim.lsp.inlay_hint.is_enabled())
-end, { desc = "Inlay Hints Toggle" })
-
-vim.keymap.set("n", "<leader>L", function()
-  vim.lsp.codelens.refresh()
-  vim.lsp.codelens.run()
-end, { desc = "Codelens Toggle" })
-
--- Terminal
-local te_buf = nil
-local te_win_id = nil
-
-local v = vim
-local fun = v.fn
-local cmd = v.api.nvim_command
-local gotoid = fun.win_gotoid
-local getid = fun.win_getid
-
-local function openTerminal()
-  if fun.bufexists(te_buf) ~= 1 then
-    cmd("au TermOpen * setlocal nonumber norelativenumber signcolumn=no")
-    cmd("sp | winc J | res 10 | te")
-    te_win_id = getid()
-    te_buf = fun.bufnr("%")
-  elseif gotoid(te_win_id) ~= 1 then
-    cmd("sb " .. te_buf .. "| winc J | res 10")
-    te_win_id = getid()
-  end
-  cmd("startinsert")
-end
-
-local function hideTerminal()
-  if gotoid(te_win_id) == 1 then
-    cmd("hide")
-  end
-end
-
-function ToggleTerminal()
-  if gotoid(te_win_id) == 1 then
-    hideTerminal()
-  else
-    openTerminal()
-  end
-end
-
-if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then -- Windows-specific configurations.  vim.fn.has("unix") vim.fn.has("mac")
-  vim.o.shell = vim.fn.executable("pwsh") == 1 and "pwsh" or "powershell"
-  vim.o.shellxquote = ""
-  vim.o.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command "
-  vim.o.shellquote = ""
-  vim.o.shellpipe = "| Out-File -Encoding UTF8 %s"
-  vim.o.shellredir = "| Out-File -Encoding UTF8 %s"
-end
-
--- have to set <C-_> instead of <C-/> for terminal toggle on CTRL-/.
--- ESC cant be used for leaving terminal if vi keybinds are set in terminal.
-vim.keymap.set("n", "<C-_>", function()
-  ToggleTerminal()
-end, { desc = "Toggle Terminal", noremap = true })
-
-vim.keymap.set("n", "<C-/>", function()
-  ToggleTerminal()
-end, { desc = "Toggle Terminal", noremap = true })
-
-function _G.set_terminal_keymaps()
-  local opts = { buffer = 0 }
-  vim.keymap.set("t", "<C-_>", [[<C-\><C-n>]], opts)
-  vim.keymap.set("t", "<C-/>", [[<C-\><C-n>]], opts)
-  vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], opts)
-  vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], opts)
-  vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], opts)
-  vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], opts)
-  vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], opts)
-end
-
-vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
-
-vim.g.diagnostics_visible = true
-function _G.toggle_diagnostics()
-  if vim.g.diagnostics_visible then
-    vim.g.diagnostics_visible = false
-    vim.diagnostic.enable(false)
-    print("Diagnostics Enabled: ", vim.g.diagnostics_visible)
-  else
-    vim.g.diagnostics_visible = true
-    vim.diagnostic.enable()
-    print("Diagnostics Enabled: ", vim.g.diagnostics_visible)
-  end
-end
-
-vim.api.nvim_set_keymap(
-  "n",
-  "<leader>dH",
-  ":call v:lua.toggle_diagnostics()<CR>",
-  { desc = "[D]iagnostics - Toggle [H]ide all Diagnostics", noremap = true, silent = true }
-)
-
-vim.g.virtual_text_visible = true
-function _G.toggle_virtual_text()
-  if vim.g.virtual_text_visible then
-    vim.g.virtual_text_visible = false
-    vim.diagnostic.config({ virtual_text = false })
-    print("Virtual Text Enabled: ", vim.g.virtual_text_visible)
-  else
-    vim.g.virtual_text_visible = true
-    vim.diagnostic.config({ virtual_text = true })
-    print("Virtual Text Enabled: ", vim.g.virtual_text_visible)
-  end
-end
-
-vim.api.nvim_set_keymap(
-  "n",
-  "<leader>dh",
-  ":call v:lua.toggle_virtual_text()<CR>",
-  { desc = "[D]iagnostics - Toggle [H]ide Virtual Text", noremap = true, silent = true }
-)
-
-vim.g.virtual_lines_on_current_line_visible = false
-function _G.toggle_virtual_lines_on_current_line_visible()
-  if vim.g.virtual_lines_on_current_line_visible then
-    vim.g.virtual_lines_on_current_line_visible = false
-    vim.diagnostic.config({ virtual_lines = false })
-    print("Virtual Lines on current line enabled: ", vim.g.virtual_lines_on_current_line_visible)
-  else
-    vim.g.virtual_lines_on_current_line_visible = true
-    vim.diagnostic.config({ virtual_lines = { current_line = true } })
-    print("Virtual Lines on current line enabled: ", vim.g.virtual_lines_on_current_line_visible)
-  end
-end
-
-vim.api.nvim_set_keymap(
-  "n",
-  "<leader>dl",
-  ":call v:lua.toggle_virtual_lines_on_current_line_visible()<CR>",
-  { desc = "[D]iagnostics - Toggle [H]ide Virtual Lines on current line", noremap = true, silent = true }
-)
-
-vim.g.keep_cursor_centered = true
-function _G.toggle_keep_cursor_centered()
-  if vim.g.keep_cursor_centered then
-    vim.opt.scrolloff = 999
-    print("Keep Cursor Centered Enabled: ", vim.g.keep_cursor_centered)
-    vim.g.keep_cursor_centered = false
-  else
-    vim.opt.scrolloff = 2
-    print("Keep Cursor Centered Enabled: ", vim.g.keep_cursor_centered)
-    vim.g.keep_cursor_centered = true
-  end
-end
-
-vim.api.nvim_set_keymap(
-  "n",
-  "<leader>z",
-  ":call v:lua.toggle_keep_cursor_centered()<CR> :norm zz<cr>",
-  { desc = "Toggle keep cursor centered (auto zz)", noremap = true, silent = true }
-)
-
-vim.keymap.set("n", "<leader>p", ":cd %:p:h<CR> :pwd<CR>", { desc = "Find Project Root Automatically" })
-
-vim.keymap.set("n", "zh", "zH", { desc = "Scroll right" })
-vim.keymap.set("n", "zl", "zL", { desc = "Scroll left" })
-
-vim.keymap.set("n", "<Up>", "<cmd>resize -5<CR>", { desc = "Resize Down" })
-vim.keymap.set("n", "<Down>", "<cmd>resize +5<CR>", { desc = "Resize Up" })
-vim.keymap.set("n", "<Left>", "<cmd>vertical resize +5<CR>", { desc = "Resize Left" })
-vim.keymap.set("n", "<Right>", "<cmd>vertical resize -5<CR>", { desc = "Resize Right" })
-
-vim.keymap.set("n", "<C-h>", "<C-w>h")
-vim.keymap.set("n", "<C-j>", "<C-w>j")
-vim.keymap.set("n", "<C-k>", "<C-w>k")
-vim.keymap.set("n", "<C-l>", "<C-w>l")
-
--- NOTE: Some terminals have coliding keymaps or are not able to send distinct keycodes
-vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
-vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
-vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
-vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
-
-vim.keymap.set("n", "<leader>gs", "<cmd>G status<cr>", { desc = "[G]it [S]tatus" })
-vim.keymap.set("n", "<leader>gl", "<cmd>Gclog<cr>", { desc = "[G]it [L]og" })
-
-vim.keymap.set("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit (:q)" })
-vim.keymap.set("n", "<leader>Q", "<cmd>bd<CR>", { desc = "Close Buffer" })
-
--- Diagnostic keymaps
-vim.keymap.set("n", "<leader>k", vim.diagnostic.open_float, { desc = "Show diagnostic Error messages" })
-vim.keymap.set("n", "<leader>K", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
 -- highlight yank
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -321,21 +273,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     desc = "highlight selection on yank",
     callback = function()
         vim.highlight.on_yank({ timeout = 200, visual = true })
-    end,
-})
-
--- restore cursor to file position in previous editing session
-vim.api.nvim_create_autocmd("BufReadPost", {
-    callback = function(args)
-        local mark = vim.api.nvim_buf_get_mark(args.buf, '"')
-        local line_count = vim.api.nvim_buf_line_count(args.buf)
-        if mark[1] > 0 and mark[1] <= line_count then
-            vim.api.nvim_win_set_cursor(0, mark)
-            -- defer centering slightly so it's applied after render
-            vim.schedule(function()
-                vim.cmd("normal! zz")
-            end)
-        end
     end,
 })
 
@@ -348,24 +285,6 @@ vim.api.nvim_create_autocmd("FileType", {
 -- auto resize splits when the terminal's window is resized
 vim.api.nvim_create_autocmd("VimResized", {
     command = "wincmd =",
-})
-
--- no auto continue comments on new line
-vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("no_auto_comment", {}),
-    callback = function()
-        vim.opt_local.formatoptions:remove({ "c", "r", "o" })
-    end,
-})
-
-vim.api.nvim_create_autocmd('TextYankPost', { -- yank-ring
-    callback = function()
-        if vim.v.event.operator == 'y' then
-            for i = 9, 1, -1 do -- Shift all numbered registers.
-                vim.fn.setreg(tostring(i), vim.fn.getreg(tostring(i - 1)))
-            end
-        end
-    end,
 })
 
 vim.api.nvim_create_autocmd("VimEnter", {
@@ -386,26 +305,17 @@ vim.api.nvim_create_autocmd("VimEnter", {
 })
 
 vim.api.nvim_create_user_command("Messages", function()
-  -- Capture :messages output
   local messages = vim.api.nvim_exec2("messages", { output = true }).output
-
-  -- Create horizontal split at bottom with height 10
   vim.cmd("botright 10split")
-  local msg_buf = vim.api.nvim_create_buf(false, true) -- [listed=false, scratch=true]
+  local msg_buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_win_set_buf(0, msg_buf)
-
-  -- Set buffer options
   vim.bo[msg_buf].buftype = "nofile"
   vim.bo[msg_buf].bufhidden = "wipe"
   vim.bo[msg_buf].swapfile = false
   vim.bo[msg_buf].modifiable = true
-
-  -- Fill buffer
   vim.api.nvim_buf_set_lines(msg_buf, 0, -1, false, vim.split(messages, "\n"))
-
-  -- Make buffer read-only
   vim.bo[msg_buf].modifiable = false
-end, {})
+end, { desc = "Show Neovim Messages in a new split that can be copied from." })
 
 local colors = {
   rosewater  = "#f5e0dc",
@@ -1338,6 +1248,7 @@ require("lazy").setup({
         },
         lualine_c = {
           { "fancy_cwd", substitute_home = true },
+          { "filename" },
         },
         lualine_x = {
           { "fancy_macro" },
@@ -1361,12 +1272,6 @@ require("lazy").setup({
       --   lualine_z = { 'tabs' }
       -- }
     },
-  },
-  {
-    "lukas-reineke/indent-blankline.nvim", -- Add indentation guides even on blank lines
-    lazy = false,
-    main = "ibl",
-    opts = {},
   },
   {
     "mfussenegger/nvim-dap",
@@ -1398,7 +1303,8 @@ require("lazy").setup({
       { "<leader>BJ", function() require("dap").down() end,                                          desc = "Debug: Go Down Stack Frame" },
       { "<leader>BK", function() require("dap").up() end,                                            desc = "Debug: Go Up Stack Frame" },
       { "<leader>BQ", function()
-        require("dap").terminate(); require("dap").clear_breakpoints()
+        require("dap").terminate()
+require("dap").clear_breakpoints()
       end,                                                                                           desc = "Debug: Terminate and Clear Breakpoints" },
     },
     config = function()
@@ -1945,6 +1851,8 @@ require("lazy").setup({
 -- In visual mode press 'o' to switch the side of the selection the cursor is on.
 -- In insert mode press CTRL-o to execute one normal mode command and go back to insertmode.
 -- While searching with / or ? press CTRL-g and CTRL-t to go to next/previous occurence without leaving search.
+
+-- When in search (/) you can press CTRL-l to insert the next character of the current match. CTRL-g and CTRL-t to go to next/previous occurence/match without leaving search.
 
 -- https://vimregex.com/
 -- https://blog.sanctum.geek.nz/series/unix-as-ide/
