@@ -1312,15 +1312,19 @@ require("lazy").setup({
         function() require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: ")) end,
         desc = "Code Debug: Set conditional Breakpoint"
       },
-      { "<leader>BB", function() require("dapui").toggle() end,                                      desc = "Debug: Toggle UI & See last session result." },
-      { "<leader>Bc", function() require("dap").run_to_cursor() end,                                 desc = "Debug: Run to Cursor" },
-      { "<leader>BR", function() require("dap").repl.toggle() end,                                   desc = "Debug: Toggle REPL" },
-      { "<leader>BJ", function() require("dap").down() end,                                          desc = "Debug: Go Down Stack Frame" },
-      { "<leader>BK", function() require("dap").up() end,                                            desc = "Debug: Go Up Stack Frame" },
-      { "<leader>BQ", function()
-        require("dap").terminate()
-require("dap").clear_breakpoints()
-      end,                                                                                           desc = "Debug: Terminate and Clear Breakpoints" },
+      { "<leader>BB", function() require("dapui").toggle() end,      desc = "Debug: Toggle UI & See last session result." },
+      { "<leader>Bc", function() require("dap").run_to_cursor() end, desc = "Debug: Run to Cursor" },
+      { "<leader>BR", function() require("dap").repl.toggle() end,   desc = "Debug: Toggle REPL" },
+      { "<leader>BJ", function() require("dap").down() end,          desc = "Debug: Go Down Stack Frame" },
+      { "<leader>BK", function() require("dap").up() end,            desc = "Debug: Go Up Stack Frame" },
+      {
+        "<leader>BQ",
+        function()
+          require("dap").terminate()
+          require("dap").clear_breakpoints()
+        end,
+        desc = "Debug: Terminate and Clear Breakpoints"
+      },
     },
     config = function()
       local dap = require("dap")
