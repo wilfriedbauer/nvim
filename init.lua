@@ -97,7 +97,7 @@ vim.keymap.set('n', 'Y', 'y$', { noremap = true })
 vim.keymap.set('n', ']a', ':next<CR>:arg<CR>', { desc = "Next and display Arglist", noremap = true })
 vim.keymap.set('n', '[a', ':previous<CR>:arg<CR>', { desc = "Previous and display Arglist", noremap = true })
 vim.keymap.set("n", "<leader>a", ":argadd%<CR>:arg<CR>", { desc = "Add current file to Arglist"})
-vim.keymap.set("n", "<leader>A", ":argdelete%<CR>:arg<CR>", { desc = "Remove current file from Arglist"})
+vim.keymap.set("n", "<leader>x", ":argdelete%<CR>:arg<CR>", { desc = "Remove current file from Arglist"})
 vim.keymap.set({ "n", "x" }, "<Space>", "<Nop>", { silent = true })
 vim.keymap.set("x", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("x", "K", ":m '<-2<CR>gv=gv")
@@ -1133,6 +1133,8 @@ require("lazy").setup({
         { "<leader>t_", hidden = true },
         { "<leader>w",  group = "[W]orkspace" },
         { "<leader>w_", hidden = true },
+        { "<leader>A",  group = "[A]I Assistant" },
+        { "<leader>A_", hidden = true },
         { "<leader>1",  hidden = true },
         { "<leader>2",  hidden = true },
         { "<leader>3",  hidden = true },
@@ -1490,6 +1492,81 @@ require("lazy").setup({
         },
       })
     end,
+  },
+  {
+    "folke/sidekick.nvim",
+    opts = {
+      cli = {
+        mux = {
+          enabled = false,
+        },
+      },
+    },
+    keys = {
+      {
+        "<tab>",
+        function()
+          -- if there is a next edit, jump to it, otherwise apply it if any
+          if not require("sidekick").nes_jump_or_apply() then
+            return "<Tab>" -- fallback to normal tab
+          end
+        end,
+        expr = true,
+        desc = "Goto/Apply Next Edit Suggestion",
+      },
+      {
+        "<C-S-CR>",
+        function() require("sidekick.cli").toggle() end,
+        desc = "Sidekick Toggle",
+        mode = { "n", "t", "i", "x" },
+      },
+      {
+        "<leader>AA",
+        function() require("sidekick.cli").toggle() end,
+        desc = "Sidekick Toggle CLI",
+      },
+      {
+        "<leader>AS",
+        function() require("sidekick.cli").select() end,
+        -- Or to select only installed tools:
+        -- require("sidekick.cli").select({ filter = { installed = true } })
+        desc = "Select CLI",
+      },
+      {
+        "<leader>AD",
+        function() require("sidekick.cli").close() end,
+        desc = "Detach a CLI Session",
+      },
+      {
+        "<leader>AT",
+        function() require("sidekick.cli").send({ msg = "{this}" }) end,
+        mode = { "x", "n" },
+        desc = "Send This",
+      },
+      {
+        "<leader>AF",
+        function() require("sidekick.cli").send({ msg = "{file}" }) end,
+        desc = "Send File",
+      },
+      {
+        "<leader>AV",
+        function() require("sidekick.cli").send({ msg = "{selection}" }) end,
+        mode = { "x" },
+        desc = "Send Visual Selection",
+      },
+      {
+        "<leader>AP",
+        function() require("sidekick.cli").prompt() end,
+        mode = { "n", "x" },
+        desc = "Sidekick Select Prompt",
+      },
+      -- Example of a keybinding to open Claude directly
+      {
+        "<leader>AC",
+        function() require("sidekick.cli").toggle({ name = "claude", focus = true }) end,
+        desc = "Sidekick Toggle Claude",
+      },
+    },
   },
   { "brenoprata10/nvim-highlight-colors", event = "BufEnter", config = function() require("nvim-highlight-colors").setup() end },
   {
