@@ -24,7 +24,7 @@ vim.opt.listchars = {
   tab = "«-»",
   trail = "·",
   nbsp = "␣",
-  leadmultispace = " |",
+  leadmultispace = " │",
   extends = "→",
   precedes = "←",
   -- eol = '↵',
@@ -83,8 +83,13 @@ if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then -- Windows-specific
   vim.o.shellredir = "| Out-File -Encoding UTF8 %s"
 end
 
-vim.keymap.set('n', '<space>q', ':copen<CR>', { desc = 'Open the quickfix list' })
-vim.keymap.set('n', '<space>Q', ':cclose<CR>', { desc = 'Close the quickfix list' })
+vim.keymap.set('n', '<leader>q', function()
+  if vim.fn.getqflist({ winid = 0 }).winid ~= 0 then
+    vim.cmd('cclose')
+  else
+    vim.cmd('copen')
+  end
+end, { desc = 'Toggle quickfix list' })
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.keymap.set("n", "<leader>b", ":ls<CR>:b ", { desc = "Buffer Navigation" })
 vim.keymap.set('n', '<Space>e', ':30vs %:p:h/<CR>', { noremap = true })
@@ -1768,21 +1773,6 @@ require("dap").clear_breakpoints()
           separator_style = "slant",
         },
       })
-      vim.keymap.set("n", "<leader>1", "<Cmd>BufferLineGoToBuffer 1<CR>", { desc = "Go to Buffer 1" })
-      vim.keymap.set("n", "<leader>2", "<Cmd>BufferLineGoToBuffer 2<CR>", { desc = "Go to Buffer 2" })
-      vim.keymap.set("n", "<leader>3", "<Cmd>BufferLineGoToBuffer 3<CR>", { desc = "Go to Buffer 3" })
-      vim.keymap.set("n", "<leader>4", "<Cmd>BufferLineGoToBuffer 4<CR>", { desc = "Go to Buffer 4" })
-      vim.keymap.set("n", "<leader>5", "<Cmd>BufferLineGoToBuffer 5<CR>", { desc = "Go to Buffer 5" })
-      vim.keymap.set("n", "<leader>6", "<Cmd>BufferLineGoToBuffer 6<CR>", { desc = "Go to Buffer 6" })
-      vim.keymap.set("n", "<leader>7", "<Cmd>BufferLineGoToBuffer 7<CR>", { desc = "Go to Buffer 7" })
-      vim.keymap.set("n", "<leader>8", "<Cmd>BufferLineGoToBuffer 8<CR>", { desc = "Go to Buffer 8" })
-      vim.keymap.set("n", "<leader>9", "<Cmd>BufferLineGoToBuffer 9<CR>", { desc = "Go to Buffer 9" })
-      vim.keymap.set(
-        "n",
-        "<leader>$",
-        "<Cmd>BufferLineGoToBuffer -1<CR>",
-        { desc = "Go to last Buffer (<leader>number -> switch to buffer)" }
-      )
     end,
   },
   { -- Autoformat
