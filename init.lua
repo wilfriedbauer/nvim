@@ -399,12 +399,18 @@ require("lazy").setup({
         timeout = 3000,
       },
       picker = {
+        hidden = true,
+        ignored = true,
         enabled = true,
         sources = {
+          files = {
+            hidden = true,
+            ignored = true,
+          },
           explorer = {
             layout = { layout = { position = "right" } },
           }
-        }
+        },
       },
       quickfile = { enabled = true },
       scope = { enabled = true },
