@@ -97,6 +97,7 @@ vim.keymap.set('n', 'Y', 'y$', { noremap = true })
 vim.keymap.set('n', ']a', ':next<CR>:arg<CR>', { desc = "Next and display Arglist", noremap = true })
 vim.keymap.set('n', '[a', ':previous<CR>:arg<CR>', { desc = "Previous and display Arglist", noremap = true })
 vim.keymap.set("n", "<leader>a", ":argadd%<CR>:arg<CR>", { desc = "Add current file to Arglist"})
+vim.keymap.set("n", "<leader>A", ":argdelete%<CR>:arg<CR>", { desc = "Remove current file from Arglist"})
 vim.keymap.set({ "n", "x" }, "<Space>", "<Nop>", { silent = true })
 vim.keymap.set("x", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("x", "K", ":m '<-2<CR>gv=gv")
@@ -1141,6 +1142,15 @@ require("lazy").setup({
         { "<leader>7",  hidden = true },
         { "<leader>8",  hidden = true },
         { "<leader>9",  hidden = true },
+        { "<leader>!",  hidden = true },
+        { "<leader>@",  hidden = true },
+        { "<leader>#",  hidden = true },
+        { "<leader>$",  hidden = true },
+        { "<leader>%",  hidden = true },
+        { "<leader>^",  hidden = true },
+        { "<leader>&",  hidden = true },
+        { "<leader>*",  hidden = true },
+        { "<leader>(",  hidden = true },
       }, {
         { "<leader>",  group = "VISUAL <leader>", mode = "x" },
         { "<leader>h", desc = "Git [H]unk",       mode = "x" },
