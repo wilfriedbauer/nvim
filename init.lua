@@ -429,8 +429,8 @@ require("lazy").setup({
       { "<leader>,",       function() Snacks.picker.buffers() end,                                 desc = "Buffers" },
       { "<leader>/",       function() Snacks.picker.grep() end,                                    desc = "Grep" },
       { "<leader>:",       function() Snacks.picker.command_history() end,                         desc = "Command History" },
-      { "<leader>'",       function() Snacks.picker.notifications() end,                           desc = "Notification History" },
-      { "<leader>e",       function() Snacks.explorer() end,                                       desc = "File Explorer" },
+      { "<leader>N",       function() Snacks.picker.notifications() end,                           desc = "Notification History" },
+      { "<leader>n",       function() Snacks.explorer() end,                                       desc = "File Explorer" },
       -- find
       { "<leader>fb",      function() Snacks.picker.buffers() end,                                 desc = "Buffers" },
       { "<leader>fc",      function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Find Config File" },
@@ -481,11 +481,12 @@ require("lazy").setup({
       -- LSP
       { "gd",              function() Snacks.picker.lsp_definitions() end,                         desc = "Goto Definition" },
       { "gD",              function() Snacks.picker.lsp_declarations() end,                        desc = "Goto Declaration" },
-      { "gr",              function() Snacks.picker.lsp_references() end,                          nowait = true,                       desc = "References" },
+      { "gR",              function() Snacks.picker.lsp_references() end,                          nowait = true,                       desc = "References" },
       { "gI",              function() Snacks.picker.lsp_implementations() end,                     desc = "Goto Implementation" },
       { "gy",              function() Snacks.picker.lsp_type_definitions() end,                    desc = "Goto T[y]pe Definition" },
       { "gai",             function() Snacks.picker.lsp_incoming_calls() end,                      desc = "C[a]lls Incoming" },
       { "gao",             function() Snacks.picker.lsp_outgoing_calls() end,                      desc = "C[a]lls Outgoing" },
+      { "grN",      function() Snacks.rename.rename_file() end,                             desc = "Rename File" },
       { "<leader>ss",      function() Snacks.picker.lsp_symbols() end,                             desc = "LSP Symbols" },
       { "<leader>sS",      function() Snacks.picker.lsp_workspace_symbols() end,                   desc = "LSP Workspace Symbols" },
       -- Other
@@ -494,8 +495,7 @@ require("lazy").setup({
       { "<leader>us",       function() Snacks.scratch() end,                                        desc = "Toggle Scratch Buffer" },
       { "<leader>uS",       function() Snacks.scratch.select() end,                                 desc = "Select Scratch Buffer" },
       { "<leader>un",       function() Snacks.notifier.show_history() end,                          desc = "Notification History" },
-      { "<leader>bd",      function() Snacks.bufdelete() end,                                      desc = "Delete Buffer" },
-      { "<leader>cR",      function() Snacks.rename.rename_file() end,                             desc = "Rename File" },
+      -- { "<leader>bd",      function() Snacks.bufdelete() end,                                      desc = "Delete Buffer" },
       { "<leader>gB",      function() Snacks.gitbrowse() end,                                      desc = "Git Browse",                 mode = { "n", "v" } },
       -- { "<leader>gg",      function() Snacks.lazygit() end,                                        desc = "Lazygit" },
       { "<leader>uN",      function() Snacks.notifier.hide() end,                                  desc = "Dismiss All Notifications" },
@@ -503,24 +503,6 @@ require("lazy").setup({
       { "<c-_>",           function() Snacks.terminal() end,                                       desc = "which_key_ignore" },
       { "]]",              function() Snacks.words.jump(vim.v.count1) end,                         desc = "Next Reference",             mode = { "n", "t" } },
       { "[[",              function() Snacks.words.jump(-vim.v.count1) end,                        desc = "Prev Reference",             mode = { "n", "t" } },
-      {
-        "<leader>N",
-        desc = "Neovim News",
-        function()
-          Snacks.win({
-            file = vim.api.nvim_get_runtime_file("doc/news.txt", false)[1],
-            width = 0.6,
-            height = 0.6,
-            wo = {
-              spell = false,
-              wrap = false,
-              signcolumn = "yes",
-              statuscolumn = " ",
-              conceallevel = 3,
-            },
-          })
-        end,
-      }
     },
     init = function()
       vim.api.nvim_create_autocmd("User", {
@@ -930,7 +912,7 @@ require("lazy").setup({
       require("which-key").add({
         { "<leader>B",  group = "[B]ug" },
         { "<leader>B_", hidden = true },
-        { "<leader>R",  group = "[R]un" },
+        { "<leader>R",  group = "[R]un HTTP" },
         { "<leader>R_", hidden = true },
         { "<leader>T",  group = "[T]est" },
         { "<leader>T_", hidden = true },
@@ -938,6 +920,8 @@ require("lazy").setup({
         { "<leader>d_", hidden = true },
         { "<leader>f",  group = "[F]ind" },
         { "<leader>f_", hidden = true },
+        { "<leader>s",  group = "[S]earch" },
+        { "<leader>s_", hidden = true },
         { "<leader>F",  group = "[F]ormat / Lint" },
         { "<leader>F_", hidden = true },
         { "<leader>g",  group = "[G]it" },
@@ -1312,7 +1296,8 @@ require("lazy").setup({
     opts = {
       cli = {
         mux = {
-          enabled = false,
+          backend = "tmux",
+          enabled = true,
         },
       },
     },
@@ -1527,7 +1512,7 @@ require("lazy").setup({
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
       require("oil").setup({})
-      vim.keymap.set("n", "<c-->", "<CMD>Oil<CR>", { desc = "[E]dit Filetree with vim keymaps" })
+      vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "[E]dit Filetree with vim keymaps" })
     end,
   },
   {
