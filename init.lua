@@ -184,6 +184,34 @@ vim.keymap.set("n", "<leader>z", function()
   print("Keep Cursor Centered Enabled:", not centered)
 end, { desc = "Toggle keep cursor centered (auto zz)" })
 
+vim.lsp.inline_completion.enable(true)
+
+vim.keymap.set("n", "<leader>C", function()
+vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled())
+end, { desc = "Toggle LSP Inline Completion" })
+
+vim.keymap.set("i", "<C-CR>", function()
+    if not vim.lsp.inline_completion.get() then
+        return "<C-CR>"
+    end
+end, { expr = true, desc = "Accept the current inline completion" })
+
+vim.keymap.set("i", "<tab>", function()
+    if not vim.lsp.inline_completion.get() then
+        return "<tab>"
+    end
+end, { expr = true, desc = "Accept the current inline completion" })
+
+ -- Next suggestion
+vim.keymap.set("i", "<M-]>", function()
+  vim.lsp.inline_completion.select({ count = 1 })
+end, { desc = "Next inline completion" })
+
+-- Previous suggestion
+vim.keymap.set("i", "<M-[>", function()
+  vim.lsp.inline_completion.select({ count = -1 })
+end, { desc = "Previous inline completion" })
+
 vim.keymap.set("t", "<C-_>", [[<C-\><C-n>]])
 vim.keymap.set("t", "<C-/>", [[<C-\><C-n>]])
 vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]])
@@ -191,17 +219,6 @@ vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]])
 vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]])
 vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]])
 vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]])
-
-vim.lsp.inline_completion.enable(true)
-vim.keymap.set("i", "<C-CR>", function()
-  if not vim.lsp.inline_completion.get() then
-    return "<C-CR>"
-  end
-end, {
-  expr = true,
-  replace_keycodes = true,
-  desc = "Get the current inline completion",
-})
 
 local keys = { "!", "@", "#", "$", "%", "^", "&", "*", "(" }
 for i, key in ipairs(keys) do
