@@ -14,7 +14,12 @@ vim.o.updatetime = 100
 vim.o.timeoutlen = 500
 vim.o.title = true
 vim.o.titlestring = [[nvim - %{fnamemodify(getcwd(), ":t")} - %{expand("%s:~:h")} - %{luaeval("require('dap').status()")}]]
-vim.o.completeopt = "fuzzy,menuone,noselect,popup,preview"
+-- vim.o.autocomplete = true
+-- vim.o.complete = "o,.,w,b,u"
+-- vim.o.completeopt = "fuzzy,menuone,noselect,popup,preview"
+-- vim.o.pumheight = 7
+-- vim.o.pummaxwidth = 80
+-- vim.opt.shortmess:prepend("c") -- avoid having to press enter on snippet completion
 vim.o.confirm = true
 vim.o.termguicolors = true
 vim.o.statuscolumn = "%s %l %C "
@@ -72,7 +77,6 @@ vim.o.sidescrolloff = 5
 vim.o.colorcolumn = "80"
 vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,winpos,terminal"
 vim.o.iskeyword = '@,48-57,192-255,_,-'
-
 
 if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then -- Windows-specific configurations.  vim.fn.has("unix") vim.fn.has("mac")
   vim.o.shell = vim.fn.executable("pwsh") == 1 and "pwsh" or "powershell"
@@ -193,12 +197,6 @@ end, { desc = "Toggle LSP Inline Completion" })
 vim.keymap.set("i", "<C-CR>", function()
     if not vim.lsp.inline_completion.get() then
         return "<C-CR>"
-    end
-end, { expr = true, desc = "Accept the current inline completion" })
-
-vim.keymap.set("i", "<tab>", function()
-    if not vim.lsp.inline_completion.get() then
-        return "<tab>"
     end
 end, { expr = true, desc = "Accept the current inline completion" })
 
