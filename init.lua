@@ -9,6 +9,7 @@ vim.o.virtualedit = "all"
 vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.showmode = false
+vim.o.cmdheight = 0
 vim.wo.signcolumn = "yes"
 vim.o.updatetime = 100
 vim.o.timeoutlen = 500
