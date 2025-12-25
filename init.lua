@@ -15,17 +15,22 @@ vim.o.updatetime = 100
 vim.o.timeoutlen = 500
 vim.o.title = true
 vim.o.titlestring = [[%f %h%m%r%w %{v:progname} (%{tabpagenr()} of %{tabpagenr('$')}) - %{fnamemodify(getcwd(), ":t")} - %{luaeval("require('dap').status()")}]]
--- vim.o.autocomplete = true
--- vim.o.complete = "o,.,w,b,u"
--- vim.o.completeopt = "fuzzy,menuone,noselect,popup"
--- vim.o.pumheight = 7
--- vim.o.pummaxwidth = 80
--- vim.opt.shortmess:prepend("c")
--- vim.api.nvim_create_autocmd("LspAttach", {
---   callback = function()
---     vim.bo.complete = "o"
---   end,
--- })
+vim.o.autocomplete = false
+vim.o.complete = "o,.,w,t,b,u"
+vim.o.completeopt = "fuzzy,menuone,noselect,popup"
+vim.o.pumheight = 15
+vim.o.pummaxwidth = 100
+vim.opt.shortmess:prepend("c")
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function()
+    vim.bo.complete = "o"
+  end,
+})
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(ev)
+    vim.lsp.completion.enable(true, ev.data.client_id, ev.buf)
+  end,
+})
 vim.o.confirm = true
 vim.o.termguicolors = true
 vim.o.statuscolumn = "%s %l %C "
@@ -802,34 +807,6 @@ require("lazy").setup({
     end
   },
   {
-    'saghen/blink.cmp',
-    dependencies = { 'rafamadriz/friendly-snippets' },
-    version = '1.*',
-    ---@module 'blink.cmp'
-    ---@type blink.cmp.Config
-    opts = {
-      keymap = {
-        preset = 'default',
-        ['<c-k>'] = { 'select_prev', 'fallback' },
-        ['<c-j>'] = { 'select_next', 'fallback' },
-        ['<CR>'] = { 'accept', 'fallback' },
-      },
-
-      appearance = {
-        nerd_font_variant = 'mono'
-      },
-
-      completion = { documentation = { auto_show = false } },
-
-      sources = {
-        default = { 'lsp', 'path', 'snippets', 'buffer' },
-      },
-
-      fuzzy = { implementation = "prefer_rust_with_warning" }
-    },
-    opts_extend = { "sources.default" }
-  },
-  {
     "mistweaverco/kulala.nvim",
     keys = {
       { "<leader>Rs", desc = "Send request" },
@@ -1564,6 +1541,7 @@ require("lazy").setup({
 -- In visual mode press 'o' to switch the side of the selection the cursor is on.
 -- In insert mode press CTRL-o to execute one normal mode command and go back to insertmode.
 -- While searching with / or ? press CTRL-g and CTRL-t to go to next/previous occurence without leaving search.
+-- with :u[ndo]0 you can go to the first change in the undo history. with :e[dit]! you can revert the buffer to the last saved state.
 
 -- When in search (/) you can press CTRL-l to insert the next character of the current match. CTRL-g and CTRL-t to go to next/previous occurence/match without leaving search.
 
