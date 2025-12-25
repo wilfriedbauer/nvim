@@ -2,5 +2,5 @@
 
 2.install a patched nerd font
 
-3.install rg, dotnet, python, npm, go, rust
+3.install rg, dotnet, python, go, rust, npm, "npm install -g tree-sitter-cli"
 

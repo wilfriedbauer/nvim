@@ -14,13 +14,18 @@ vim.wo.signcolumn = "yes"
 vim.o.updatetime = 100
 vim.o.timeoutlen = 500
 vim.o.title = true
-vim.o.titlestring = [[nvim - %{fnamemodify(getcwd(), ":t")} - %{expand("%s:~:h")} - %{luaeval("require('dap').status()")}]]
+vim.o.titlestring = [[%f %h%m%r%w %{v:progname} (%{tabpagenr()} of %{tabpagenr('$')}) - %{fnamemodify(getcwd(), ":t")} - %{luaeval("require('dap').status()")}]]
 -- vim.o.autocomplete = true
 -- vim.o.complete = "o,.,w,b,u"
--- vim.o.completeopt = "fuzzy,menuone,noselect,popup,preview"
+-- vim.o.completeopt = "fuzzy,menuone,noselect,popup"
 -- vim.o.pumheight = 7
 -- vim.o.pummaxwidth = 80
--- vim.opt.shortmess:prepend("c") -- avoid having to press enter on snippet completion
+-- vim.opt.shortmess:prepend("c")
+-- vim.api.nvim_create_autocmd("LspAttach", {
+--   callback = function()
+--     vim.bo.complete = "o"
+--   end,
+-- })
 vim.o.confirm = true
 vim.o.termguicolors = true
 vim.o.statuscolumn = "%s %l %C "
@@ -559,116 +564,37 @@ require("lazy").setup({
     end,
   },
   {
-    -- Highlight, edit, and navigate code
     "nvim-treesitter/nvim-treesitter",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter-textobjects",
-    },
+    lazy = false,
+    branch = "main",
     build = ":TSUpdate",
     config = function()
-      -- Defer Treesitter setup after first render to improve startup time of 'nvim {filename}'
-      vim.defer_fn(function()
-        require("nvim-treesitter.configs").setup({
-          -- Add languages to be installed here that you want installed for treesitter
-          ensure_installed = {
-            "c",
-            "cpp",
-            "c_sharp",
-            "go",
-            "lua",
-            "python",
-            "tsx",
-            "http",
-            "json",
-            "json5",
-            "html",
-            "scss",
-            "yaml",
-            "xml",
-            "sql",
-            "diff",
-            "dockerfile",
-            "terraform",
-            "angular",
-            "javascript",
-            "typescript",
-            "vimdoc",
-            "vim",
-            "bash",
-            "git_config",
-            "git_rebase",
-            "gitattributes",
-            "gitcommit",
-            "gitignore",
-            "markdown",
-            "markdown_inline",
-          },
+        -- Collect all available parsers
+        local queries_dir = vim.fn.stdpath("data") .. "/lazy/nvim-treesitter/runtime/queries"
+        local file_types = {}
+        for name, type in vim.fs.dir(queries_dir) do
+            if type == "directory" then
+                table.insert(file_types, name)
+            end
+        end
 
-          -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-          auto_install = true,
+        -- Install file type parsers
+        require("nvim-treesitter").install(file_types)
 
-          matchup = {
-            enable = true, -- mandatory, false will disable the whole extension
-          },
-
-          highlight = { enable = true },
-          indent = { enable = true },
-          incremental_selection = {
-            enable = true,
-            keymaps = {
-              init_selection = "<leader>v",
-              node_incremental = "<leader>v",
-              scope_incremental = "<leader>V",
-              node_decremental = "<backspace>",
-            },
-          },
-          textobjects = {
-            select = {
-              enable = true,
-              lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-              keymaps = {
-                -- You can use the capture groups defined in textobjects.scm
-                ["aa"] = "@parameter.outer",
-                ["ia"] = "@parameter.inner",
-                ["af"] = "@function.outer",
-                ["if"] = "@function.inner",
-                ["ac"] = "@class.outer",
-                ["ic"] = "@class.inner",
-              },
-            },
-            move = {
-              enable = true,
-              set_jumps = true, -- whether to set jumps in the jumplist
-              goto_next_start = {
-                ["]f"] = "@function.outer",
-                ["]{"] = "@class.outer",
-              },
-              goto_next_end = {
-                ["]F"] = "@function.outer",
-                ["]}"] = "@class.outer",
-              },
-              goto_previous_start = {
-                ["[f"] = "@function.outer",
-                ["[{"] = "@class.outer",
-              },
-              goto_previous_end = {
-                ["[F"] = "@function.outer",
-                ["[}"] = "@class.outer",
-              },
-            },
-            swap = {
-              enable = true,
-              swap_next = {
-                ["<leader>>"] = "@parameter.inner",
-              },
-              swap_previous = {
-                ["<leader><lt>"] = "@parameter.inner",
-              },
-            },
-          },
+        -- Automatically activate
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = file_types,
+            callback = function()
+                -- Highlights
+                vim.treesitter.start()
+                -- Folds
+                vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+                vim.wo[0][0].foldmethod = "expr"
+                -- Indentation
+                vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+            end,
         })
-      end, 0)
-    end
+    end,
   },
   {
     -- LSP CONFIG
