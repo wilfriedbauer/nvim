@@ -22,12 +22,8 @@ vim.o.pumheight = 15
 vim.o.pummaxwidth = 100
 vim.opt.shortmess:prepend("c")
 vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function()
-    vim.bo.complete = "o"
-  end,
-})
-vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(ev)
+    vim.bo.complete = "o"
     vim.lsp.completion.enable(true, ev.data.client_id, ev.buf)
   end,
 })
@@ -111,7 +107,7 @@ vim.keymap.set('n', '<Space>e', ':30vs %:p:h/<CR>', { noremap = true })
 vim.keymap.set('n', 'Y', 'y$', { noremap = true })
 vim.keymap.set('n', ']a', ':next<CR>:arg<CR>', { desc = "Next and display Arglist", noremap = true })
 vim.keymap.set('n', '[a', ':previous<CR>:arg<CR>', { desc = "Previous and display Arglist", noremap = true })
-vim.keymap.set("n", "<leader>a", ":argadd%<CR>:arg<CR>", { desc = "Add current file to Arglist"})
+vim.keymap.set("n", "<leader>a", ":argadd%<CR>:argdedupe<CR>:arg<CR>", { desc = "Add current file to Arglist"})
 vim.keymap.set("n", "<leader>x", ":argdelete%<CR>:arg<CR>", { desc = "Remove current file from Arglist"})
 vim.keymap.set({ "n", "x" }, "<Space>", "<Nop>", { silent = true })
 vim.keymap.set("x", "J", ":m '>+1<CR>gv=gv")
@@ -121,7 +117,7 @@ vim.keymap.set("x", "<C-/>", "<Esc>/\\%V")
 vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
-vim.keymap.set("n", "<leader>p", ":cd %:p:h<CR> :pwd<CR>", { desc = "Find Project Root Automatically" })
+vim.keymap.set("n", "<leader>p", ":cd %:p:h<CR>", { desc = "Find Project Root Automatically" })
 
 vim.keymap.set("n", "zh", "zH", { desc = "Scroll right" })
 vim.keymap.set("n", "zl", "zL", { desc = "Scroll left" })
@@ -794,6 +790,7 @@ require("lazy").setup({
   },
   {
     "GustavEikaas/easy-dotnet.nvim",
+    ft = { "cs" },
     dependencies = {
       "nvim-lua/plenary.nvim",
       "folke/snacks.nvim",
@@ -1287,18 +1284,6 @@ require("lazy").setup({
     },
   },
   { "brenoprata10/nvim-highlight-colors", event = "BufEnter", config = function() require("nvim-highlight-colors").setup() end },
-  {
-    "L3MON4D3/LuaSnip",
-    event = "InsertEnter",
-    -- follow latest release.
-    version = "*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
-    -- install jsregexp (optional!).
-    build = "make install_jsregexp",
-    dependencies = { "rafamadriz/friendly-snippets" },
-    config = function()
-      require("luasnip.loaders.from_vscode").lazy_load()
-    end
-  },
   {
     "windwp/nvim-ts-autotag",
     event = "BufEnter",
