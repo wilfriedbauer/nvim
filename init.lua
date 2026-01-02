@@ -362,9 +362,10 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end
 })
 
+require('vim._extui').enable { enable = true, msg = { target = 'msg' } }
+
 -- Plugins
-local lazypath = vim.fn.stdpath("data") ..
-"/lazy/lazy.nvim"                                            -- Install `lazy.nvim` plugin manager https://github.com/folke/lazy.nvim `:help lazy.nvim.txt` for more info
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
     "git",
@@ -450,6 +451,7 @@ require("lazy").setup({
       { "<leader><space>", function() Snacks.picker.smart() end,                                   desc = "Smart Find Files" },
       { "<leader>,",       function() Snacks.picker.buffers() end,                                 desc = "Buffers" },
       { "<leader>/",       function() Snacks.picker.grep() end,                                    desc = "Grep" },
+      { "<leader>?",       function() Snacks.picker.recent() end,                                  desc = "Recent" },
       { "<leader>:",       function() Snacks.picker.command_history() end,                         desc = "Command History" },
       { "<leader>N",       function() Snacks.picker.notifications() end,                           desc = "Notification History" },
       { "<leader>n",       function() Snacks.explorer() end,                                       desc = "File Explorer" },
@@ -459,7 +461,6 @@ require("lazy").setup({
       { "<leader>ff",      function() Snacks.picker.files() end,                                   desc = "Find Files" },
       { "<leader>fg",      function() Snacks.picker.git_files() end,                               desc = "Find Git Files" },
       { "<leader>fp",      function() Snacks.picker.projects() end,                                desc = "Projects" },
-      { "<leader>fr",      function() Snacks.picker.recent() end,                                  desc = "Recent" },
       -- git
       { "<leader>gb",      function() Snacks.picker.git_branches() end,                            desc = "Git Branches" },
       { "<leader>gl",      function() Snacks.picker.git_log() end,                                 desc = "Git Log" },
@@ -850,6 +851,8 @@ require("lazy").setup({
         { "<leader>w_", hidden = true },
         { "<leader>A",  group = "[A]I Assistant" },
         { "<leader>A_", hidden = true },
+        { "<leader>u",  group = "[U]I Toggles"},
+        { "<leader>u_", hidden = true },
         { "<leader>1",  hidden = true },
         { "<leader>2",  hidden = true },
         { "<leader>3",  hidden = true },
