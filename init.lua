@@ -599,6 +599,113 @@ require("lazy").setup({
     end,
   },
   {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    branch = "main",
+    init = function()
+      vim.g.no_plugin_maps = true
+    end,
+    config = function()
+      require("nvim-treesitter-textobjects").setup({
+          select = {
+              lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+          },
+      })
+      local select = require("nvim-treesitter-textobjects.select")
+      local function sel(key, capture)
+        vim.keymap.set({ "x", "o" }, "a" .. key, function()
+          select.select_textobject(capture .. ".outer", "textobjects")
+        end, { desc = "around " .. capture })
+        vim.keymap.set({ "x", "o" }, "i" .. key, function()
+          select.select_textobject(capture .. ".inner", "textobjects")
+        end, { desc = "inner " .. capture })
+      end
+
+      sel("f", "@function")
+      sel("c", "@class")
+      sel("o", "@block")
+      sel("l", "@loop")
+      sel("d", "@conditional")
+      sel("s", "@statement")        -- outer only, inner will no-op
+      sel("r", "@return")
+      sel("p", "@parameter")
+      sel("a", "@assignment")
+      sel("n", "@number")
+      sel("x", "@regex")
+      sel("k", "@comment")
+      sel("C", "@call")
+      sel("A", "@attribute")
+      sel("F", "@frame")
+      sel("S", "@scopename")
+
+      vim.keymap.set({ "x", "o" }, "il", function()
+        select.select_textobject("@assignment.lhs", "textobjects")
+      end)
+      vim.keymap.set({ "x", "o" }, "ir", function()
+        select.select_textobject("@assignment.rhs", "textobjects")
+      end)
+
+      local move = require("nvim-treesitter-textobjects.move")
+      local function mov(key, capture)
+        -- next
+        vim.keymap.set({ "n", "x", "o" }, "]" .. key:upper(), function()
+          move.goto_next_end(capture .. ".outer", "textobjects")
+        end, { desc = "Next " .. capture .. " end" })
+        vim.keymap.set({ "n", "x", "o" }, "]" .. key, function()
+          move.goto_next_start(capture .. ".outer", "textobjects")
+        end, { desc = "Next " .. capture .. " start" })
+        -- previous
+        vim.keymap.set({ "n", "x", "o" }, "[" .. key:upper(), function()
+          move.goto_previous_end(capture .. ".outer", "textobjects")
+        end, { desc = "Previous " .. capture .. " end" })
+        vim.keymap.set({ "n", "x", "o" }, "[" .. key, function()
+          move.goto_previous_start(capture .. ".outer", "textobjects")
+        end, { desc = "Previous " .. capture .. " start" })
+      end
+
+      mov("f", "@function")
+      mov("o", "@block")
+      mov("l", "@loop")
+      mov("d", "@conditional")
+      mov("r", "@return")
+      mov("a", "@assignment")
+      mov("C", "@call")
+      mov("p", "@parameter")
+      mov("A", "@attribute")
+      mov("F", "@frame")
+      mov("S", "@scopename")
+      mov("k", "@comment")
+
+      vim.keymap.set({ "n", "x", "o" }, "]}", function()
+        move.goto_next_end("@class.outer", "textobjects")
+      end, { desc = "Next " .. "@class.outer" .. " end" })
+      vim.keymap.set({ "n", "x", "o" }, "]{", function()
+        move.goto_next_start("@class.outer", "textobjects")
+      end, { desc = "Next " .. "@class.outer" .. " start" })
+      -- previous
+      vim.keymap.set({ "n", "x", "o" }, "[}", function()
+        move.goto_previous_end("@class.outer", "textobjects")
+      end, { desc = "Previous " .. "@class.outer" .. " end" })
+      vim.keymap.set({ "n", "x", "o" }, "[{", function()
+        move.goto_previous_start("@class.outer", "textobjects")
+      end, { desc = "Previous " .. "@class.outer" .. " start" })
+
+      local ts_repeat_move = require("nvim-treesitter-textobjects.repeatable_move")
+      vim.keymap.set({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move)
+      vim.keymap.set({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_opposite)
+      vim.keymap.set({ "n", "x", "o" }, "f", ts_repeat_move.builtin_f_expr, { expr = true })
+      vim.keymap.set({ "n", "x", "o" }, "F", ts_repeat_move.builtin_F_expr, { expr = true })
+      vim.keymap.set({ "n", "x", "o" }, "t", ts_repeat_move.builtin_t_expr, { expr = true })
+      vim.keymap.set({ "n", "x", "o" }, "T", ts_repeat_move.builtin_T_expr, { expr = true })
+
+      vim.keymap.set("n", "<leader>>", function()
+          require("nvim-treesitter-textobjects.swap").swap_next("@parameter.inner")
+      end)
+      vim.keymap.set("n", "<leader><", function()
+          require("nvim-treesitter-textobjects.swap").swap_previous("@parameter.outer")
+      end)
+    end,
+  },
+  {
     -- LSP CONFIG
     "neovim/nvim-lspconfig",
     dependencies = {
@@ -803,20 +910,6 @@ require("lazy").setup({
         },
       })
     end
-  },
-  {
-    "mistweaverco/kulala.nvim",
-    keys = {
-      { "<leader>Rs", desc = "Send request" },
-      { "<leader>Ra", desc = "Send all requests" },
-      { "<leader>Rb", desc = "Open scratchpad" },
-    },
-    ft = { "http", "rest" },
-    opts = {
-      global_keymaps = true,
-      global_keymaps_prefix = "<leader>R",
-      kulala_keymaps_prefix = "",
-    },
   },
   {
     "folke/which-key.nvim",
@@ -1173,6 +1266,20 @@ require("lazy").setup({
         require("neotest-vstest")
       })
     end,
+  },
+  {
+    "mistweaverco/kulala.nvim",
+    keys = {
+      { "<leader>Rs", desc = "Send request" },
+      { "<leader>Ra", desc = "Send all requests" },
+      { "<leader>Rb", desc = "Open scratchpad" },
+    },
+    ft = { "http", "rest" },
+    opts = {
+      global_keymaps = true,
+      global_keymaps_prefix = "<leader>R",
+      kulala_keymaps_prefix = "",
+    },
   },
   { "ryanoasis/vim-devicons", event = "UIEnter" },
   {
