@@ -625,7 +625,7 @@ require("lazy").setup({
       sel("o", "@block")
       sel("l", "@loop")
       sel("d", "@conditional")
-      sel("s", "@statement")        -- outer only, inner will no-op
+      sel("s", "@statement") -- outer only, inner will no-op
       sel("r", "@return")
       sel("p", "@parameter")
       sel("a", "@assignment")
@@ -637,12 +637,12 @@ require("lazy").setup({
       sel("F", "@frame")
       sel("S", "@scopename")
 
-      vim.keymap.set({ "x", "o" }, "il", function()
+      vim.keymap.set({ "x", "o" }, "iL", function()
         select.select_textobject("@assignment.lhs", "textobjects")
-      end)
-      vim.keymap.set({ "x", "o" }, "ir", function()
+      end, { desc = "inner assignment lhs" })
+      vim.keymap.set({ "x", "o" }, "iR", function()
         select.select_textobject("@assignment.rhs", "textobjects")
-      end)
+      end, { desc = "inner assignment rhs" })
 
       local move = require("nvim-treesitter-textobjects.move")
       local function mov(key, capture)
@@ -703,6 +703,22 @@ require("lazy").setup({
       vim.keymap.set("n", "<leader><", function()
           require("nvim-treesitter-textobjects.swap").swap_previous("@parameter.outer")
       end)
+    end,
+  },
+  {
+    'aaronik/treewalker.nvim',
+    config = function()
+      require('treewalker').setup{}
+      -- movement
+      vim.keymap.set({ 'n', 'v' }, '<A-k>', '<cmd>Treewalker Up<cr>', { silent = true })
+      vim.keymap.set({ 'n', 'v' }, '<A-j>', '<cmd>Treewalker Down<cr>', { silent = true })
+      vim.keymap.set({ 'n', 'v' }, '<A-h>', '<cmd>Treewalker Left<cr>', { silent = true })
+      vim.keymap.set({ 'n', 'v' }, '<A-l>', '<cmd>Treewalker Right<cr>', { silent = true })
+      -- swapping
+      vim.keymap.set('n', '<A-S-k>', '<cmd>Treewalker SwapUp<cr>', { silent = true })
+      vim.keymap.set('n', '<A-S-j>', '<cmd>Treewalker SwapDown<cr>', { silent = true })
+      vim.keymap.set('n', '<A-S-h>', '<cmd>Treewalker SwapLeft<cr>', { silent = true })
+      vim.keymap.set('n', '<A-S-l>', '<cmd>Treewalker SwapRight<cr>', { silent = true })
     end,
   },
   {
