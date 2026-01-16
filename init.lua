@@ -340,19 +340,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 
-vim.api.nvim_create_user_command("Messages", function()
-  local messages = vim.api.nvim_exec2("messages", { output = true }).output
-  vim.cmd("botright 10split")
-  local msg_buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_win_set_buf(0, msg_buf)
-  vim.bo[msg_buf].buftype = "nofile"
-  vim.bo[msg_buf].bufhidden = "wipe"
-  vim.bo[msg_buf].swapfile = false
-  vim.bo[msg_buf].modifiable = true
-  vim.api.nvim_buf_set_lines(msg_buf, 0, -1, false, vim.split(messages, "\n"))
-  vim.bo[msg_buf].modifiable = false
-end, { desc = "Show Neovim Messages in a new split that can be copied from." })
-
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     vim.cmd.packadd('cfilter') --add quickfix filter builtin
@@ -403,6 +390,10 @@ require("lazy").setup({
   },
   { -- Detect tabstop and shiftwidth automatically
     "tpope/vim-sleuth",
+  },
+  {
+    "vim-scripts/RelOps",
+    event = "VeryLazy",
   },
   {
     "folke/snacks.nvim",
@@ -932,7 +923,7 @@ require("lazy").setup({
     event = "UIEnter",
     config = function()
       require("which-key").setup({
-        preset = "modern",
+        preset = "helix",
         sort = { "group", "alphanum", "mod" },
       })
       require("which-key").add({
