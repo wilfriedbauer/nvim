@@ -145,6 +145,33 @@ vim.keymap.set("n", "<leader>l", function()
   print("Relative Numbers Enabled: ", vim.o.relativenumber)
 end, { desc = "Toggle Relative Line Numbers" })
 
+vim.api.nvim_create_autocmd("ModeChanged", {
+    group = vim.api.nvim_create_augroup("ModernRelOps", { clear = true }),
+    callback = function()
+        local new_mode = vim.v.event.new_mode
+        -- 'no'  = Operator-pending (pressed d, c, y)
+        -- 'v'   = Visual
+        -- 'V'   = Visual Line
+        -- '\22' = Visual Block (CTRL-V)
+        -- 'c'   = Command-line (typing :)
+        -- 'niI' = Operator-pending in Insert mode (rare)
+        local targeting_modes = {
+            ['no'] = true,
+            ['v'] = true,
+            ['V'] = true,
+            ['\22'] = true,
+            ['c'] = true,
+            ['niI'] = true,
+        }
+        if targeting_modes[new_mode] then
+            vim.opt.relativenumber = true
+        else
+            vim.opt.relativenumber = false
+        end
+        vim.opt.number = true
+    end,
+})
+
 vim.keymap.set("n", "<leader>i", function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
   print("InlayHint Enabled: ", vim.lsp.inlay_hint.is_enabled())
@@ -390,10 +417,6 @@ require("lazy").setup({
   },
   { -- Detect tabstop and shiftwidth automatically
     "tpope/vim-sleuth",
-  },
-  {
-    "vim-scripts/RelOps",
-    event = "VeryLazy",
   },
   {
     "folke/snacks.nvim",
