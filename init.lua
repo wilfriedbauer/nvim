@@ -1661,9 +1661,23 @@ require("lazy").setup({
 }, {})
 
 -- INFO:
+-- :.!date  Replace line with date output
+-- !ip sort Sort paragraph
+-- !ap jq . Format JSON in paragraph
+-- :%!column -t Align entire file
 -- Instead of pressing ^ you can press _(underscore) to jump to the first non-whitespace character on the same line the cursor is on.
 -- + and - jump to the first non-whitespace character on the next / previous line.
 -- In visual mode press 'o' to switch the side of the selection the cursor is on.
+-- or press 'O' to switch the corner of the block selection.
+-- :t and :m to copy/move lines. E.g. :3t. to copy line 3 below the current line.
+-- :m-2 to move the current line above line 2.
+-- :t0 or :t$ to copy line to start/end of file.
+-- :g/error/t$ to copy all lines containing 'error' to the end of the file.
+-- g; and g, to go to the next/previous change in the undo history. (:changes)
+-- :'<,'>norm A; to append a semicolon to all selected lines in visual mode.
+-- :'<,'>norm I// to insert '//' at the beginning of all selected lines in visual mode.
+-- gU to uppercase, gu to lowercase, g~ to toggle case.
+-- gUU to uppercase the entire line, guu to lowercase the entire line, g~~ to toggle case of the entire line.
 -- In insert mode press CTRL-o to execute one normal mode command and go back to insertmode.
 -- While searching with / or ? press CTRL-g and CTRL-t to go to next/previous occurence without leaving search.
 -- with :u[ndo]0 you can go to the first change in the undo history. with :e[dit]! you can revert the buffer to the last saved state.
