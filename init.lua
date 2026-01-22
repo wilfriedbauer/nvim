@@ -250,6 +250,12 @@ vim.keymap.set("i", "<C-CR>", function()
     end
 end, { expr = true, desc = "Accept the current inline completion" })
 
+vim.keymap.set("i", "<M-CR>", function()
+    if not vim.lsp.inline_completion.get() then
+        return "<M-CR>"
+    end
+end, { expr = true, desc = "Accept the current inline completion" })
+
  -- Next suggestion
 vim.keymap.set("i", "<M-]>", function()
   vim.lsp.inline_completion.select({ count = 1 })
