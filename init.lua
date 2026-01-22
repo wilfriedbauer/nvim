@@ -148,7 +148,7 @@ end, { desc = "Toggle Relative Line Numbers" })
 vim.api.nvim_create_autocmd("ModeChanged", {
     group = vim.api.nvim_create_augroup("ModernRelOps", { clear = true }),
     callback = function()
-        local new_mode = vim.v.event.new_mode
+        local mode = vim.api.nvim_get_mode().mode
         -- 'no'  = Operator-pending (pressed d, c, y)
         -- 'v'   = Visual
         -- 'V'   = Visual Line
@@ -163,12 +163,28 @@ vim.api.nvim_create_autocmd("ModeChanged", {
             ['c'] = true,
             ['niI'] = true,
         }
-        if targeting_modes[new_mode] then
+        if targeting_modes[mode] then
             vim.opt.relativenumber = true
         else
             vim.opt.relativenumber = false
         end
         vim.opt.number = true
+    end,
+})
+
+for i = 1, 9 do
+    vim.keymap.set("n", tostring(i), function()
+        vim.opt.relativenumber = true
+        return tostring(i)
+    end, { expr = true, silent = true, desc = "ModernRelOps" })
+end
+
+vim.api.nvim_create_autocmd("CursorMoved", {
+    group = vim.api.nvim_create_augroup("ModernRelOpsReset", { clear = true }),
+    callback = function()
+        if vim.api.nvim_get_mode().mode == "n" then
+            vim.opt.relativenumber = false
+        end
     end,
 })
 
