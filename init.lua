@@ -660,7 +660,7 @@ require("lazy").setup({
       sel("c", "@class")
       sel("o", "@block")
       sel("l", "@loop")
-      sel("d", "@conditional")
+      sel("g", "@conditional")
       sel("s", "@statement") -- outer only, inner will no-op
       sel("r", "@return")
       sel("p", "@parameter")
@@ -701,7 +701,7 @@ require("lazy").setup({
       mov("f", "@function")
       mov("o", "@block")
       mov("l", "@loop")
-      mov("d", "@conditional")
+      mov("g", "@conditional")
       mov("r", "@return")
       mov("a", "@assignment")
       mov("C", "@call")
