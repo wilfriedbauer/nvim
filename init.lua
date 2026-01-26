@@ -101,7 +101,6 @@ vim.keymap.set('n', '<leader>q', function()
     vim.cmd('copen')
   end
 end, { desc = 'Toggle quickfix list' })
-vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.keymap.set("n", "<leader>b", ":ls<CR>:b ", { desc = "Buffer Navigation" })
 vim.keymap.set('n', '<Space>e', ':30vs %:p:h/<CR>', { noremap = true })
 vim.keymap.set('n', 'Y', 'y$', { noremap = true })
@@ -140,53 +139,63 @@ vim.keymap.set("n", "<Right>", "<cmd>vertical resize -5<CR>", { desc = "Resize R
 vim.keymap.set("n", "<leader>k", vim.diagnostic.open_float, { desc = "Show diagnostic Error messages" })
 vim.keymap.set("n", "<leader>K", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
-vim.keymap.set("n", "<leader>l", function()
-  vim.o.relativenumber = not vim.o.relativenumber
-  print("Relative Numbers Enabled: ", vim.o.relativenumber)
-end, { desc = "Toggle Relative Line Numbers" })
+vim.g.relops_active = true
 
-vim.api.nvim_create_autocmd("ModeChanged", {
-    group = vim.api.nvim_create_augroup("ModernRelOps", { clear = true }),
-    callback = function()
-        local mode = vim.api.nvim_get_mode().mode
-        -- 'no'  = Operator-pending (pressed d, c, y)
-        -- 'v'   = Visual
-        -- 'V'   = Visual Line
-        -- '\22' = Visual Block (CTRL-V)
-        -- 'c'   = Command-line (typing :)
-        -- 'niI' = Operator-pending in Insert mode (rare)
+local function refresh_line_numbers()
+    if not vim.bo.modifiable or vim.bo.buftype ~= "" or vim.bo.filetype == "help" then
+        vim.opt_local.number = false
+        vim.opt_local.relativenumber = false
+        return
+    end
+
+    local mode = vim.api.nvim_get_mode().mode
+    if vim.g.relops_active then -- MODERN RELOPS LOGIC
         local targeting_modes = {
-            ['no'] = true,
-            ['v'] = true,
-            ['V'] = true,
-            ['\22'] = true,
-            ['c'] = true,
-            ['niI'] = true,
+          ['no'] = true, -- Operator-pending (pressed d, c, y)
+          ['v'] = true, -- Visual
+          ['V'] = true, -- Visual Line
+          ['\22'] = true, -- Visual Block (CTRL-V)
+          ['c'] = true, -- Command-line (typing :)
+          ['niI'] = true, -- Operator-pending in Insert mode (rare)
         }
-        if targeting_modes[mode] then
-            vim.opt.relativenumber = true
+        vim.opt_local.relativenumber = targeting_modes[mode] or false
+    else -- STANDARD HYBRID LOGIC
+        if mode == 'i' then
+            vim.opt_local.relativenumber = false
         else
-            vim.opt.relativenumber = false
+            vim.opt_local.relativenumber = true
         end
-        vim.opt.number = true
-    end,
+    end
+    vim.opt_local.number = true
+end
+
+vim.keymap.set("n", "<leader>l", function()
+    vim.g.relops_active = not vim.g.relops_active
+    refresh_line_numbers()
+    print("ModernRelOps: " .. (vim.g.relops_active and "ON" or "OFF"))
+end, { desc = "Toggle Numbering Profile" })
+
+vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved", "BufEnter", "BufWinEnter", "TermOpen"}, {
+    group = vim.api.nvim_create_augroup("DynamicLineNumbers", { clear = true }),
+    callback = refresh_line_numbers,
 })
 
 for i = 1, 9 do
     vim.keymap.set("n", tostring(i), function()
-        vim.opt.relativenumber = true
+        if vim.g.relops_active then
+            vim.opt_local.relativenumber = true
+        end
         return tostring(i)
-    end, { expr = true, silent = true, desc = "ModernRelOps" })
+    end, { expr = true, silent = true })
 end
 
-vim.api.nvim_create_autocmd("CursorMoved", {
-    group = vim.api.nvim_create_augroup("ModernRelOpsReset", { clear = true }),
-    callback = function()
-        if vim.api.nvim_get_mode().mode == "n" then
-            vim.opt.relativenumber = false
-        end
-    end,
-})
+vim.keymap.set("n", "<Esc>", function()
+    vim.cmd("nohlsearch")
+    if vim.g.relops_active then
+        vim.opt_local.relativenumber = false
+    end
+    return "<Esc>"
+end, { expr = true, silent = true, desc = "Clear highlights and reset relativenumber" })
 
 vim.keymap.set("n", "<leader>i", function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
@@ -735,10 +744,10 @@ require("lazy").setup({
 
       vim.keymap.set("n", "<leader>>", function()
           require("nvim-treesitter-textobjects.swap").swap_next("@parameter.inner")
-      end)
+      end, { desc = "Swap next parameter" })
       vim.keymap.set("n", "<leader><", function()
           require("nvim-treesitter-textobjects.swap").swap_previous("@parameter.outer")
-      end)
+      end, { desc = "Swap previous parameter" })
     end,
   },
   {
@@ -1332,6 +1341,12 @@ require("lazy").setup({
       global_keymaps_prefix = "<leader>R",
       kulala_keymaps_prefix = "",
     },
+  },
+  {
+    "DamianVCechov/hexview.nvim",
+    config = function()
+      require("hexview").setup()
+    end
   },
   { "ryanoasis/vim-devicons", event = "UIEnter" },
   {
