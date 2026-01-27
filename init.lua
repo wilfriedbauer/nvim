@@ -21,13 +21,13 @@ vim.o.statuscolumn = "%s %l %C "
 vim.opt.path:append(",**")
 vim.o.list = true
 vim.opt.listchars = {
-	tab = "«-»",
-	trail = "·",
-	nbsp = "␣",
-	leadmultispace = " │",
-	extends = "→",
-	precedes = "←",
-	-- eol = '↵',
+  tab = "«-»",
+  trail = "·",
+  nbsp = "␣",
+  leadmultispace = " │",
+  extends = "→",
+  precedes = "←",
+  -- eol = '↵',
 }
 vim.o.foldmethod = "indent"
 vim.o.foldcolumn = "1"
