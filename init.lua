@@ -50,7 +50,7 @@ vim.o.tabstop = 4
 vim.o.softtabstop = 4
 vim.o.shiftwidth = 4
 vim.o.expandtab = true
-vim.o.smartindent = true
+vim.o.smartindent = false
 vim.o.splitbelow = true
 vim.o.splitright = true
 vim.o.wrap = true
@@ -600,51 +600,26 @@ require("lazy").setup({
   },
   {
     'saghen/blink.cmp',
-    -- optional: provides snippets for the snippet source
     dependencies = {
       'rafamadriz/friendly-snippets',
       'xzbdmw/colorful-menu.nvim',
       'onsails/lspkind.nvim'
     },
-
-    -- use a release tag to download pre-built binaries
     version = '1.*',
-    -- AND/OR build from source, requires nightly: https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
-    -- build = 'cargo build --release',
-    -- If you use nix, you can build from source using latest nightly rust with:
-    -- build = 'nix run .#build-plugin',
-
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
     opts = {
-      -- 'default' (recommended) for mappings similar to built-in completions (C-y to accept)
-      -- 'super-tab' for mappings similar to vscode (tab to accept)
-      -- 'enter' for enter to accept
-      -- 'none' for no mappings
-      --
-      -- All presets have the following mappings:
-      -- C-space: Open menu or open docs if already open
-      -- C-n/C-p or Up/Down: Select next/previous item
-      -- C-e: Hide menu
-      -- C-k: Toggle signature help (if signature.enabled = true)
-      --
-      -- See :h blink-cmp-config-keymap for defining your own keymap
-      -- keymap = { preset = 'super-tab' },
       keymap = {
         preset = 'none',
         ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
         ['<C-e>'] = { 'hide', 'fallback' },
         ['<C-y>'] = { 'select_and_accept', 'fallback' },
-        ['<CR>'] = { 'accept', 'fallback' },
-
         ['<Up>'] = { 'select_prev', 'fallback' },
         ['<Down>'] = { 'select_next', 'fallback' },
         ['<C-p>'] = { 'select_prev', 'fallback_to_mappings' },
         ['<C-n>'] = { 'select_next', 'fallback_to_mappings' },
-
         ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
         ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
-
         ['<Tab>'] = {
           function(cmp)
             if cmp.snippet_active() then return cmp.accept()
@@ -654,23 +629,16 @@ require("lazy").setup({
           'fallback'
         },
         ['<S-Tab>'] = { 'snippet_backward', 'fallback' },
-
-        ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
+        -- ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
       },
-      appearance = {
-        -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
-        -- Adjusts spacing to ensure icons are aligned
-        nerd_font_variant = 'mono'
-      },
-
-      cmdline = { completion = { ghost_text = { enabled = true } } },
-      -- (Default: false) Only show the documentation popup when manually triggered
+      appearance = { nerd_font_variant = 'mono' },
+      -- cmdline = { completion = { ghost_text = { enabled = true } } },
       completion = {
+        trigger = { show_in_snippet = false },
+        -- ghost_text = { enabled = true },
         documentation = { auto_show = true },
         menu = {
           draw = {
-            -- We don't need label_description now because label and label_description are already
-            -- combined together in label by colorful-menu.nvim.
             columns = { { "kind_icon" }, { "label", gap = 1 } },
             components = {
               label = {
@@ -690,18 +658,9 @@ require("lazy").setup({
           },
         },
       },
-
-      -- Default list of enabled providers defined so that you can extend it
-      -- elsewhere in your config, without redefining it, due to `opts_extend`
       sources = {
         default = { 'lsp', 'path', 'snippets', 'buffer' },
       },
-
-      -- (Default) Rust fuzzy matcher for typo resistance and significantly better performance
-      -- You may use a lua implementation instead by using `implementation = "lua"` or fallback to the lua implementation,
-      -- when the Rust fuzzy matcher is not available, by using `implementation = "prefer_rust"`
-      --
-      -- See the fuzzy documentation for more information
       fuzzy = { implementation = "prefer_rust_with_warning" }
     },
     opts_extend = { "sources.default" }
@@ -711,32 +670,189 @@ require("lazy").setup({
     lazy = false,
     branch = "main",
     build = ":TSUpdate",
+    dependencies = {
+      {
+        'nvim-treesitter/nvim-treesitter-context',
+        opts = {
+          max_lines = 10,
+          multiline_threshold = 5,
+        },
+      },
+    },
     config = function()
-        -- Collect all available parsers
-        local queries_dir = vim.fn.stdpath("data") .. "/lazy/nvim-treesitter/runtime/queries"
-        local file_types = {}
-        for name, type in vim.fs.dir(queries_dir) do
-            if type == "directory" then
-                table.insert(file_types, name)
-            end
+      local ts = require('nvim-treesitter')
+
+      -- State tracking for async parser loading
+      local parsers_loaded = {}
+      local parsers_pending = {}
+      local parsers_failed = {}
+
+      local ns = vim.api.nvim_create_namespace('treesitter.async')
+
+      -- Helper to start highlighting and indentation
+      local function start(buf, lang)
+        local ok = pcall(vim.treesitter.start, buf, lang)
+        if ok then
+          vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end
+        return ok
+      end
 
-        -- Install file type parsers
-        require("nvim-treesitter").install(file_types)
+      -- Install core parsers after lazy.nvim finishes loading all plugins
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'LazyDone',
+        once = true,
+        callback = function()
+          ts.install({
+            'angular',
+            'asm',
+            'awk',
+            'bash',
+            'comment',
+            'c',
+            'cpp',
+            'css',
+            'c_sharp',
+            'css',
+            'csv',
+            'cuda',
+            'diff',
+            'dockerfile',
+            'editorconfig',
+            'fortran',
+            'git_config',
+            'git_rebase',
+            'gitcommit',
+            'gitignore',
+            'go',
+            'graphql',
+            'haskell',
+            'html',
+            'http',
+            'java',
+            'javascript',
+            'json',
+            'json5',
+            'kotlin',
+            'latex',
+            'llvm',
+            'lua',
+            'luadoc',
+            'make',
+            'markdown',
+            'markdown_inline',
+            'nginx',
+            'nix',
+            'objdump',
+            'ocaml',
+            'odin',
+            'passwd',
+            'perl',
+            'php',
+            'powershell',
+            'prolog',
+            'python',
+            'query',
+            'r',
+            'regex',
+            'ruby',
+            'rust',
+            'scala',
+            'scss',
+            'sql',
+            'strace',
+            'svelte',
+            'swift',
+            'systemverilog',
+            'terraform',
+            'toml',
+            'tsx',
+            'typescript',
+            'typst',
+            'vim',
+            'vimdoc',
+            'vue',
+            'xml',
+            'yaml',
+            'zsh',
+          }, {
+            max_jobs = 8,
+          })
+        end,
+      })
 
-        -- Automatically activate
-        vim.api.nvim_create_autocmd("FileType", {
-            pattern = file_types,
-            callback = function()
-                -- Highlights
-                vim.treesitter.start()
-                -- Folds
-                vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
-                vim.wo[0][0].foldmethod = "expr"
-                -- Indentation
-                vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-            end,
-        })
+      -- Decoration provider for async parser loading
+      vim.api.nvim_set_decoration_provider(ns, {
+        on_start = vim.schedule_wrap(function()
+          if #parsers_pending == 0 then
+            return false
+          end
+          for _, data in ipairs(parsers_pending) do
+            if vim.api.nvim_buf_is_valid(data.buf) then
+              if start(data.buf, data.lang) then
+                parsers_loaded[data.lang] = true
+              else
+                parsers_failed[data.lang] = true
+              end
+            end
+          end
+          parsers_pending = {}
+        end),
+      })
+
+      local group = vim.api.nvim_create_augroup('TreesitterSetup', { clear = true })
+
+      local ignore_filetypes = {
+        'checkhealth',
+        'lazy',
+        'mason',
+        'snacks_dashboard',
+        'snacks_notif',
+        'snacks_win',
+        'norg',
+        'cmd',
+        'dialog',
+        'msg',
+        'pager',
+        'snacks_layout_box',
+        'snacks_win_backdrop',
+        'snacks_layout_box',
+        'snacks_picker_input',
+        'snacks_picker_list',
+        'snacks_picker_preview',
+        'blink-cmp-menu'
+      }
+
+
+
+      -- Auto-install parsers and enable highlighting on FileType
+      vim.api.nvim_create_autocmd('FileType', {
+        group = group,
+        desc = 'Enable treesitter highlighting and indentation (non-blocking)',
+        callback = function(event)
+          if vim.tbl_contains(ignore_filetypes, event.match) then
+            return
+          end
+
+          local lang = vim.treesitter.language.get_lang(event.match) or event.match
+          local buf = event.buf
+
+          if parsers_failed[lang] then
+            return
+          end
+
+          if parsers_loaded[lang] then
+            -- Parser already loaded, start immediately (fast path)
+            start(buf, lang)
+          else
+            -- Queue for async loading
+            table.insert(parsers_pending, { buf = buf, lang = lang })
+          end
+
+          -- Auto-install missing parsers (async, no-op if already installed)
+          ts.install({ lang })
+        end,
+      })
     end,
   },
   {
