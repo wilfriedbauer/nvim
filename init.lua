@@ -331,6 +331,21 @@ vim.api.nvim_create_autocmd('TextYankPost', { -- yank-ring
     end,
 })
 
+vim.g.SCHEME = "default"
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  nested = true,
+  callback = function()
+    pcall(vim.cmd.colorscheme, vim.g.SCHEME)
+  end,
+})
+
+vim.api.nvim_create_autocmd("ColorScheme", {
+  callback = function(params)
+    vim.g.SCHEME = params.match
+  end,
+})
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = {
     "checkhealth",
@@ -445,7 +460,7 @@ require("lazy").setup({
       lazy = false,
       priority = 1000,
       config = function()
-          -- vim.cmd("colorscheme rose-pine")
+          vim.cmd("colorscheme rose-pine")
       end
   },
   {
@@ -537,13 +552,32 @@ require("lazy").setup({
       end,
   },
   {
+      "nyoom-engineering/oxocarbon.nvim",
+      name = "oxocarbon",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.opt.background = "dark"
+          -- vim.cmd("colorscheme oxocarbon")
+      end,
+  },
+  {
+      "wtfox/jellybeans.nvim",
+      name = "jellybeans",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd("colorscheme jellybeans")
+      end,
+  },
+  {
       "oskarnurm/koda.nvim",
       name = "koda",
       lazy = false,
       priority = 1000,
       config = function()
           -- require("koda").setup({ transparent = true })
-          vim.cmd("colorscheme koda")
+          -- vim.cmd("colorscheme koda")
       end,
   },
   {
