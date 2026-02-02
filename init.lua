@@ -415,10 +415,136 @@ require("lazy").setup({
   {
     "catppuccin/nvim",
     name = "catppuccin",
+    lazy = false,
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme("catppuccin-mocha")
+      -- vim.cmd.colorscheme("catppuccin-mocha")
     end,
+  },
+  {
+      "folke/tokyonight.nvim",
+      name = "tokyonight",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd.colorscheme("tokyonight-night")
+      end,
+  },
+  {
+      "rebelot/kanagawa.nvim",
+      name = "kanagawa",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd.colorscheme("kanagawa-wave")
+      end,
+  },
+  {
+      "rose-pine/neovim",
+      name = "rose-pine",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd("colorscheme rose-pine")
+      end
+  },
+  {
+      "EdenEast/nightfox.nvim",
+      name = "nightfox",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd("colorscheme nightfox")
+          -- vim.cmd("colorscheme nordfox")
+      end,
+  },
+  {
+      "navarasu/onedark.nvim",
+      name = "onedark",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- require('onedark').setup {
+          --     style = 'darker'
+          -- }
+          -- require('onedark').load()
+      end
+  },
+  {
+      "sainnhe/gruvbox-material",
+      name = "gruvbox-material",
+      lazy = false,
+      priority = 1000,
+      config = function()
+        -- vim.g.gruvbox_material_enable_italic = true
+        -- vim.g.gruvbox_material_background = 'soft'
+        -- vim.cmd("colorscheme gruvbox-material")
+      end,
+  }, 
+  {
+      'projekt0n/github-nvim-theme',
+      name = 'github-theme',
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd('colorscheme github_dark')
+      end,
+  },
+  {
+      "sainnhe/everforest",
+      name = "everforest",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.g.everforest_background = 'medium'
+          -- vim.cmd("colorscheme everforest")
+      end,
+  },
+  {
+      "Mofiqul/vscode.nvim",
+      name = "vscode",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd("colorscheme vscode")
+      end,
+  },
+  {
+      "shaunsingh/nord.nvim",
+      name = "nord",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd("colorscheme nord")
+      end,
+  },
+  {
+      "eldritch-theme/eldritch.nvim",
+      name = "eldritch",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd("colorscheme eldritch")
+      end,
+  },
+  {
+      "jnz/studio98",
+      name = "studio98",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd("colorscheme studio98")
+      end,
+  },
+  {
+      "oskarnurm/koda.nvim",
+      name = "koda",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- require("koda").setup({ transparent = true })
+          vim.cmd("colorscheme koda")
+      end,
   },
   {
     "tpope/vim-fugitive", -- Git related plugins
