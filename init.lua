@@ -360,11 +360,26 @@ vim.api.nvim_create_autocmd("FileType", {
     "notify",
     "qf",
     "query",
-    "nvim-undotree"
+    "nvim-undotree",
+    "neotest-output",
+    "neotest-summary",
+    "neotest-output-panel",
   },
   callback = function()
     vim.keymap.set("n", "q", vim.cmd.close, { desc = "Close the current buffer", buffer = true })
   end,
+})
+
+-- Auto create dir when saving a file, in case some intermediate directory does not exist
+vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+    group = vim.api.nvim_create_augroup("auto_create_dir", { clear = true }),
+    callback = function(event)
+        if event.match:match("^%w%w+://") then
+            return
+        end
+        local file = vim.loop.fs_realpath(event.match) or event.match
+        vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
+    end,
 })
 
 -- highlight yank
@@ -576,6 +591,24 @@ require("lazy").setup({
       priority = 1000,
       config = function()
           -- vim.cmd("colorscheme jellybeans")
+      end,
+  },
+  {
+      'alexpasmantier/hubbamax.nvim',
+      name = 'hubbamax',
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd('colorscheme hubbamax')
+      end,
+  },
+  {
+      "serhez/teide.nvim",
+      name = "teide",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd("colorscheme teide")
       end,
   },
   {
