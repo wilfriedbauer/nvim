@@ -17,6 +17,7 @@ vim.o.title = true
 vim.o.titlestring = [[%{fnamemodify(getcwd(), ':t')} ❯ %t %m — %{luaeval("require('dap').status()")} (]] .. [[%{len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))}]] .. [[ bufs) (%{tabpagenr()} of %{tabpagenr('$')} tabs)]]
 vim.o.confirm = true
 vim.o.termguicolors = true
+vim.opt.background = "dark"
 vim.o.statuscolumn = "%s %l %C "
 vim.opt.path:append(",**")
 vim.o.list = true
@@ -68,7 +69,7 @@ vim.o.undofile = true
 vim.o.inccommand = "split"
 vim.o.incsearch = true
 vim.o.hlsearch = true
-vim.o.scrolloff = 2
+vim.o.scrolloff = 5
 vim.o.sidescrolloff = 5
 vim.o.colorcolumn = "80"
 vim.o.sessionoptions = "blank,buffers,tabpages,curdir,help,localoptions,winsize,winpos,terminal"
@@ -128,7 +129,9 @@ vim.keymap.set("n", "<Right>", "<cmd>vertical resize -5<CR>", { desc = "Resize R
 vim.keymap.set("n", "<leader>k", vim.diagnostic.open_float, { desc = "Show diagnostic Error messages" })
 vim.keymap.set("n", "<leader>K", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
-vim.g.relops_active = true
+if vim.g.RELOPS_ACTIVE == nil then
+    vim.g.RELOPS_ACTIVE = true
+end
 
 local function refresh_line_numbers()
     if not vim.bo.modifiable or vim.bo.buftype ~= "" or vim.bo.filetype == "help" then
@@ -138,7 +141,7 @@ local function refresh_line_numbers()
     end
 
     local mode = vim.api.nvim_get_mode().mode
-    if vim.g.relops_active then -- MODERN RELOPS LOGIC
+    if vim.g.RELOPS_ACTIVE then -- MODERN RELOPS LOGIC
         local targeting_modes = {
           ['no'] = true, -- Operator-pending (pressed d, c, y)
           ['v'] = true, -- Visual
@@ -159,9 +162,9 @@ local function refresh_line_numbers()
 end
 
 vim.keymap.set("n", "<leader>l", function()
-    vim.g.relops_active = not vim.g.relops_active
+    vim.g.RELOPS_ACTIVE = not vim.g.RELOPS_ACTIVE
     refresh_line_numbers()
-    print("ModernRelOps: " .. (vim.g.relops_active and "ON" or "OFF"))
+    print("ModernRelOps: " .. (vim.g.RELOPS_ACTIVE and "ON" or "OFF"))
 end, { desc = "Toggle Numbering Profile" })
 
 vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved", "BufEnter", "BufWinEnter", "TermOpen"}, {
@@ -171,7 +174,7 @@ vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved", "BufEnter", "BufWinE
 
 for i = 1, 9 do
     vim.keymap.set("n", tostring(i), function()
-        if vim.g.relops_active then
+        if vim.g.RELOPS_ACTIVE then
             vim.opt_local.relativenumber = true
         end
         return tostring(i)
@@ -180,11 +183,11 @@ end
 
 vim.keymap.set("n", "<Esc>", function()
     vim.cmd("nohlsearch")
-    if vim.g.relops_active then
+    if vim.g.RELOPS_ACTIVE then
         vim.opt_local.relativenumber = false
     end
     return "<Esc>"
-end, { expr = true, silent = true, desc = "Clear highlights and reset relativenumber" })
+end, { expr = true, silent = true, desc = "Clear highlights and reset relativenumber when RelOps is ON" })
 
 vim.keymap.set("n", "<leader>i", function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
@@ -548,6 +551,11 @@ require("lazy").setup({
       lazy = false,
       priority = 1000,
       config = function()
+          vim.api.nvim_create_autocmd("ColorSchemePre", {
+              callback = function()
+                  vim.opt.background = "dark"
+              end,
+          })
           -- vim.cmd("colorscheme studio98")
       end,
   },
@@ -679,14 +687,14 @@ require("lazy").setup({
       { "<leader>fS",      function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
       -- git
       { "<leader>gf",      function() Snacks.picker.git_files() end, desc = "Find Git Files" },
-      { "<leader>gb",      function() Snacks.picker.git_branches() end, desc = "Git Branches" },
+      { "<leader>gB",      function() Snacks.picker.git_branches() end, desc = "Git Branches" },
       { "<leader>gl",      function() Snacks.picker.git_log() end, desc = "Git Log" },
       { "<leader>gL",      function() Snacks.picker.git_log_line() end, desc = "Git Log Line" },
       { "<leader>gs",      function() Snacks.picker.git_status() end, desc = "Git Status" },
       { "<leader>gS",      function() Snacks.picker.git_stash() end, desc = "Git Stash" },
       { "<leader>gd",      function() Snacks.picker.git_diff() end, desc = "Git Diff (Hunks)" },
       { "<leader>gF",      function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
-      { "<leader>gB",      function() Snacks.gitbrowse() end, desc = "Git Browse", mode = { "n", "v" } },
+      { "<leader>gx",      function() Snacks.gitbrowse() end, desc = "Git Browse", mode = { "n", "v" } },
       -- { "<leader>gg",      function() Snacks.lazygit() end, desc = "Lazygit" },
       -- gh
       { "<leader>gi",      function() Snacks.picker.gh_issue() end, desc = "GitHub Issues (open)" },
@@ -830,9 +838,7 @@ require("lazy").setup({
       {
         'nvim-treesitter/nvim-treesitter-context',
         opts = {
-          max_lines = '15%',
-          multiline_threshold = 15,
-          trim_scope = 'outer',
+          max_lines = 5,
           mode = 'topline',
         },
       },
@@ -851,7 +857,7 @@ require("lazy").setup({
       local function start(buf, lang)
         local ok = pcall(vim.treesitter.start, buf, lang)
         if ok then
-          -- vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          -- vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()" --not yet good enough
         end
         return ok
       end
@@ -1499,7 +1505,6 @@ require("lazy").setup({
     opts = {
       options = {
         icons_enabled = true,
-        theme = "ayu_mirage",
         component_separators = "|",
         section_separators = { left = "", right = "" },
         globalstatus = true,
