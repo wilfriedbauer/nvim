@@ -504,6 +504,15 @@ require("lazy").setup({
       end
   },
   {
+      "scottmckendry/cyberdream.nvim",
+      name = "cyberdream",
+      lazy = false,
+      priority = 1000,
+      config = function()
+          -- vim.cmd("colorscheme cyberdream")
+      end,
+  },
+  {
       "sainnhe/gruvbox-material",
       name = "gruvbox-material",
       lazy = false,
