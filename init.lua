@@ -249,21 +249,10 @@ vim.keymap.set("n", "<leader>C", function()
     print("CoPilot suggestions: " .. (vim.lsp.inline_completion.is_enabled() and "ON" or "OFF"))
 end, { desc = "Toggle LSP Inline Completion (Ghost Text)" })
 
-vim.keymap.set("n", "<C-BS>", function()
-    vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled())
-    print("CoPilot suggestions: " .. (vim.lsp.inline_completion.is_enabled() and "ON" or "OFF"))
-end, { desc = "Toggle LSP Inline Completion (Ghost Text)" })
-
 vim.keymap.set("i", "<M-BS>", function()
     vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled())
     print("CoPilot suggestions: " .. (vim.lsp.inline_completion.is_enabled() and "ON" or "OFF"))
 end, { desc = "Toggle LSP Inline Completion (Ghost Text)" })
-
-vim.keymap.set("i", "<C-CR>", function()
-    if not vim.lsp.inline_completion.get() then
-        return "<C-CR>"
-    end
-end, { expr = true, desc = "Accept the current inline completion" })
 
 vim.keymap.set("i", "<M-CR>", function()
     if not vim.lsp.inline_completion.get() then
