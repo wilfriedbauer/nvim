@@ -2190,8 +2190,10 @@ require("lazy").setup({
 -- While searching with / or ? press CTRL-g and CTRL-t to go to next/previous occurence without leaving search.
 -- with :u[ndo]0 you can go to the first change in the undo history. with :e[dit]! you can revert the buffer to the last saved state.
 -- while in insert mode press CTRL-D or CTRL-T to decrease/increase the indentation of the current line.
-
 -- When in search (/) you can press CTRL-l to insert the next character of the current match. CTRL-g and CTRL-t to go to next/previous occurence/match without leaving search.
+-- y/<searchterm> then <C-g>/<C-t> to select next/prev match before executing operator (y, d, c, ...).
+-- Special DOT behaviour: If the operation repeated with DOT is referencing a numbered register (1-9) the number is incremented. 
+-- git log -S <string> to find commits that changed the number of occurences of string. git log -G <regex> look for differences whose patch text contains added/removed lines that match <regex>. git log -L :funcname:file to see the history of changes to a function. git log -L<start>,<end>:file to see the history of changes to a range of lines in a file. (<start> and <end> can be total line numbers or <start> total number and <end> relative line count ( + or - ) or both can be regex).
 
 -- https://vimregex.com/
 -- https://blog.sanctum.geek.nz/series/unix-as-ide/
