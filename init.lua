@@ -10,6 +10,7 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.showmode = false
 vim.o.cmdheight = 0
+vim.opt.showcmdloc = 'statusline'
 vim.wo.signcolumn = "auto:5"
 vim.o.updatetime = 100
 vim.o.timeoutlen = 300
@@ -191,23 +192,25 @@ end, { expr = true, silent = true, desc = "Clear highlights and reset relativenu
 
 vim.keymap.set("n", "<leader>i", function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
-  print("InlayHint Enabled: ", vim.lsp.inlay_hint.is_enabled())
+  print("InlayHint: " .. (vim.lsp.inlay_hint.is_enabled() and "ON" or "OFF"))
 end, { desc = "Inlay Hints Toggle" })
 
 local codelens_enabled = false
 vim.keymap.set("n", "<leader>L", function()
   codelens_enabled = not codelens_enabled
   if codelens_enabled then
-    vim.lsp.codelens.refresh()
+    vim.lsp.codelens.enable(true)
     vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
       group = vim.api.nvim_create_augroup("CodelensToggle", { clear = true }),
-      callback = vim.lsp.codelens.refresh,
+      callback = function()
+          vim.lsp.codelens.enable(true)
+      end,
     })
   else
-    vim.lsp.codelens.clear()
+    vim.lsp.codelens.enable(false)
     vim.api.nvim_clear_autocmds({ group = "CodelensToggle" })
   end
-  print("CodeLens Enabled:", codelens_enabled)
+  print("CodeLens: " .. (codelens_enabled and "ON" or "OFF"))
 end, { desc = "Toggle CodeLens" })
 
 vim.keymap.set("n", "<leader>dH", function()
@@ -236,14 +239,25 @@ vim.keymap.set("n", "<leader>z", function()
   local centered = vim.opt.scrolloff:get() == 999
   vim.opt.scrolloff = centered and 2 or 999
   vim.cmd("normal! zz")
-  print("Keep Cursor Centered Enabled:", not centered)
+  print("Centered Cursor: " .. (not centered and "ON" or "OFF"))
 end, { desc = "Toggle keep cursor centered (auto zz)" })
 
 vim.lsp.inline_completion.enable(true)
 
 vim.keymap.set("n", "<leader>C", function()
-vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled())
-end, { desc = "Toggle LSP Inline Completion" })
+    vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled())
+    print("CoPilot suggestions: " .. (vim.lsp.inline_completion.is_enabled() and "ON" or "OFF"))
+end, { desc = "Toggle LSP Inline Completion (Ghost Text)" })
+
+vim.keymap.set("n", "<C-BS>", function()
+    vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled())
+    print("CoPilot suggestions: " .. (vim.lsp.inline_completion.is_enabled() and "ON" or "OFF"))
+end, { desc = "Toggle LSP Inline Completion (Ghost Text)" })
+
+vim.keymap.set("i", "<M-BS>", function()
+    vim.lsp.inline_completion.enable(not vim.lsp.inline_completion.is_enabled())
+    print("CoPilot suggestions: " .. (vim.lsp.inline_completion.is_enabled() and "ON" or "OFF"))
+end, { desc = "Toggle LSP Inline Completion (Ghost Text)" })
 
 vim.keymap.set("i", "<C-CR>", function()
     if not vim.lsp.inline_completion.get() then
@@ -1088,9 +1102,9 @@ require("lazy").setup({
       sel("o", "@block")
       sel("l", "@loop")
       sel("g", "@conditional")
-      sel("s", "@statement") -- outer only, inner will no-op
+      sel("z", "@statement") -- outer only, inner will no-op
       sel("r", "@return")
-      sel("p", "@parameter")
+      sel("m", "@parameter")
       sel("a", "@assignment")
       sel("n", "@number")
       sel("x", "@regex")
@@ -1567,6 +1581,7 @@ require("lazy").setup({
           { "filename" },
         },
         lualine_x = {
+          { '%S' },
           { "fancy_macro" },
           { "fancy_diagnostics" },
           { "fancy_searchcount" },
@@ -2185,6 +2200,7 @@ require("lazy").setup({
 -- In insert mode press CTRL-o to execute one normal mode command and go back to insertmode.
 -- While searching with / or ? press CTRL-g and CTRL-t to go to next/previous occurence without leaving search.
 -- with :u[ndo]0 you can go to the first change in the undo history. with :e[dit]! you can revert the buffer to the last saved state.
+-- while in insert mode press CTRL-D or CTRL-T to decrease/increase the indentation of the current line.
 
 -- When in search (/) you can press CTRL-l to insert the next character of the current match. CTRL-g and CTRL-t to go to next/previous occurence/match without leaving search.
 
