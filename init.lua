@@ -1015,6 +1015,7 @@ require("lazy").setup({
         'checkhealth',
         'lazy',
         'mason',
+        'oil',
         'snacks_dashboard',
         'snacks_notif',
         'snacks_win',
