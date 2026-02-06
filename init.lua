@@ -103,7 +103,7 @@ vim.keymap.set({ "n", "x" }, "<Space>", "<Nop>", { silent = true })
 vim.keymap.set("x", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("x", "K", ":m '<-2<CR>gv=gv")
 vim.keymap.set("n", "ycc", '"yy" . v:count1 . "gcc\']p"', { remap = true, expr = true })
-vim.keymap.set("x", "<C-/>", "<Esc>/\\%V")
+vim.keymap.set("x", "<M-/>", "<Esc>/\\%V") --search within visual selection
 vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
