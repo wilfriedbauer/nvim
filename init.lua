@@ -1030,10 +1030,9 @@ require("lazy").setup({
         'snacks_picker_input',
         'snacks_picker_list',
         'snacks_picker_preview',
-        'blink-cmp-menu'
+        'blink-cmp-menu',
+        'blink-cmp-documentation',
       }
-
-
 
       -- Auto-install parsers and enable highlighting on FileType
       vim.api.nvim_create_autocmd('FileType', {
@@ -2182,6 +2181,8 @@ require("lazy").setup({
 -- :m-2 to move the current line above line 2.
 -- :t0 or :t$ to copy line to start/end of file.
 -- :g/error/t$ to copy all lines containing 'error' to the end of the file.
+-- :s/a\zsb\zec/2 changes the first "b" that's preceded by "a" and followed by "c" to be a 2 (without changing "a" or "c"):
+-- An underscore adds a newline to any character class e.g. \s -> space and tab, \_s -> space,tab and newline
 -- g; and g, to go to the next/previous change in the undo history. (:changes)
 -- :'<,'>norm A; to append a semicolon to all selected lines in visual mode.
 -- :'<,'>norm I// to insert '//' at the beginning of all selected lines in visual mode.
@@ -2195,6 +2196,7 @@ require("lazy").setup({
 -- y/<searchterm> then <C-g>/<C-t> to select next/prev match before executing operator (y, d, c, ...).
 -- Special DOT behaviour: If the operation repeated with DOT is referencing a numbered register (1-9) the number is incremented. 
 -- git log -S <string> to find commits that changed the number of occurences of string. git log -G <regex> look for differences whose patch text contains added/removed lines that match <regex>. git log -L :funcname:file to see the history of changes to a function. git log -L<start>,<end>:file to see the history of changes to a range of lines in a file. (<start> and <end> can be total line numbers or <start> total number and <end> relative line count ( + or - ) or both can be regex).
+-- :GcLog to load commits into quickfix list.
 
 -- https://vimregex.com/
 -- https://blog.sanctum.geek.nz/series/unix-as-ide/
