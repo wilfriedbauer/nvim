@@ -174,23 +174,6 @@ vim.api.nvim_create_autocmd({ "ModeChanged", "CursorMoved", "BufEnter", "BufWinE
     callback = refresh_line_numbers,
 })
 
-for i = 1, 9 do
-    vim.keymap.set("n", tostring(i), function()
-        if vim.g.RELOPS_ACTIVE then
-            vim.opt_local.relativenumber = true
-        end
-        return tostring(i)
-    end, { expr = true, silent = true })
-end
-
-vim.keymap.set("n", "<Esc>", function()
-    vim.cmd("nohlsearch")
-    if vim.g.RELOPS_ACTIVE then
-        vim.opt_local.relativenumber = false
-    end
-    return "<Esc>"
-end, { expr = true, silent = true, desc = "Clear highlights and reset relativenumber when RelOps is ON" })
-
 vim.keymap.set("n", "<leader>i", function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
   print("InlayHint: " .. (vim.lsp.inlay_hint.is_enabled() and "ON" or "OFF"))
