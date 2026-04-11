@@ -14,6 +14,7 @@ vim.opt.showcmdloc = 'statusline'
 vim.wo.signcolumn = "auto:5"
 vim.o.updatetime = 100
 vim.o.timeoutlen = 300
+vim.o.nrformats = "alpha,octal,hex,bin,blank"
 vim.o.title = true
 vim.o.titlestring = [[%{fnamemodify(getcwd(), ':t')} ❯ %t %m — %{luaeval("require('dap').status()")} (]] .. [[%{len(filter(range(1, bufnr('$')), 'buflisted(v:val)'))}]] .. [[ bufs) (%{tabpagenr()} of %{tabpagenr('$')} tabs)]]
 vim.o.confirm = true
