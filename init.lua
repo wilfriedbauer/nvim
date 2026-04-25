@@ -131,32 +131,6 @@ vim.keymap.set("n", "<Right>", "<cmd>vertical resize -5<CR>", { desc = "Resize R
 vim.keymap.set("n", "<leader>k", vim.diagnostic.open_float, { desc = "Show diagnostic Error messages" })
 vim.keymap.set("n", "<leader>K", vim.diagnostic.setloclist, { desc = "Open diagnostics list" })
 
-local ns_id = vim.api.nvim_create_namespace("RelativeColumn")
-
-local function update_relative_column()
-    vim.api.nvim_buf_clear_namespace(0, ns_id, 0, -1)
-    local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
-    local win_info = vim.fn.getwininfo(vim.api.nvim_get_current_win())[1]
-    local first_line = win_info.topline
-    local last_line = win_info.botline
-
-    for i = first_line, last_line do
-        local rel_num = math.abs(i - cursor_line)
-        if rel_num > 0 then
-            vim.api.nvim_buf_set_extmark(0, ns_id, i - 1, 0, {
-                virt_text = {{tostring(rel_num), "LineNr"}},
-                virt_text_pos = "overlay",
-                virt_text_win_col = 80, -- The 80 character mark
-            })
-        end
-    end
-end
-
--- Update on cursor move and scroll
-vim.api.nvim_create_autocmd({"CursorMoved", "CursorMovedI", "BufEnter", "WinScrolled"}, {
-    callback = update_relative_column,
-})
-
 if vim.g.RELOPS_ACTIVE == nil then
     vim.g.RELOPS_ACTIVE = true
 end
